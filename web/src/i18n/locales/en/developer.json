@@ -578,7 +578,7 @@
     "closeMobile": "Close navigation"
   },
   "appFlow": {
-    "overview": "Application information",
+    "overview": "Project information",
     "access": "API integration",
     "users": "Users & memory",
     "settings": "Project settings",

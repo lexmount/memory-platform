@@ -454,7 +454,7 @@ it("defaults to a user and keeps application information above API access in the
  expect(shadow.querySelector('.sidebar-user-switcher summary')?.textContent).toContain('Default user');
  expect(shadow.querySelector('.sidebar .platform-navigation')?.firstElementChild?.classList.contains('sidebar-user-switcher')).toBe(true);
  expect(shadow.querySelector('.sidebar-footer a[href*="/users?"]')).toBeNull();
- expect([...shadow.querySelectorAll('.sidebar .sidebar-footer a')].map(a=>a.textContent)).toEqual(['Application information','API integration']);
+ expect([...shadow.querySelectorAll('.sidebar .sidebar-footer a')].map(a=>a.textContent)).toEqual(['Project information','API integration']);
  expect(shadow.querySelector('.workspace-navigation a')?.getAttribute('href')).toContain('userid=default');
  await act(async()=>[...shadow.querySelectorAll<HTMLButtonElement>('.sidebar-user-switcher .workspace-options button')].find(b=>b.textContent==='two')!.click());
  expect(address).toBe('/memory/hindsight/project?project=hindsight&userid=two');

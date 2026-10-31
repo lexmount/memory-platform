@@ -2,10 +2,13 @@ package store
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+var ErrProjectExists = errors.New("memory project already exists")
 
 // MemoryProject belongs to one Memory account. It has no InsightFlow tenant or Agent identity.
 type MemoryProject struct {

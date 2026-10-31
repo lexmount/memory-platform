@@ -44,7 +44,11 @@ func scanMemoryProject(row interface{ Scan(...any) error }) (*MemoryProject, err
 	return p, err
 }
 func (s *ProjectRepository) Create(ctx context.Context, p *MemoryProject) error {
-	return s.db.QueryRowContext(ctx, `INSERT INTO projects(id,account_id,name,provider,connection_id,app_key,secret_hash) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING credential_version,enabled,created_at,updated_at`, p.ID, p.AccountID, p.Name, p.Provider, p.ConnectionID, p.AppKey, p.SecretHash).Scan(&p.CredentialVersion, &p.Enabled, &p.CreatedAt, &p.UpdatedAt)
+	err := s.db.QueryRowContext(ctx, `INSERT INTO projects(id,account_id,name,provider,connection_id,app_key,secret_hash) VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT(id) DO NOTHING RETURNING credential_version,enabled,created_at,updated_at`, p.ID, p.AccountID, p.Name, p.Provider, p.ConnectionID, p.AppKey, p.SecretHash).Scan(&p.CredentialVersion, &p.Enabled, &p.CreatedAt, &p.UpdatedAt)
+	if errors.Is(err, sql.ErrNoRows) {
+		return ErrProjectExists
+	}
+	return err
 }
 func (s *ProjectRepository) Get(ctx context.Context, id uuid.UUID) (*MemoryProject, error) {
 	return scanMemoryProject(s.db.QueryRowContext(ctx, `SELECT `+memoryProjectColumns+` FROM projects WHERE id=$1`, id))

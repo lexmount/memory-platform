@@ -217,6 +217,24 @@
           },
           "409": {
             "description": "Expected account no longer matches authenticated account"
+          },
+          "200": {
+            "description": "Idempotent replay; no secret is disclosed or rotated. Use credentials/rotate to recover a lost original secret.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "project": {
+                      "$ref": "#/components/schemas/MemoryProject"
+                    }
+                  },
+                  "required": [
+                    "project"
+                  ]
+                }
+              }
+            }
           }
         },
         "description": "Requires a Memory account session or account API key and ownership of the project. Console access only resolves users already created by external calls.",
@@ -259,6 +277,16 @@
               "format": "uuid"
             },
             "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional non-zero UUID, scoped to the authenticated account. Repeating the same creation request returns the existing project without its one-time secret. A different payload with the same key is rejected."
           }
         ]
       }

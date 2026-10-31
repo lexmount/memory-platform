@@ -76,6 +76,13 @@ each other. End users do not need Memory or InsightDev accounts.
 - `/mcp/memory`: native MCP, including streaming/session transport.
 - `/v1/projects`, `/v1/providers`, `/v1/account/keys`: account management.
 
+Automated clients may send a stable, non-zero UUID in `Idempotency-Key` when
+creating a project. The key is scoped to the authenticated account and creation
+payload: the first response is `201` with the one-time secret; a replay is `200`
+with the same project and no secret. A changed payload is rejected. If the original
+response was lost, explicitly rotate the returned project’s credentials and persist
+them before enabling calls. Never reuse an idempotency key for a different project.
+
 Hindsight uses a bank per project/user. OpenViking uses an account per project and a
 native user per external user ID. Its native user key is encrypted with
 `MEMORY_ENCRYPTION_KEY`; only provisioning uses the configured root key. OpenViking
@@ -100,9 +107,10 @@ Rename `GOCLAW_ALLOW_PRIVATE_IP` to `MEMORY_ALLOW_PRIVATE_IP` if the Providers u
 trusted LAN addresses. Keep the public origin/callback unchanged, or register the
 new exact callback with the SSO administrator before moving domains.
 
-InsightFlow retains only its legacy Agent/Admin/Hooks integration and Built-in
-Memory. Those are not part of this repository. Its prototype-table cleanup runs
-against the platform database separately, never against this service's database.
+InsightFlow owns its Agent/Hooks integration and Built-in Memory as a separate
+client. Its integration settings and prototype-table cleanup belong to the platform
+database, never this service’s database. No InsightFlow tenant or RBAC model is
+required by this service.
 
 ## Repository boundaries
 

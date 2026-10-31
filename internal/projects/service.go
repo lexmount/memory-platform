@@ -142,6 +142,13 @@ func NewSecret() (string, string, error) {
 	return raw, crypto.HashAPIKey(raw), nil
 }
 func (s *Service) Create(ctx context.Context, account uuid.UUID, name, provider string) (*store.MemoryProject, string, error) {
+	return s.CreateOnce(ctx, account, name, provider, uuid.Nil)
+}
+
+// CreateOnce scopes a caller's idempotency key to its account. A replay returns
+// the same project without disclosing or rotating its one-time secret. Clients
+// recovering a lost creation reply can explicitly rotate that project's key.
+func (s *Service) CreateOnce(ctx context.Context, account uuid.UUID, name, provider string, requestID uuid.UUID) (*store.MemoryProject, string, error) {
 	c := s.connections[provider]
 	name = strings.TrimSpace(name)
 	if c == nil || account == uuid.Nil || name == "" || utf8.RuneCountInString(name) > 100 || !utf8.ValidString(name) {
@@ -152,7 +159,20 @@ func (s *Service) Create(ctx context.Context, account uuid.UUID, name, provider 
 		return nil, "", err
 	}
 	p := &store.MemoryProject{ID: uuid.New(), AccountID: account, Name: name, Provider: provider, ConnectionID: c.ID, AppKey: "mp_" + strings.ReplaceAll(uuid.NewString(), "-", ""), SecretHash: hash, Enabled: true, CredentialVersion: 1}
+	if requestID != uuid.Nil {
+		p.ID = uuid.NewSHA1(account, []byte("project-create:"+requestID.String()))
+	}
 	if err := s.Store.Create(ctx, p); err != nil {
+		if requestID != uuid.Nil && errors.Is(err, store.ErrProjectExists) {
+			existing, err := s.Store.Get(ctx, p.ID)
+			if err != nil {
+				return nil, "", err
+			}
+			if existing.AccountID != account || existing.Name != name || existing.Provider != provider || existing.ConnectionID != c.ID {
+				return nil, "", ErrInvalid
+			}
+			return existing, "", nil
+		}
 		return nil, "", err
 	}
 	return p, secret, nil

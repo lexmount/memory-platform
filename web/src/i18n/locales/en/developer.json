@@ -227,7 +227,9 @@
     "stage": "Stage",
     "eventHistoryUnavailable": "This task has no recorded execution history.",
     "eventHistoryPartial": "Some earlier events are unavailable.",
-    "contextLevelHint": "Context assembly chooses its own content levels; the level filter applies to ranked results."
+    "contextLevelHint": "Context assembly chooses its own content levels; the level filter applies to ranked results.",
+    "overviewTitle": "Overview",
+    "logsTitle": "Request logs"
   },
   "hindsight": {
     "title": "Hindsight",

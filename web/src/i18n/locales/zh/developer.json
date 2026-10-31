@@ -227,7 +227,9 @@
     "stage": "阶段",
     "eventHistoryUnavailable": "该任务没有可用的执行历史。",
     "eventHistoryPartial": "部分较早的事件不可用。",
-    "contextLevelHint": "上下文组装自行选择内容层级；层级筛选仅作用于排序结果。"
+    "contextLevelHint": "上下文组装自行选择内容层级；层级筛选仅作用于排序结果。",
+    "overviewTitle": "记忆概览",
+    "logsTitle": "请求日志"
   },
   "hindsight": {
     "title": "Hindsight",

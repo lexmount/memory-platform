@@ -91,7 +91,7 @@ export function ThreadList({ activeSessionId }: ThreadListProps) {
     <aside className="flex h-full w-72 shrink-0 flex-col border-r border-border/70 bg-muted/20">
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-border/70 px-4">
         <div className="min-w-0">
-          <h1 className="text-sm font-semibold text-foreground">
+          <h1 className="ov-page-title text-sm font-semibold text-foreground">
             {t('threadList.title')}
           </h1>
           {!isLoading ? (

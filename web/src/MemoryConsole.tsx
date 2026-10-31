@@ -16,11 +16,23 @@ import type { MemoryBridge, MemoryProviderModule } from "./memory/contracts";
 import { memoryRoutePattern } from "./memory/routes";
 
 
+// Browsers do not consistently register @property rules inside shadow roots.
+// Mirror Tailwind's non-inherited initial values in the base layer so native
+// utilities work here exactly as they do in the standalone provider document.
+const shadowPropertyDefaults = `@layer base { *, ::before, ::after { ${
+  [...officialStyles.matchAll(/@property\s+(--tw-[\w-]+)\s*\{([^}]+)\}/g)]
+    .filter(([, , body]) => /inherits\s*:\s*false/.test(body ?? ""))
+    .flatMap(([, name, body]) => {
+      const value = body?.match(/initial-value\s*:\s*([^;}]+)/)?.[1];
+      return value ? [`${name}:${value};`] : [];
+    }).join("\n")
+} } }`;
+
 export function MemorySurface({ children }: { children: ReactNode }) {
   const [root, setRoot] = useState<ShadowRoot | null>(null);
   const attach = useCallback((node: HTMLDivElement | null) => { if (node) setRoot(node.shadowRoot ?? node.attachShadow({ mode: "open" })); }, []);
   return <div ref={attach} data-memory-console>{root && createPortal(<I18nextProvider i18n={i18n}>
-    <style>{[officialStyles, componentStyles, layout, memoryStyles, hindsightStyles, standalone].join("\n")}</style><PortalContainerContext.Provider value={root as unknown as HTMLElement}>{children}</PortalContainerContext.Provider>
+    <style>{[officialStyles, shadowPropertyDefaults, componentStyles, layout, memoryStyles, hindsightStyles, standalone].join("\n")}</style><PortalContainerContext.Provider value={root as unknown as HTMLElement}>{children}</PortalContainerContext.Provider>
   </I18nextProvider>, root)}</div>;
 }
 export default function MemoryConsole({ memory, memoryModules, header, accountID }: { memory?: MemoryBridge; memoryModules?: readonly MemoryProviderModule[]; header?: ReactNode; accountID?: string }) {

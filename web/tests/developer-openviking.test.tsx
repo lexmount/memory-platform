@@ -89,7 +89,7 @@ it("registers guided and native OV pages and restores file/layer deep links", as
   const memory = await render(`/memory/openviking/content?project=project&userid=one&uri=${encodeURIComponent(file)}`);
   await settle(() => shadow.textContent?.includes("Use small patches.") === true);
   expect(address).toContain("/memory/openviking/content?");
-  expect(shadow.querySelectorAll('.sidebar .workspace-navigation a[href^="/memory/openviking/"]')).toHaveLength(13);
+  expect(shadow.querySelectorAll('.sidebar .workspace-navigation a[href^="/memory/openviking/"]')).toHaveLength(15);
   await click("L0 · Abstract");
   await settle(() => vi.mocked(memory.invoke).mock.calls.some(row => row[2] === "abstract"));
   expect(vi.mocked(memory.invoke).mock.calls.find(row => row[2] === "abstract")?.[3]).toEqual({ query: { uri: memoryRoot + "/preferences" } });

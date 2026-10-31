@@ -3,7 +3,7 @@ import { useLocation,useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 const OpenVikingWorkspace = lazy(()=>import('../../../../provider-ui/openviking/dist/index.js').then(m=>({default:m.OpenVikingWorkspace})));
 import type { MemoryWorkspaceContext } from '../contracts';
-const pages:Record<string,string>={content:'filesystem',resources:'filesystem',retrieval:'retrieval',skills:'skills',tasks:'tasks',experience:'agent-experience',compile:'compile',watches:'watches',overview:'home',logs:'request-logs'};
+const pages:Record<string,string>={sessions:'sessions',content:'filesystem',resources:'filesystem',retrieval:'retrieval',skills:'skills',tasks:'tasks',experience:'agent-experience',compile:'compile',watches:'watches',overview:'home',logs:'request-logs'};
 export function OfficialWorkspace({context,page}:{context:MemoryWorkspaceContext;page:string}) {
  const {i18n}=useTranslation(),location=useLocation(),navigate=useNavigate();
  const query=new URLSearchParams(location.search),native=query.get('studio');

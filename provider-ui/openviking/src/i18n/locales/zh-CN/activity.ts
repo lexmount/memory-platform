@@ -24,6 +24,7 @@ const activity = {
     },
     chat: {
       historyLoadFailed: '会话记录加载失败：{{error}}',
+      platformUnavailable: '这里可查看会话历史和记忆结果。当前项目未开放 VikingBot 对话，请通过已接入的 Agent 或 API 写入消息。',
       sendFailed: '消息发送失败：{{error}}',
       copy: '复制',
       emptyDescription: '探索你的知识库，开始一段对话。',

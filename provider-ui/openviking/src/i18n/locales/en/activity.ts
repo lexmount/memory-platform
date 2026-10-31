@@ -24,6 +24,7 @@ const activity = {
     },
     chat: {
       historyLoadFailed: 'Could not load conversation history: {{error}}',
+      platformUnavailable: 'Conversation history and memory results are available here. VikingBot chat is not enabled for this project; send messages through your connected agent or API.',
       sendFailed: 'Could not send message: {{error}}',
       copy: 'Copy',
       emptyDescription: 'Explore your knowledge base and start a conversation.',

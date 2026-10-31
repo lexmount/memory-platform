@@ -10,7 +10,7 @@ import { TooltipProvider } from '#/components/ui/tooltip'
 import { PortalContainerContext } from './portal'
 import { bindPlatform, type PlatformContext } from './transport'
 import '#/styles.css'
-const allowed = /^\/(filesystem|retrieval|skills|tasks|watches|compile|agent-experience|home|request-logs)(\/|\?|$)/
+const allowed = /^\/(filesystem|sessions|retrieval|skills|tasks|watches|compile|agent-experience|home|request-logs)(\/|\?|$)/
 export function OpenVikingWorkspace({context,path,language,portalContainer,onNavigate}:{context:PlatformContext;path:string;language:string;portalContainer:HTMLElement|null;onNavigate:(path:string)=>void}) {
  const [ready,setReady]=useState(false)
  const [router]=useState(()=>createRouter({routeTree,history:createMemoryHistory({initialEntries:[allowed.test(path)?path:'/filesystem']}),defaultPreload:false}))
@@ -20,6 +20,6 @@ export function OpenVikingWorkspace({context,path,language,portalContainer,onNav
  useEffect(()=>router.subscribe('onResolved',()=>{const next=router.state.location.href;if(allowed.test(next))onNavigate(next);else void router.navigate({to:path,replace:true})}),[router,onNavigate,path])
  if(!ready)return <div role="status">Loading…</div>
  return <PortalContainerContext.Provider value={portalContainer}><I18nextProvider i18n={i18n}><QueryClientProvider client={queryClient}><TooltipProvider><PlatformConnectionProvider identity={context.identity} mapping={context.user.mapping}>
-  <div className="official-workspace"><RouterProvider router={router}/></div>
+  <div className="official-workspace openviking-official"><RouterProvider router={router}/></div>
  </PlatformConnectionProvider></TooltipProvider></QueryClientProvider></I18nextProvider></PortalContainerContext.Provider>
 }

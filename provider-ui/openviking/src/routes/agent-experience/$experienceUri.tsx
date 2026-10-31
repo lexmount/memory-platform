@@ -181,7 +181,7 @@ function ExperienceDetailRoute() {
           </div>
           <div className="min-w-0">
             <h1
-              className="truncate text-xl font-semibold tracking-tight"
+              className="ov-page-title truncate text-xl font-semibold tracking-tight"
               title={experienceName}
             >
               {experienceName}

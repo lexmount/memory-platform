@@ -282,11 +282,11 @@ function AgentExperienceRoute() {
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="grid gap-1.5">
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="ov-page-title text-2xl font-semibold tracking-tight">
               {t('title')}
             </h1>
           </div>
-          <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+          <p className="ov-page-description max-w-2xl text-sm leading-6 text-muted-foreground">
             {t('description')}
           </p>
         </div>

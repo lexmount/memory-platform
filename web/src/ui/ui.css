@@ -1,3 +1,5 @@
+/* Host defaults belong below native component utilities in the cascade. */
+@layer base {
 * {
   box-sizing: border-box;
 }
@@ -43,6 +45,7 @@ h2,
 h3,
 p {
   margin: 0;
+}
 }
 .ifd-button {
   height: var(--ifd-control-height);

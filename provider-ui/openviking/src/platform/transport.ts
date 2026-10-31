@@ -1,8 +1,8 @@
 import { AxiosError } from 'axios'
 import type { AxiosAdapter } from 'axios'
 export type PlatformContext = {
- identity: string; signal: AbortSignal; user: { mapping: Readonly<Record<string,string>> };
- provider: { operations: readonly {id:string; method:string; path:string}[] };
+ identity: string; signal: AbortSignal; user: { user_id?:string; mapping: Readonly<Record<string,string>> };
+ provider: { version?:string; features?:Readonly<Record<string,boolean>>; operations: readonly {id:string; method:string; path:string}[] };
  invoke: (id:string,input: {path?:Record<string,string>;query?:Record<string,unknown>;body?:unknown;headers?:Record<string,string>},signal?:AbortSignal,upload?:FormData)=>Promise<Response>;
 }
 let active: PlatformContext | undefined

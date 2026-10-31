@@ -129,7 +129,7 @@ function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: 
     if (pageID === "users") return <UserPicker key={project.id} list bridge={bridge} project={project} user={user} onSelect={value => choose(project, value, module.defaultPage)} />;
     if (pageID === "app-settings") return <Navigate replace to={memoryPath(project.provider,"project",new URLSearchParams({project:project.id}).toString())}/>;
     if (pageID === "access") return <ProjectSettings key={`${project.id}:${pageID}`} bridge={bridge} project={project} issued={issued} clearSecret={() => setIssued(undefined)} onSecret={setIssued} reload={list.retry} />;
-    if (!module.navigation.some(item => item.id === pageID)) return <Status failed />;
+    if (!module.navigation.some(item => item.id === pageID) && !(module.id === "hindsight" && ["models","playground","native"].includes(pageID))) return <Status failed />;
     if (!user) return <UserPicker key={project.id} list bridge={bridge} project={project} user={user} onSelect={value => choose(project, value, pageID)} />;
     if (!project.enabled || workspace.failed) return <Status failed retry={workspace.retry} />;
     if (!workspace.context) return <Status />;

@@ -610,7 +610,7 @@ export function DataView({
                 size="sm"
                 className="gap-1.5"
                 onClick={() => {
-                  const btn = document.querySelector<HTMLButtonElement>("[data-add-document]");
+                  const btn = document.querySelector("[data-memory-console]")?.shadowRoot?.querySelector<HTMLButtonElement>("[data-add-document]");
                   btn?.click();
                 }}
               >

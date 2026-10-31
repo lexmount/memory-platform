@@ -100,7 +100,7 @@ it.each([
   const memory = await render(page!);
   await settle(() => Boolean(shadow.textContent?.includes(visible!)));
   if (operation) expect(calls(memory, operation).length).toBeGreaterThan(0);
-  expect(shadow.querySelectorAll(".sidebar .workspace-navigation .nav-item")).toHaveLength(9);
+  expect(shadow.querySelectorAll(".sidebar .workspace-navigation .nav-item")).toHaveLength(8);
   expect(shadow.textContent).not.toContain("hindsight.");
 });
 it("opens an observation history without offering edits to derived observations", async () => {

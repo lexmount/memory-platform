@@ -25,8 +25,8 @@ export async function hindsightFetch(input:RequestInfo|URL,init?:RequestInit):Pr
  const context=getPlatform();const bank=context.user.mapping.bank_id
  if(!bank)throw new Error('Missing bank mapping')
  const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url,window.location.origin)
- const operations=new Set(context.provider.operations.map(o=>o.id))
- if(url.pathname==='/api/version')return Response.json({features:{observations:operations.has('get_observation_history'),bank_config_api:operations.has('get_bank_config'),bank_llm_health:false,document_export_api:false,document_import_api:false,audit_log:operations.has('list_audit_logs'),llm_trace:operations.has('list_llm_requests'),store_document_text:true}})
+ if(url.pathname==='/api/banks' && (!init?.method || init.method.toUpperCase()==='GET'))return Response.json({banks:[{bank_id:bank,name:context.user.user_id||bank}],total:1,has_more:false})
+ if(url.pathname==='/api/version')return Response.json({api_version:context.provider.version,features:{...context.provider.features,access_key_auth:false}})
  const method=(init?.method||'GET').toUpperCase()
  const path=nativeHindsightURL(url,bank,method)
  if(!path)return Response.json({error:'当前项目未开放此操作 / Operation unavailable in this project'},{status:403})

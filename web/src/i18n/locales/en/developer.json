@@ -235,11 +235,11 @@
     "overview": "Overview",
     "memories": "Memories",
     "documents": "Documents",
-    "entities": "Entities & graph",
+    "entities": "Entities",
     "models": "Mental models",
-    "knowledge": "Knowledge pages",
+    "knowledge": "Knowledge",
     "playground": "Recall & reflect",
-    "management": "Management",
+    "management": "Bank configuration",
     "directives": "Directives",
     "consolidation": "Consolidation",
     "tasks": "Tasks",
@@ -479,7 +479,9 @@
     "templateHint": "Validate the template with dry run before applying it.",
     "stateValid": "Valid",
     "stateInvalidated": "Invalidated",
-    "waitingHint": "Closing stops waiting in this browser; Hindsight may still complete the request."
+    "waitingHint": "Closing stops waiting in this browser; Hindsight may still complete the request.",
+    "recall": "Recall",
+    "reflect": "Reflect"
   },
   "nativeMemory": {
     "title": "Native operations",

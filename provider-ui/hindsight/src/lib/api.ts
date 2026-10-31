@@ -6,7 +6,7 @@ import { hindsightFetch } from "#/platform/hindsight-transport";
 
 import { toast } from "sonner";
 import { bankApi, bankStatsApi, chunkApi, documentApi, memoryApi } from "./bank-url";
-const SESSION_REQUIRED_HEADER = "x-hindsight-session-required";
+import { SESSION_REQUIRED_HEADER } from "./auth/session";
 import { stripBasePath, withBasePath } from "./base-path";
 import { appendTagFilter, type TagFilter, type TagsMatch } from "./tag-filter-params";
 
@@ -20,6 +20,8 @@ function describeErrorDetails(details: unknown): string | undefined {
   if (details == null) return undefined;
   if (typeof details === "string") return details;
   if (typeof details === "object") {
+    const message = (details as { message?: unknown }).message;
+    if (typeof message === "string") return message;
     const detail = (details as { detail?: unknown }).detail;
     if (typeof detail === "string") return detail;
     const nestedDetails = (details as { details?: unknown }).details;
@@ -180,8 +182,6 @@ export interface LLMRequestsResponse {
   limit: number;
   offset: number;
   items: LLMRequestEntry[];
-  /** Days of LLM requests the server keeps; null = kept forever. */
-  retention_days?: number | null;
 }
 
 export interface LLMRequestTokenSums {
@@ -194,16 +194,11 @@ export interface LLMRequestTokenSums {
   total: number;
 }
 
-/** Column the stats can be split by, one chart line per value. */
-export type LLMStatsSplit = "model" | "operation";
-
 export interface LLMRequestStatsBucket {
   time: string;
   statuses: Record<string, number>;
   total: number;
   tokens: LLMRequestTokenSums;
-  /** Only with split_by: calls and tokens per model or operation. */
-  series?: Record<string, { calls: number; tokens: number }> | null;
 }
 
 export interface LLMRequestStatsResponse {
@@ -212,8 +207,6 @@ export interface LLMRequestStatsResponse {
   trunc: string;
   start: string;
   buckets: LLMRequestStatsBucket[];
-  /** Days of LLM requests the server keeps; null = kept forever. */
-  retention_days?: number | null;
 }
 
 /**
@@ -507,7 +500,7 @@ export class ControlPlaneClient {
         try {
           const errorData = await response.json();
           if (isClientError) {
-            errorMessage = errorData.error || errorMessage;
+            errorMessage = describeErrorDetails(errorData.error) || errorMessage;
             errorDetails = errorData.details ?? errorData.detail ?? errorData.upstream?.detail;
           }
         } catch {
@@ -656,7 +649,6 @@ export class ControlPlaneClient {
     query: string;
     types?: string[];
     prefer_observations?: boolean;
-    rerank?: { prune?: boolean; dedup?: boolean };
     bank_id: string;
     budget?: string;
     max_tokens?: number;
@@ -705,7 +697,6 @@ export class ControlPlaneClient {
     response_schema?: Record<string, unknown>;
     reflect_search_observations_max_tokens?: number;
     reflect_search_observations_include_entities?: boolean;
-    reflect_search_mental_models_max_tokens?: number;
   }) {
     return this.fetchApi("/api/reflect", {
       method: "POST",
@@ -2590,18 +2581,12 @@ export class ControlPlaneClient {
 
   async getLLMRequestStats(
     bankId: string,
-    options?: {
-      operation?: string;
-      call_type?: LLMCallType;
-      period?: string;
-      split_by?: LLMStatsSplit;
-    }
+    options?: { operation?: string; call_type?: LLMCallType; period?: string }
   ): Promise<LLMRequestStatsResponse> {
     const params = new URLSearchParams();
     if (options?.operation) params.append("operation", options.operation);
     if (options?.call_type) params.append("call_type", options.call_type);
     if (options?.period) params.append("period", options.period);
-    if (options?.split_by) params.append("split_by", options.split_by);
     const query = params.toString();
     return this.fetchApi<LLMRequestStatsResponse>(
       bankApi(bankId, `/llm-requests/stats${query ? `?${query}` : ""}`)

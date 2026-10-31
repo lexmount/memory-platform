@@ -50,9 +50,11 @@ function flattenAll(nodes: KnowledgeNode[], out: KnowledgeNode[] = []): Knowledg
 
 export function HomeView({
   bankId,
+  bankName,
   onNavigate,
 }: {
   bankId: string;
+  bankName?: string;
   onNavigate: (tab: string) => void;
 }) {
   const t = useTranslations("home");
@@ -184,7 +186,7 @@ export function HomeView({
     <div>
       <h1 className="text-3xl font-bold mb-2 text-foreground">{t("title")}</h1>
       <p className="text-muted-foreground mb-6">
-        {t("subtitle")} <span className="font-mono text-foreground">{bankId}</span>
+        {t("subtitle")} <span className="font-mono text-foreground">{bankName ?? bankId}</span>
       </p>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:h-[520px]">

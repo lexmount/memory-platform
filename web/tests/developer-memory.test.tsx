@@ -169,7 +169,7 @@ it.each(["rotate", "revoke"])("preserves the displayed secret when %s fails", as
 
 const nativeCases = [
   { provider: "openviking", operation: "add_resource", page: "resources", next: "skills" },
-  { provider: "hindsight", operation: "retain", page: "native", next: "playground" },
+  { provider: "hindsight", operation: "retain", page: "native", next: "recall" },
 ];
 function nativeBridge() {
   const memory = bridge();

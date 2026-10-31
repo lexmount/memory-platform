@@ -6,7 +6,7 @@ export type MemoryOperation = Readonly<{
   request_media: readonly string[] | null; permission: string;
 }>;
 export type MemoryProvider = Readonly<{
-  provider: string; version: string; operations: readonly MemoryOperation[];
+  provider: string; version: string; operations: readonly MemoryOperation[]; features?: Readonly<Record<string,boolean>>;
 }>;
 export type MemoryWorkspace = Readonly<{id:string;name:string;is_default:boolean;created_at:string}>;
 export type MemoryProject = Readonly<{

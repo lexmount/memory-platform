@@ -211,6 +211,10 @@ func TestNativeDiscoveryVersionsAndAliases(t *testing.T) {
 	} {
 		t.Run(test.provider, func(t *testing.T) {
 			s, _, p, _ := testService(t, test.provider, func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path == "/version" {
+					io.WriteString(w, `{"api_version":"1.1.0","features":{"observations":false,"bank_config_api":true}}`)
+					return
+				}
 				if r.URL.Path != "/openapi.json" {
 					t.Fatalf("unexpected discovery path %s", r.URL.Path)
 				}
@@ -219,6 +223,9 @@ func TestNativeDiscoveryVersionsAndAliases(t *testing.T) {
 			d, err := s.Describe(t.Context(), &Identity{Project: p, connection: s.connections[test.provider]})
 			if err != nil || d.Version != test.release || len(d.Operations) != 1 || d.Operations[0].ID != test.alias {
 				t.Fatalf("native discovery: %+v %v", d, err)
+			}
+			if test.provider == "hindsight" && (!d.Features["bank_config_api"] || d.Features["observations"]) {
+				t.Fatal("runtime feature flags were not preserved")
 			}
 			if s.Providers()[0].Version != test.release {
 				t.Fatal("provider list lost the discovered release version")

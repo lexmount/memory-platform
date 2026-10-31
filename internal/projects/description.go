@@ -49,6 +49,23 @@ func (s *Service) Describe(ctx context.Context, i *Identity) (*Description, erro
 	if c.Config.Provider == "hindsight" && supportedHindsightVersion(doc.Info.Version) {
 		d.Version = doc.Info.Version
 	}
+	// Feature availability is runtime configuration, not the existence of an OpenAPI route.
+	if c.Config.Provider == "hindsight" {
+		status, version, err := s.inspect(ctx, c, "GET", "/version", s.headers(i), nil)
+		if err != nil || status != 200 {
+			return nil, ErrUnavailable
+		}
+		d.Features = map[string]bool{}
+		var features map[string]json.RawMessage
+		if json.Unmarshal(version["features"], &features) == nil {
+			for key, value := range features {
+				var enabled bool
+				if json.Unmarshal(value, &enabled) == nil {
+					d.Features[key] = enabled
+				}
+			}
+		}
+	}
 	schemas := map[string]json.RawMessage{}
 	for path, methods := range doc.Paths {
 		for method, raw := range methods {

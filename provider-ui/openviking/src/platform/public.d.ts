@@ -14,4 +14,4 @@ export const TableRow:ComponentType<HTMLAttributes<HTMLTableRowElement>>;
 export const TableCell:ComponentType<HTMLAttributes<HTMLTableCellElement>>;
 export const TableHead:typeof TableCell;
 
-export const HindsightWorkspace:ComponentType<{context:MemoryWorkspaceContext;page:string;language:string;portalContainer:HTMLElement|null;onNavigate:(page:string)=>void}>;
+export const HindsightWorkspace:ComponentType<{context:MemoryWorkspaceContext;page:string;search?:string;language:string;portalContainer:HTMLElement|null;onNavigate:(page:string)=>void}>;

@@ -132,7 +132,6 @@ function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: 
   };
   return <><WorkspaceSwitcher applications={visibleProjects} currentApplication={(project??defaultProject)?.id} onSelectApplication={choose} onCreateApplication={()=>navigate('/memory?view=new')}/><MemoryFrame navigationContent={navigation}>
     <section className={`memory-page ${active && user ? "is-native-workspace" : ""}`} data-provider={project?.provider}>
-      <header className="memory-heading">{project && <span className="app-breadcrumb">{project.name} / {providerName(project.provider)}</span>}{!accountPage && <h1>{active && user ? user : project?.name ?? t("memoryProject.newProject")}</h1>}{project && user && active && <p className="app-current-user">{t("nativeUI.userWorkspace")}</p>}</header>
       {workspace.context && <NativeWriteNotices workspace={workspace.context.identity} />}
       {content()}
     </section>

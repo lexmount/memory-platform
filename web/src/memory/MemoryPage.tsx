@@ -135,7 +135,7 @@ function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: 
     if (!workspace.context) return <Status />;
     return <module.Workspace key={workspace.context.identity} context={workspace.context} page={page} formatTimeBucket={formatTimeBucket} />;
   };
-  return <><WorkspaceSwitcher bridge={bridge} onChanged={(deleted)=>{list.retry();if(deleted===projectID){setIssued(undefined);const next=visibleProjects.find(p=>p.id!==deleted);if(next)choose(next);else navigate("/memory?view=new")}}} applications={visibleProjects} currentApplication={(project??defaultProject)?.id} onSelectApplication={choose} onCreateApplication={()=>navigate('/memory')}/><MemoryFrame navigationContent={projectID||accountPage?navigation:undefined}>
+  return <>{projectID && <WorkspaceSwitcher bridge={bridge} onChanged={(deleted)=>{list.retry();if(deleted===projectID){setIssued(undefined);const next=visibleProjects.find(p=>p.id!==deleted);if(next)choose(next);else navigate("/memory?view=new")}}} applications={visibleProjects} currentApplication={(project??defaultProject)?.id} onSelectApplication={choose} onCreateApplication={()=>navigate('/memory')}/>}<MemoryFrame navigationContent={projectID||accountPage?navigation:undefined}>
     <section className={`memory-page ${active && user ? "is-native-workspace" : ""}`} data-provider={project?.provider}>
       {workspace.context && <NativeWriteNotices workspace={workspace.context.identity} />}
       {content()}

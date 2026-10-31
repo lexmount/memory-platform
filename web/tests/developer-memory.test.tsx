@@ -335,9 +335,10 @@ it("opens a project from the directory and exposes native navigation after selec
   const memory = bridge(); await render("/memory", memory, modules);
   await settle(() => Boolean(shadow.querySelector(".directory-project-link")));
   expect(address).toBe("/memory");
+  expect(shadow.querySelector(".workspace-applications")).toBeNull();
   await act(async()=>shadow.querySelector<HTMLButtonElement>(".directory-project-link")!.click());
   await settle(() => address.includes("/project?project=hindsight"));
-  expect(shadow.querySelectorAll(".workspace-applications .workspace-options .project-select")).toHaveLength(2);
+  expect(shadow.querySelectorAll(".workspace-applications .project-select")).toHaveLength(2);
   expect(shadow.querySelector(".app-directory")).toBeNull();
   expect(shadow.querySelector(".workspace-applications .workspace-add")).not.toBeNull();
   expect(shadow.querySelector(".sidebar .sidebar-app-list")).toBeNull();
@@ -360,13 +361,13 @@ it("shows a retryable users error without claiming the application has no users"
   expect(memory.resolveUser).not.toHaveBeenCalled();
 });
 
-it("keeps navigation while creating an application and on account settings", async () => {
+it("hides project switching outside a project", async () => {
   const memory = bridge(); await render("/memory?view=new", memory, modules);
   await settle(() => Boolean(shadow.querySelector('input[aria-label="Project name"]')));
-  expect(shadow.querySelectorAll(".workspace-applications .workspace-options .project-select")).toHaveLength(2);
+  expect(shadow.querySelector(".workspace-applications")).toBeNull();
   vi.stubGlobal("fetch", vi.fn(async () => Response.json({keys:[]})));
   await act(async () => navigate("/account/keys"));
-  await settle(() => shadow.querySelectorAll(".workspace-applications .workspace-options .project-select").length === 2);
+  expect(shadow.querySelector(".workspace-applications")).toBeNull();
   expect(shadow.querySelectorAll(".memory-shell")).toHaveLength(1);
   expect(shadow.querySelector('.sidebar a[href="/account/keys"]')).toBeNull();
 });
@@ -378,12 +379,12 @@ it("remembers the selected application without retaining another user's workspac
   expect(address).toBe("/memory");
   expect(shadow.querySelector("[data-workspace]")).toBeNull();
 });
-it("opens creation with a persistent menu when there are no applications", async () => {
+it("opens creation without a project selector when there are no projects", async () => {
   const memory=bridge();memory.createProject=vi.fn(memory.createProject);memory.projects=vi.fn(async()=>[]);await render("/memory",memory,modules);
   await settle(()=>Boolean(shadow.querySelector(".directory-toolbar button")));
   await act(async()=>shadow.querySelector<HTMLButtonElement>(".directory-toolbar button")!.click());
   await settle(()=>Boolean(shadow.querySelector('input[aria-label="Project name"]')));
-  expect(shadow.querySelector(".workspace-applications .workspace-add")).not.toBeNull();
+  expect(shadow.querySelector(".workspace-applications .workspace-add")).toBeNull();
   expect(shadow.querySelector(".sidebar .sidebar-app-list")).toBeNull();
   expect(shadow.querySelector('.app-directory')).toBeNull();
   expect(memory.createProject).not.toHaveBeenCalled();

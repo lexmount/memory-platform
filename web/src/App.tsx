@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Brain, ChevronRight, Check } from "lucide-react";
 import { Button } from "./ui/index";
@@ -26,7 +25,7 @@ function SignedIn({ session, client, error, action }: { session: Session; client
     const url = new URL(location.href); url.searchParams.set("lang", language);
     history.replaceState(history.state, "", url); void i18n.changeLanguage(language); closeMenu();
   };
-  const header = <header className="memory-topbar"><Link className="memory-brand" to="/memory"><Brain size={24} />Memory</Link><span data-workspace-switcher />
+  const header = <header className="memory-topbar"><div className="memory-brand"><Brain size={24} />Memory</div><span data-workspace-switcher />
     <div className="memory-account-actions"><details className="account-dropdown" ref={accountMenu} onToggle={()=>{if(!accountMenu.current?.open)setLanguagesOpen(false)}} onKeyDown={event=>{if(event.key==="Escape"){event.stopPropagation();closeMenu();accountMenu.current?.querySelector("summary")?.focus()}}}>
       <summary aria-label={t("accountMenu.open")} title={displayName}><span className="account-avatar">{Array.from(displayName || "M")[0]?.toUpperCase()}</span></summary>
       <div className="account-popover"><div className="account-profile"><span className="account-avatar account-avatar-large">{Array.from(displayName || "M")[0]?.toUpperCase()}</span><div><strong>{displayName}</strong>{session.account.email && session.account.email !== displayName && <small>{session.account.email}</small>}</div></div>

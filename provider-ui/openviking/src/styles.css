@@ -362,9 +362,3 @@
  --color-brand-blue:var(--primary);--color-brand-teal:var(--primary);--color-success:#15803d;--color-warning:#b45309;--color-danger:var(--destructive);--color-info:var(--primary);--color-neutral:var(--muted-foreground);
 }
 .hindsight-official {--primary-gradient:var(--primary);--hs-chip-tag-bg:var(--muted);--hs-chip-tag-fg:var(--foreground);--hs-chip-tag-border:var(--border);--hs-chip-entity-bg:var(--muted);--hs-chip-entity-fg:var(--foreground);--hs-chip-entity-border:var(--border);--hs-chip-metadata-bg:var(--muted);--hs-chip-metadata-fg:var(--muted-foreground);--hs-chip-metadata-border:var(--border)}
-
-/* @property registrations inside a shadow root do not initialize Tailwind's
-   translate variables in every browser. Keep centered controls valid there. */
-.official-workspace .-translate-y-1\/2 {
-  translate: var(--tw-translate-x, 0) -50%;
-}

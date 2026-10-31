@@ -56,11 +56,11 @@ export function CompileShell({
               {t('back')}
             </Link>
           )}
-          <h1 className="text-2xl font-semibold tracking-tight [overflow-wrap:anywhere]">
+          <h1 className="ov-page-title text-2xl font-semibold tracking-tight [overflow-wrap:anywhere]">
             {title}
           </h1>
           {!back && (
-            <p className="text-sm text-muted-foreground">{t('description')}</p>
+            <p className="ov-page-description text-sm text-muted-foreground">{t('description')}</p>
           )}
         </div>
         <div className="flex flex-wrap gap-2">{actions}</div>

@@ -1,3 +1,5 @@
+import { Route as Sessions } from '#/routes/sessions/route'
+import { Route as SessionsIndex } from '#/routes/sessions/index'
 import { Route as root } from '#/routes/__root'
 import { Route as Filesystem } from '#/routes/filesystem/route'
 import { Route as Retrieval } from '#/routes/retrieval/route'
@@ -13,6 +15,7 @@ import { Route as CompileTask } from '#/routes/compile/tasks/$taskId'
 import { Route as ExperienceIndex } from '#/routes/agent-experience/index'
 import { Route as ExperienceDetail } from '#/routes/agent-experience/$experienceUri'
 export const routeTree = root.addChildren([
+ Sessions.update({id:'/sessions',path:'/sessions',getParentRoute:()=>root} as any).addChildren([SessionsIndex.update({id:'/',path:'/',getParentRoute:()=>Sessions} as any)]),
  Filesystem.update({id:'/filesystem',path:'/filesystem',getParentRoute:()=>root} as any),
  Retrieval.update({id:'/retrieval',path:'/retrieval',getParentRoute:()=>root} as any),
  Skills.update({id:'/skills',path:'/skills',getParentRoute:()=>root} as any),

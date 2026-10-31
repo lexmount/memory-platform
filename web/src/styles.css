@@ -1,5 +1,5 @@
 :host{display:block;position:fixed;inset:0;height:100dvh;overflow:clip;color-scheme:light;font-family:var(--ifd-font);color:var(--ifd-text);background:#fff}
-*{box-sizing:border-box}a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}button{cursor:pointer}
+@layer base {*{box-sizing:border-box}a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}button{cursor:pointer}}
 .memory-topbar{position:fixed;inset:0 0 auto;height:72px;background:#fff;border-bottom:1px solid var(--ifd-border);z-index:30;display:flex;align-items:center;gap:28px;padding:0 24px}
 .memory-brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:650;letter-spacing:-.5px}
 .memory-topbar nav,.memory-account-actions{display:flex;align-items:center;gap:16px}.memory-account-actions{margin-left:auto;gap:8px;font-size:13px}.memory-topbar nav a{font-size:14px}.memory-account-actions>span{max-width:160px;overflow:hidden;text-overflow:ellipsis}
@@ -79,3 +79,8 @@
 .project-header-navigation{display:flex;align-items:center;gap:12px}.project-home-link{display:grid;place-items:center;width:32px;height:32px;border-radius:6px;color:var(--ifd-text);flex-shrink:0}.project-home-link:hover{background:var(--ifd-soft)}.project-home-link:focus-visible{outline:2px solid #3568e8;outline-offset:2px}.project-header-divider{height:20px;width:1px;background:var(--ifd-border);flex-shrink:0}
 
 .hindsight-official{position:relative}.hindsight-bank-page h1{font-size:20px;font-weight:600}.hindsight-bank-page .bg-primary-gradient{background:var(--primary)}
+
+/* Provider page typography must not inherit the host landing-page h1 rule. */
+.openviking-official .ov-page-title{font-size:20px;line-height:28px;font-weight:600;letter-spacing:normal}.openviking-official .ov-page-description{font-size:14px;line-height:22px;font-weight:400;color:var(--muted-foreground)}
+
+.memory-page[data-provider="openviking"] .memory-native-operations>.ifd-section-header h2{font-size:20px;line-height:28px;font-weight:600}.memory-page[data-provider="openviking"] .memory-native-operations>.ifd-section-header p{font-size:14px;line-height:22px}

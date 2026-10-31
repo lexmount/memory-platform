@@ -48,7 +48,7 @@ function SessionsPage() {
   }, [handleNewSession])
 
   return (
-    <div className="-mx-4 -my-6 flex h-[calc(100svh-3rem)] min-w-0 overflow-hidden md:-mx-6">
+    <div className="flex h-[calc(100dvh-152px)] min-h-96 min-w-0 overflow-hidden rounded-lg border">
       <ThreadList activeSessionId={activeSessionId} />
       <section className="min-w-0 flex-1 bg-background">
         {activeSessionId ? (

@@ -285,7 +285,7 @@
 .mobile-menu {
   display: none;
 }
-h1 {
+.managed-page h1 {
   font-size: 32px;
   line-height: 44px;
   font-weight: 500;

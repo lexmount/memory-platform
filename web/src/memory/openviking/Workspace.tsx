@@ -1,6 +1,6 @@
 import { OfficialWorkspace, officialPages } from "./OfficialWorkspace";
 import { useMemo } from "react";
-import { BookOpen, FileText, ListTodo, MessagesSquare, Search, Database, Code, Shield, RefreshCw, Settings, Terminal } from "lucide-react";
+import { BookOpen, FileText, ListTodo, MessagesSquare, Search, Database, Code, Shield, RefreshCw, Settings, Terminal, LayoutDashboard, ScrollText } from "lucide-react";
 import type { MemoryProviderModule, MemoryWorkspaceContext } from "../contracts";
 import { NativeOperations } from "../NativeOperations";
 import { createOVClient, OVError } from "./client";
@@ -27,11 +27,13 @@ function Workspace({context,page}:{context:MemoryWorkspaceContext;page:string}) 
 export const openVikingModule: MemoryProviderModule = {
   id: "openviking", labelKey: "ov.label", defaultPage: "content",
   navigation: [
+    { id: "overview", labelKey: "ov.overviewTitle", icon: LayoutDashboard },
     { id: "content", labelKey: "ov.content", icon: FileText },
     { id: "resources", labelKey: "nativeMemory.resources", icon: Database },
     { id: "skills", labelKey: "nativeMemory.skills", icon: Code },
     { id: "sessions", labelKey: "ov.sessions", icon: MessagesSquare },
     { id: "retrieval", labelKey: "ov.retrieval", icon: Search },
+    { id: "logs", labelKey: "ov.logsTitle", icon: ScrollText },
     { id: "tasks", labelKey: "ov.tasks", icon: ListTodo },
     { id: "experience", labelKey: "ov.experience", icon: BookOpen },
     { id: "privacy", labelKey: "nativeMemory.privacy", icon: Shield },

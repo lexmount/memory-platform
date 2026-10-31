@@ -1,3 +1,4 @@
+import { getPlatform } from '#/platform/transport'
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { CompassIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -35,6 +36,7 @@ function SessionThread({ sessionId, draft = false, onPersisted }: ThreadProps) {
   const { identityScopeKey } = useAppConnection()
   const { getTitle } = useSessionTitles(identityScopeKey)
   const title = getTitle(sessionId)
+  const canChat = getPlatform().provider.operations.some(op => op.method === 'POST' && op.path === '/bot/v1/chat/stream')
 
   const [historyId] = useState(draft ? undefined : sessionId)
   const persisted = useRef(!draft)
@@ -194,11 +196,11 @@ function SessionThread({ sessionId, draft = false, onPersisted }: ThreadProps) {
         </div>
       )}
       <div className="relative z-10">
-        <Composer
+        {canChat ? <Composer
           onSend={handleSend}
           onCancel={chat.abort}
           isStreaming={isStreaming}
-        />
+        /> : <p className="px-4 py-3 text-sm text-muted-foreground" role="status">{t('chat.platformUnavailable')}</p>}
       </div>
     </div>
   )

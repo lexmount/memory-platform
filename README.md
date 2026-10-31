@@ -72,7 +72,7 @@ their engines. Hindsight must be configured for this onboarding flow. To obtain
 credentials for an automatically created project, use the API integration page's
 credential rotation action. Explicit project creation returns the secret once.
 
-Schema version 2 retains an internal workspace association for compatibility.
+Schema version 3 adds soft deletion (project removal revokes access and retains native data). Deleting the last project does not recreate the onboarding project. The schema retains an internal workspace association for compatibility.
 Existing projects are backfilled without changing API keys, secrets, or native
 user mappings. `/v1/workspaces` remains available to existing clients, and omitted
 `workspace_id` on project creation resolves to the account's default association.

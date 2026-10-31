@@ -54,13 +54,13 @@ func (s *ProjectRepository) Create(ctx context.Context, p *MemoryProject) error 
 	return s.db.QueryRowContext(ctx, `INSERT INTO projects(id,account_id,name,provider,connection_id,app_key,secret_hash,workspace_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING credential_version,enabled,created_at,updated_at`, p.ID, p.AccountID, p.Name, p.Provider, p.ConnectionID, p.AppKey, p.SecretHash, p.WorkspaceID).Scan(&p.CredentialVersion, &p.Enabled, &p.CreatedAt, &p.UpdatedAt)
 }
 func (s *ProjectRepository) Get(ctx context.Context, id uuid.UUID) (*MemoryProject, error) {
-	return scanMemoryProject(s.db.QueryRowContext(ctx, `SELECT `+memoryProjectColumns+` FROM projects WHERE id=$1`, id))
+	return scanMemoryProject(s.db.QueryRowContext(ctx, `SELECT `+memoryProjectColumns+` FROM projects WHERE id=$1 AND deleted_at IS NULL`, id))
 }
 func (s *ProjectRepository) ByKey(ctx context.Context, key string) (*MemoryProject, error) {
-	return scanMemoryProject(s.db.QueryRowContext(ctx, `SELECT `+memoryProjectColumns+` FROM projects WHERE app_key=$1`, key))
+	return scanMemoryProject(s.db.QueryRowContext(ctx, `SELECT `+memoryProjectColumns+` FROM projects WHERE app_key=$1 AND deleted_at IS NULL`, key))
 }
 func (s *ProjectRepository) List(ctx context.Context, account uuid.UUID) ([]MemoryProject, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT `+memoryProjectColumns+` FROM projects WHERE account_id=$1 ORDER BY created_at,id`, account)
+	rows, err := s.db.QueryContext(ctx, `SELECT `+memoryProjectColumns+` FROM projects WHERE account_id=$1 AND deleted_at IS NULL ORDER BY created_at,id`, account)
 	if err != nil {
 		return nil, err
 	}
@@ -89,10 +89,10 @@ func memoryProjectChanged(result sql.Result, err error) error {
 	return nil
 }
 func (s *ProjectRepository) Update(ctx context.Context, account uuid.UUID, id uuid.UUID, name string, enabled bool) error {
-	return memoryProjectChanged(s.db.ExecContext(ctx, `UPDATE projects SET name=$3,enabled=$4,updated_at=now() WHERE id=$1 AND account_id=$2`, id, account, name, enabled))
+	return memoryProjectChanged(s.db.ExecContext(ctx, `UPDATE projects SET name=$3,enabled=$4,updated_at=now() WHERE id=$1 AND account_id=$2 AND deleted_at IS NULL`, id, account, name, enabled))
 }
 func (s *ProjectRepository) Credential(ctx context.Context, account uuid.UUID, id uuid.UUID, hash string, revoked bool) error {
-	return memoryProjectChanged(s.db.ExecContext(ctx, `UPDATE projects SET secret_hash=CASE WHEN $3='' THEN secret_hash ELSE $3 END,revoked=$4,credential_version=credential_version+1,updated_at=now() WHERE id=$1 AND account_id=$2`, id, account, hash, revoked))
+	return memoryProjectChanged(s.db.ExecContext(ctx, `UPDATE projects SET secret_hash=CASE WHEN $3='' THEN secret_hash ELSE $3 END,revoked=$4,credential_version=credential_version+1,updated_at=now() WHERE id=$1 AND account_id=$2 AND deleted_at IS NULL`, id, account, hash, revoked))
 }
 func (s *ProjectRepository) Users(ctx context.Context, id uuid.UUID, after string) ([]MemoryProjectUser, error) {
 	rows, err := s.db.QueryContext(ctx, `SELECT project_id,user_id,native_id,provisioned,created_at FROM project_users WHERE project_id=$1 AND user_id>$2 ORDER BY user_id LIMIT 101`, id, after)
@@ -125,7 +125,7 @@ func (s *ProjectRepository) Provision(ctx context.Context, id uuid.UUID, user st
 		return nil, err
 	}
 	defer tx.Rollback()
-	p, err := scanMemoryProject(tx.QueryRowContext(ctx, `SELECT `+memoryProjectColumns+` FROM projects WHERE id=$1 FOR UPDATE`, id))
+	p, err := scanMemoryProject(tx.QueryRowContext(ctx, `SELECT `+memoryProjectColumns+` FROM projects WHERE id=$1 AND deleted_at IS NULL FOR UPDATE`, id))
 	if err != nil {
 		return nil, err
 	}
@@ -173,4 +173,9 @@ func (s *ProjectRepository) EnsureFirstProject(ctx context.Context, p *MemoryPro
 		return err
 	}
 	return tx.Commit()
+}
+
+// Delete removes a project from the console and revokes access while retaining native data.
+func (s *ProjectRepository) Delete(ctx context.Context, account, id uuid.UUID) error {
+	return memoryProjectChanged(s.db.ExecContext(ctx, `UPDATE projects SET deleted_at=now(),enabled=false,revoked=true,credential_version=credential_version+1,updated_at=now() WHERE id=$1 AND account_id=$2 AND deleted_at IS NULL`, id, account))
 }

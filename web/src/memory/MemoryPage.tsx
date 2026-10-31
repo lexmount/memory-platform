@@ -130,7 +130,7 @@ function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: 
     if (!workspace.context) return <Status />;
     return <module.Workspace key={workspace.context.identity} context={workspace.context} page={page} formatTimeBucket={formatTimeBucket} />;
   };
-  return <><WorkspaceSwitcher applications={visibleProjects} currentApplication={(project??defaultProject)?.id} onSelectApplication={choose} onCreateApplication={()=>navigate('/memory?view=new')}/><MemoryFrame navigationContent={navigation}>
+  return <><WorkspaceSwitcher bridge={bridge} onChanged={(deleted)=>{list.retry();if(deleted===projectID){setIssued(undefined);const next=visibleProjects.find(p=>p.id!==deleted);if(next)choose(next);else navigate("/memory?view=new")}}} applications={visibleProjects} currentApplication={(project??defaultProject)?.id} onSelectApplication={choose} onCreateApplication={()=>navigate('/memory?view=new')}/><MemoryFrame navigationContent={navigation}>
     <section className={`memory-page ${active && user ? "is-native-workspace" : ""}`} data-provider={project?.provider}>
       {workspace.context && <NativeWriteNotices workspace={workspace.context.identity} />}
       {content()}
@@ -138,8 +138,8 @@ function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: 
   </MemoryFrame></>;
 }
 export function MemoryPage({ bridge = emptyMemoryBridge, modules = memoryProviderModules, accountID }: { accountID?: string; bridge?: MemoryBridge; modules?: readonly MemoryProviderModule[]; }) {
-  const { identity, workspaces, createWorkspace, providers, projects, createProject, updateProject, rotateCredential, revokeCredential, users, resolveUser, schema, invoke } = bridge;
-  const transport = useMemo(() => ({ identity, workspaces, createWorkspace, providers, projects, createProject, updateProject, rotateCredential, revokeCredential, users, resolveUser, schema, invoke }),
-    [identity, workspaces, createWorkspace, providers, projects, createProject, updateProject, rotateCredential, revokeCredential, users, resolveUser, schema, invoke]);
+  const { identity, workspaces, createWorkspace, providers, projects, createProject, updateProject, deleteProject, rotateCredential, revokeCredential, users, resolveUser, schema, invoke } = bridge;
+  const transport = useMemo(() => ({ identity, workspaces, createWorkspace, providers, projects, createProject, updateProject, deleteProject, rotateCredential, revokeCredential, users, resolveUser, schema, invoke }),
+    [identity, workspaces, createWorkspace, providers, projects, createProject, updateProject, deleteProject, rotateCredential, revokeCredential, users, resolveUser, schema, invoke]);
   return <MemoryHost accountID={accountID} key={identity} bridge={transport} formatTimeBucket={bridge.formatTimeBucket} modules={modules} />;
 }

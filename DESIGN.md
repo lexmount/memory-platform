@@ -21,3 +21,5 @@ Keep loading, empty, error/retry, pagination, disabled/revoked credentials and u
 Use the light neutral palette, compact icon/text navigation, clear active states and system Chinese fonts. Mobile navigation uses a modal drawer. Preserve URL-backed user context and filters, and remembered sidebar collapse state. No decorative media or animations.
 
 Validate both languages, project switching and cancellation, first-project concurrency, schema migration preservation, native transport isolation, production builds, and live browser behavior.
+
+Project selector width is fixed (250px desktop, 145px mobile). Truncated names expose the full name on hover. Each row reveals an ellipsis action on hover or keyboard focus (always visible for touch), offering Rename and Delete. Delete requires confirmation, revokes access and retains native data; deleting the last project does not trigger onboarding again.

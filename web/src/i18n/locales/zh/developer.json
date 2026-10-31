@@ -661,6 +661,10 @@
     "name": "项目名称",
     "create": "创建项目",
     "applications": "当前空间的项目",
-    "choose": "选择项目"
+    "choose": "选择项目",
+    "actions": "管理项目 {{name}}",
+    "rename": "重命名",
+    "delete": "删除",
+    "deleteConfirm": "确定删除项目「{{name}}」？项目将从列表移除，API 凭据立即失效。记忆引擎中的数据会保留。"
   }
 }

@@ -45,6 +45,7 @@ export function createMemoryBridge(identity: string, current: () => boolean, acc
     createWorkspace: (name,signal)=>json<MemoryWorkspace>(`${prefix}/workspaces`,"POST",{name},signal),
     projects: signal => request(signal, async linked => (await json<{ projects: MemoryProject[] }>(`${prefix}/projects`, "GET", undefined, linked)).projects),
     createProject: (name, provider, signal, workspace_id) => json(`${prefix}/projects`, "POST", { name, provider, workspace_id }, signal),
+    deleteProject: (project, signal) => json(projectPath(project), "DELETE", undefined, signal),
     updateProject: (project, patch, signal) => json(projectPath(project), "PATCH", patch, signal),
     rotateCredential: (project, signal) => json(`${projectPath(project)}/credentials/rotate`, "POST", {}, signal),
     revokeCredential: (project, signal) => json(`${projectPath(project)}/credentials`, "DELETE", undefined, signal),

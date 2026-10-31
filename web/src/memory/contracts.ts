@@ -37,6 +37,7 @@ export interface MemoryBridge {
   createProject(name: string, provider: string, signal: AbortSignal, workspace?:string): Promise<{ project: MemoryProject; app_secret: string }>;
   updateProject(project: string, patch: { name?: string; enabled?: boolean }, signal: AbortSignal): Promise<MemoryProject>;
   rotateCredential(project: string, signal: AbortSignal): Promise<{ app_key: string; app_secret: string }>;
+  deleteProject?(project: string, signal: AbortSignal): Promise<void>;
   revokeCredential(project: string, signal: AbortSignal): Promise<void>;
   users(project: string, after: string, signal: AbortSignal): Promise<MemoryUserPage>;
   resolveUser(project: string, user: string, signal: AbortSignal): Promise<MemoryIdentity>;

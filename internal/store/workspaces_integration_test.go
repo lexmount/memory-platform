@@ -116,3 +116,35 @@ func TestFirstProjectConcurrentAndPreservesExisting(t *testing.T) {
 		t.Fatalf("existing changed: %+v %v", items, err)
 	}
 }
+
+func TestProjectDeleteRevokesAndDoesNotRecreateDefault(t *testing.T) {
+	db := testutil.DB(t)
+	s := store.NewProjectRepository(db)
+	account := testutil.Account(t, db)
+	other := testutil.Account(t, db)
+	p := &store.MemoryProject{ID: uuid.New(), AccountID: account, Name: "Delete test", Provider: "hindsight", ConnectionID: "test", AppKey: uuid.NewString(), SecretHash: "hash"}
+	if err := s.Create(t.Context(), p); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Delete(t.Context(), other, p.ID); !errors.Is(err, sql.ErrNoRows) {
+		t.Fatalf("foreign deletion: %v", err)
+	}
+	if err := s.Delete(t.Context(), account, p.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.ByKey(t.Context(), p.AppKey); !errors.Is(err, sql.ErrNoRows) {
+		t.Fatalf("deleted key accepted: %v", err)
+	}
+	if _, err := s.Get(t.Context(), p.ID); !errors.Is(err, sql.ErrNoRows) {
+		t.Fatalf("deleted project accessible: %v", err)
+	}
+	p.ID = uuid.New()
+	p.AppKey = uuid.NewString()
+	if err := s.EnsureFirstProject(t.Context(), p); err != nil {
+		t.Fatal(err)
+	}
+	items, err := s.List(t.Context(), account)
+	if err != nil || len(items) != 0 {
+		t.Fatalf("deleted project recreated: %+v %v", items, err)
+	}
+}

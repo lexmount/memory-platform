@@ -661,6 +661,10 @@
     "name": "Project name",
     "create": "Create project",
     "applications": "Projects in this space",
-    "choose": "Select project"
+    "choose": "Select project",
+    "actions": "Manage project {{name}}",
+    "rename": "Rename",
+    "delete": "Delete",
+    "deleteConfirm": "Delete project “{{name}}”? It will be removed from the list and its API credentials revoked. Memory engine data will be retained."
   }
 }

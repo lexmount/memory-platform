@@ -38,7 +38,7 @@ func Migrate(ctx context.Context, db *sql.DB) error {
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
-	if version > 2 {
+	if version > 3 {
 		return errors.New("Memory database schema is newer than this binary")
 	}
 	if version == 0 {
@@ -54,6 +54,11 @@ func Migrate(ctx context.Context, db *sql.DB) error {
 			return err
 		}
 		if _, err = tx.ExecContext(ctx, `UPDATE memory_schema SET version=2 WHERE singleton`); err != nil {
+			return err
+		}
+	}
+	if version < 3 {
+		if _, err = tx.ExecContext(ctx, `ALTER TABLE projects ADD COLUMN deleted_at timestamptz; UPDATE memory_schema SET version=3 WHERE singleton`); err != nil {
 			return err
 		}
 	}

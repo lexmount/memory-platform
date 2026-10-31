@@ -423,6 +423,66 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Delete project",
+        "operationId": "deleteMemoryProject",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ],
+        "description": "Soft-delete an owned project and revoke its credentials. Native memory data is retained. Deleted projects are excluded from listings and cannot authenticate."
       }
     },
     "/v1/projects/{project}/credentials/rotate": {

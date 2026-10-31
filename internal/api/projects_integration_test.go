@@ -220,6 +220,21 @@ func TestMemoryProjectsHTTPNativeAndConsole(t *testing.T) {
 	if w.Code != 403 {
 		t.Fatalf("revoked credential active: %d", w.Code)
 	}
+	for _, token := range []string{otherToken, "invalid-token"} {
+		w := request("DELETE", detail, token, "", nil)
+		if w.Code != 403 && w.Code != 401 {
+			t.Fatalf("foreign delete: %d", w.Code)
+		}
+	}
+	if w := request("DELETE", detail, ownerToken, "", nil); w.Code != 204 {
+		t.Fatalf("delete: %d", w.Code)
+	}
+	if w := request("GET", detail, ownerToken, "", nil); w.Code != 403 {
+		t.Fatalf("deleted get: %d", w.Code)
+	}
+	if w := request("PATCH", detail, ownerToken, `{"name":"Restored"}`, nil); w.Code != 403 {
+		t.Fatalf("deleted rename: %d", w.Code)
+	}
 	mu.Lock()
 	defer mu.Unlock()
 	if nativeCalls != 2 {

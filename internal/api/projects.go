@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -52,6 +53,7 @@ func (h *MemoryProjectsHandler) RegisterUserRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /v1/projects", developer(h.create))
 	mux.HandleFunc("GET /v1/projects/{project}", developer(h.get))
 	mux.HandleFunc("PATCH /v1/projects/{project}", developer(h.update))
+	mux.HandleFunc("DELETE /v1/projects/{project}", developer(h.delete))
 	mux.HandleFunc("POST /v1/projects/{project}/credentials/rotate", developer(h.rotate))
 	mux.HandleFunc("DELETE /v1/projects/{project}/credentials", developer(h.revoke))
 	mux.HandleFunc("GET /v1/projects/{project}/users", developer(h.users))
@@ -399,4 +401,23 @@ func (w memoryProjectFlushWriter) Write(p []byte) (int, error) {
 	n, err := w.Writer.Write(p)
 	w.flusher.Flush()
 	return n, err
+}
+
+func (h *MemoryProjectsHandler) delete(w http.ResponseWriter, r *http.Request) {
+	p := h.owned(w, r)
+	if p == nil {
+		return
+	}
+	repository, ok := h.service.Store.(interface {
+		Delete(context.Context, uuid.UUID, uuid.UUID) error
+	})
+	if !ok {
+		h.fail(w, r, projects.ErrUnavailable)
+		return
+	}
+	if err := repository.Delete(r.Context(), p.AccountID, p.ID); err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

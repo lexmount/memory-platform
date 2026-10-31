@@ -4,7 +4,7 @@ The console is organized around projects. A project and the previously named app
 
 ## Navigation and onboarding
 
-The header next to Memory displays the selected project name. Its popover lists projects and Create project. The persistent, collapsible 256px sidebar contains overview, API integration, users and memories, project settings, and account settings. Project inventory is not repeated in the sidebar. The navigation reference is InsightFlow developer-dev / Managed Agents (lex-dev a4b89756).
+The header next to Memory displays the selected project name. Its popover lists projects and Create project. The persistent, collapsible 256px sidebar contains overview, API integration, users and memories, and account settings. Project inventory is not repeated in the sidebar. The navigation reference is InsightFlow developer-dev / Managed Agents (lex-dev a4b89756).
 
 An account with no projects receives one project named 默认项目空间 using Hindsight. Initialization is idempotent; existing projects and their engines are preserved. New project creation defaults to Hindsight and allows selecting OpenViking. The previous internal workspace schema remains compatible with existing deployed data but is not exposed as a second navigation layer.
 
@@ -23,3 +23,5 @@ Use the light neutral palette, compact icon/text navigation, clear active states
 Validate both languages, project switching and cancellation, first-project concurrency, schema migration preservation, native transport isolation, production builds, and live browser behavior.
 
 Project selector width is fixed (125px desktop and mobile). Truncated names expose the full name on hover. Each row reveals an ellipsis action on hover or keyboard focus (always visible for touch), offering Rename and Delete. Delete requires confirmation, revokes access and retains native data; deleting the last project does not trigger onboarding again.
+
+Project settings navigation and page are removed; legacy app-settings URLs redirect to the project overview. Rename and delete remain in the project selector.

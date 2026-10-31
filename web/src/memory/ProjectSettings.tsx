@@ -32,12 +32,12 @@ export function CreateProject({ bridge, providers, onCreate, workspaceID }: {
   </Card>;
 }
 
-export function ProjectSettings({ bridge, project, issued, clearSecret, onSecret, reload, mode = "access" }: {
+export function ProjectSettings({ bridge, project, issued, clearSecret, onSecret, reload }: {
   bridge: MemoryBridge; project: MemoryProject; issued?: IssuedSecret; clearSecret(): void;
-  onSecret(value: IssuedSecret): void; reload(): void; mode?: "access" | "settings";
+  onSecret(value: IssuedSecret): void; reload(): void;
 }) {
   const { t } = useTranslation(), lifetime = useLifetime();
-  const [name, setName] = useState(project.name), [busy, setBusy] = useState(false), [failed, setFailed] = useState(false);
+  const [busy, setBusy] = useState(false), [failed, setFailed] = useState(false);
   const [action, setAction] = useState<"rotate" | "revoke">();
   const run = (call: (signal: AbortSignal) => Promise<unknown>) => {
     const signal = lifetime.current?.signal; if (!signal || signal.aborted || busy) return;
@@ -50,14 +50,7 @@ export function ProjectSettings({ bridge, project, issued, clearSecret, onSecret
   const headers = { "X-App-Key": project.app_key, "X-App-Secret": "YOUR_APP_SECRET", "X-User-Id": "your-user-id" };
   const firstRequest = `curl -X POST '${origin}/v1/memory/identity' \\\n  -H 'X-App-Key: ${project.app_key}' \\\n  -H 'X-App-Secret: YOUR_APP_SECRET' \\\n  -H 'X-User-Id: your-user-id'`;
   return <div className="memory-project-settings">
-    {mode === "settings" && <><SectionHeader title={t("memoryProject.settings")} description={t("memoryProject.providerFixed")} />
-    <Card><form onSubmit={event => { event.preventDefault(); run(signal => bridge.updateProject(project.id, { name }, signal)); }}>
-      <Field label={t("memoryProject.projectName")}><Input aria-label={t("memoryProject.projectName")} value={name} onChange={event => setName(event.target.value)} required maxLength={100} disabled={busy} /></Field>
-      <p>{project.provider} <Badge>{t(project.enabled ? "memoryProject.enabled" : "memoryProject.disabled")}</Badge></p>
-      <div className="memory-project-actions"><Button type="submit" disabled={busy || !name.trim()}>{t("memoryProject.save")}</Button>
-        <Button type="button" variant="text" disabled={busy} onClick={() => run(signal => bridge.updateProject(project.id, { enabled: !project.enabled }, signal))}>{t(project.enabled ? "memoryProject.disable" : "memoryProject.enable")}</Button></div>
-    </form></Card></>}
-    {mode === "access" && <><SectionHeader title={t("appFlow.access")} description={t("appFlow.credentialsHint")} />
+    <><SectionHeader title={t("appFlow.access")} description={t("appFlow.credentialsHint")} />
     {(!project.enabled || project.revoked) && <p role="alert">{t("appFlow.credentialWarning")}</p>}
     <Card><h3>{t("memoryProject.credentials")}</h3><p><Badge>{t(project.revoked ? "memoryProject.revokedCredential" : "memoryProject.activeCredential")}</Badge></p>
       <Field label="App Key"><Input readOnly value={project.app_key} aria-label="App Key" /></Field><CopyValue value={project.app_key} />
@@ -70,7 +63,7 @@ export function ProjectSettings({ bridge, project, issued, clearSecret, onSecret
         <Button variant="danger" disabled={busy || project.revoked} onClick={() => setAction("revoke")}>{t("memoryProject.revoke")}</Button></div>
     </Card>
     <Card><h3>{t("appFlow.firstRequest")}</h3><p>{t("appFlow.firstRequestHint")}</p><CodeExample value={firstRequest} /><p>{t("memoryProject.integrationHint")}</p></Card>
-    <Card><details><summary>{t("appFlow.mcp")}</summary><CodeExample value={JSON.stringify({ mcpServers: { memory: { url: `${origin}/mcp/memory`, headers } } }, null, 2)} /><p>HTTP: <code>{origin}/v1/memory/native</code></p><p>{t("memoryProject.identityHint")}</p></details></Card></>}
+    <Card><details><summary>{t("appFlow.mcp")}</summary><CodeExample value={JSON.stringify({ mcpServers: { memory: { url: `${origin}/mcp/memory`, headers } } }, null, 2)} /><p>HTTP: <code>{origin}/v1/memory/native</code></p><p>{t("memoryProject.identityHint")}</p></details></Card></>
     {failed && <p role="alert">{t("memoryProject.failed")}</p>}
     {action && <Modal open title={t(action === "rotate" ? "memoryProject.confirmRotate" : "memoryProject.confirmRevoke")} onClose={() => { if (!busy) setAction(undefined); }}
       footer={<><Button disabled={busy} onClick={() => setAction(undefined)}>{t("memoryProject.cancel")}</Button><Button variant="danger" disabled={busy} onClick={() => run(async signal => {

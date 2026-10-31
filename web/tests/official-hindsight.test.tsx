@@ -33,6 +33,6 @@ it('preserves native sub-tabs and routes while honoring disabled observation fea
   await render('management','?bankConfigTab=audit-logs&project=project-one&userid=default');
   await vi.waitFor(()=>expect(node.textContent).toContain('Audit Logs Not Enabled'));
   expect([...node.querySelectorAll('[role="tab"]')].some(n=>n.textContent?.includes('Webhooks'))).toBe(true);
-  expect(node.querySelector('[data-add-document]')).not.toBeNull();
+  expect(node.querySelector('[data-add-document]')).toBeNull();
  }finally{await act(async()=>root.unmount());controller.abort();node.remove();vi.unstubAllGlobals()}
 });

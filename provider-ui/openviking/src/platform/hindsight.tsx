@@ -27,6 +27,6 @@ export function HindsightWorkspace({context,page,search='',language,portalContai
  const resolveHref=(href:string)=>{const next=translate(href);if(!next)return '#';const [path,params]=next.split('?');const q=new URLSearchParams(params);const current=new URLSearchParams(search);for(const key of ['project','userid']){const value=current.get(key);if(value)q.set(key,value)}return '#/memory/hindsight/'+path+'?'+q}
 
  return <PortalContainerContext.Provider value={portalContainer}><I18nextProvider i18n={i18n}><IntlProvider locale={chinese?'zh-CN':'en'} messages={chinese?zh:en} timeZone="Asia/Shanghai"><HindsightNavigationContext.Provider value={{path:'/banks/'+encodeURIComponent(bank)+'?'+query,navigate:nav,resolveHref}}><PlatformBankContext.Provider value={{currentBank:bank,currentBankName:context.user.user_id==='default'?(chinese?'默认用户':'Default user'):(context.user.user_id||bank),banks:[bank],bankInfos:[],banksLoading:false,banksLoadingMore:false,hasMoreBanks:false,totalBanks:1,bankSearch:'',loadBanks:async()=>{},loadMoreBanks:async()=>{},searchBanks:async()=>{},setCurrentBank:()=>{}}}><FeaturesProvider>
- <div className="official-workspace hindsight-official"><AddDocument/><BankPage/><Toaster/></div>
+ <div className="official-workspace hindsight-official"><AddDocument><BankPage/></AddDocument><Toaster/></div>
  </FeaturesProvider></PlatformBankContext.Provider></HindsightNavigationContext.Provider></IntlProvider></I18nextProvider></PortalContainerContext.Provider>
 }

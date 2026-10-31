@@ -1994,7 +1994,9 @@
     "blockRemove": "Remove block",
     "blockMoveUp": "Move block up",
     "blockMoveDown": "Move block down",
-    "blockAdd": "Add"
+    "blockAdd": "Add",
+    "addShort": "Add",
+    "generateMemoriesButton": "Add a document to create memories"
   },
   "banksOverview": {
     "title": "Memory banks",

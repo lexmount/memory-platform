@@ -1,3 +1,4 @@
+import { AddDocumentTrigger } from "./add-document-trigger";
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -1622,6 +1623,7 @@ export function DocumentsView() {
             {t("clearFilters")}
           </Button>
         )}
+        <div className="ml-auto"><AddDocumentTrigger /></div>
       </div>
 
       {/* Hide the count during the very first load so it doesn't read

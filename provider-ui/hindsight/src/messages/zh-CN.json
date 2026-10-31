@@ -1994,7 +1994,9 @@
     "blockRemove": "移除内容块",
     "blockMoveUp": "上移内容块",
     "blockMoveDown": "下移内容块",
-    "blockAdd": "添加"
+    "blockAdd": "添加",
+    "addShort": "添加",
+    "generateMemoriesButton": "添加文档，生成记忆"
   },
   "banksOverview": {
     "title": "记忆库",

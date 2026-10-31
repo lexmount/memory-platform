@@ -1,3 +1,4 @@
+import { AddDocumentContext } from "./add-document-trigger";
 import { hindsightFetch } from "#/platform/hindsight-transport";
 "use client";
 
@@ -113,7 +114,7 @@ function formatTimeAgo(isoDate: string): string {
   return `${Math.floor(months / 12)}y ago`;
 }
 
-function BankSelectorInner() {
+function BankSelectorInner({children}: {children: React.ReactNode}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tNav = useTranslations("nav");
@@ -579,21 +580,7 @@ function BankSelectorInner() {
     }
   };
 
-  return (<div className="hindsight-add-document">        {currentBank && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9 shrink-0 gap-1.5 px-2.5 sm:px-3"
-            onClick={() => setDocDialogOpen(true)}
-            title={tAddDocument("addDocumentToCurrentBank")}
-            aria-label={tAddDocument("addDocumentButton")}
-            data-add-document
-          >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">{tAddDocument("addDocumentButton")}</span>
-          </Button>
-        )}
-
+  return (<AddDocumentContext.Provider value={currentBank ? () => setDocDialogOpen(true) : null}>{children}
         <Dialog open={docDialogOpen} onOpenChange={setDocDialogOpen}>
           <DialogContent className="sm:max-w-[750px] max-h-[90vh] flex flex-col">
             <DialogHeader>
@@ -1208,6 +1195,6 @@ function BankSelectorInner() {
               )}
             </DialogFooter>
           </DialogContent>
-        </Dialog></div>);
+        </Dialog></AddDocumentContext.Provider>);
 }
 export const AddDocument = BankSelectorInner;

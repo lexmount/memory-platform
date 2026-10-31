@@ -128,6 +128,19 @@ func TestMemoryProjectsHTTPNativeAndConsole(t *testing.T) {
 		t.Fatalf("foreign workspace app creation: %d %s", foreign.Code, foreign.Body.String())
 	}
 	const base = "/v1/projects"
+	for range 2 {
+		empty := request("GET", base, ownerToken, "", nil)
+		var result struct {
+			Projects []store.MemoryProject `json:"projects"`
+		}
+		if empty.Code != 200 || json.Unmarshal(empty.Body.Bytes(), &result) != nil || len(result.Projects) != 0 {
+			t.Fatalf("new account should remain empty: %d %s", empty.Code, empty.Body.String())
+		}
+		persisted, err := s.List(t.Context(), account)
+		if err != nil || len(persisted) != 0 {
+			t.Fatalf("listing created a project: %v %v", persisted, err)
+		}
+	}
 	w := request("POST", base, ownerToken, `{"name":"Project A","provider":"hindsight"}`, nil)
 	if w.Code != 201 {
 		t.Fatalf("create: %d %s", w.Code, w.Body.String())

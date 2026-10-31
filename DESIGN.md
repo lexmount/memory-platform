@@ -6,9 +6,9 @@ The console is organized around projects. A project and the previously named app
 
 The header next to Memory displays the selected project name. Its popover lists projects and Create project. The persistent, collapsible 256px sidebar contains overview, API integration, users and memories, and account settings. Project inventory is not repeated in the sidebar. The navigation reference is InsightFlow developer-dev / Managed Agents (lex-dev a4b89756).
 
-An account with no projects receives one project named 默认项目空间 using Hindsight. Initialization is idempotent; existing projects and their engines are preserved. New project creation defaults to Hindsight and allows selecting OpenViking. The previous internal workspace schema remains compatible with existing deployed data but is not exposed as a second navigation layer.
+After login, users land on the project directory. Empty accounts stay empty until the user creates a project. New project creation defaults to Hindsight and allows selecting OpenViking. Existing projects are preserved. The internal workspace schema remains compatible but is not exposed as a second navigation layer.
 
-Selecting a project clears the previous user context. Provider navigation appears within the selected user. Account API keys remain separate from project credentials. Each project provisions the reserved `default` user (shown as 默认用户). Other users are created only through external integration. Credentials appear once after explicit creation or rotation; onboarding projects use the existing credential rotation flow to issue a secret.
+Selecting a project clears the previous user context. Provider navigation appears within the selected user. Account API keys remain separate from project credentials. Each project provisions the reserved `default` user (shown as 默认用户). Other users are created only through external integration. Credentials appear once after explicit creation or rotation.
 
 ## Native provider views
 

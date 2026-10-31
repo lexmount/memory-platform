@@ -66,11 +66,9 @@ A project owns one memory engine, API credentials, and isolated users. The heade
 selector switches projects or creates a new one; the collapsible sidebar contains
 the selected project's functionality. Projects and applications are the same entity.
 
-On first project listing, an empty account receives one `默认项目空间` project using
-Hindsight. Concurrent requests do not create duplicates; existing projects keep
-their engines. Hindsight must be configured for this onboarding flow. To obtain
-credentials for an automatically created project, use the API integration page's
-credential rotation action. Explicit project creation returns the secret once.
+After login, users land on the project directory. Empty accounts create their first
+project explicitly; listing projects never provisions one. Project creation defaults
+to Hindsight, allows choosing OpenViking, and returns the secret once.
 
 Schema version 3 adds soft deletion (project removal revokes access and retains native data). Deleting the last project does not recreate the onboarding project. The schema retains an internal workspace association for compatibility.
 Existing projects are backfilled without changing API keys, secrets, or native

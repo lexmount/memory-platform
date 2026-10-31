@@ -20,7 +20,7 @@ export function createServerClient(authPath = '/auth') {
     emit(value); return value;
   };
   const login = async (mode: 'auto' | 'login' | 'switch') => {
-    const value = await call('/login', { mode, returnTo: location.pathname + location.search + location.hash });
+    const value = await call('/login', { mode, returnTo: location.pathname + location.search + '#/memory' });
     if (value.redirect) {
       generation++; emit(null);
       if (mode !== 'auto') announce();

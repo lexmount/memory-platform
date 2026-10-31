@@ -106,11 +106,12 @@ function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: 
     navigate(memoryPath(p.provider, nextPage, search.toString()));
   };
   const navigation = (close: () => void) => <div className="platform-navigation">
+    {project && <Link title={t("appFlow.overview")} className={`nav-item ${pageID==="project"?"is-active":""}`} aria-current={pageID==="project"?"page":undefined} to={memoryPath(project.provider,"project",new URLSearchParams({project:project.id}).toString())} onClick={close}><LayoutGrid size={18}/><span>{t("appFlow.overview")}</span></Link>}
     
 
     {project && active && user && module && <><div className="memory-context app-user-context"><div className="nav-group-label">{t("appFlow.native")}</div><UserPicker key={project.id} bridge={bridge} project={project} user={user} onSelect={value=>{choose(project,value,pageID);close()}}/></div><div className="nav-group workspace-navigation">{module.navigation.map(({id,labelKey,icon:Icon})=><Link key={id} title={t(labelKey)} className={`nav-item ${pageID===id?"is-active":""}`} aria-current={pageID===id?"page":undefined} to={memoryPath(module.id,id,pageID===id?location.search:memoryProjectSearch(location.search))} onClick={close}><Icon size={18}/><span>{t(labelKey)}</span></Link>)}</div></>}
     <div className="sidebar-footer">
-    {project && <><div className="nav-group-label sidebar-section-label">{t("nativeUI.application")}</div><div className="nav-group">{[{id:"project",label:"overview",icon:LayoutGrid},{id:"access",label:"access",icon:KeyRound},{id:"users",label:"users",icon:Users}].map(({id,label,icon:Icon})=><Link key={id} title={t(`appFlow.${label}`)} className={`nav-item ${pageID===id?"is-active":""}`} aria-current={pageID===id?"page":undefined} to={memoryPath(project.provider,id,new URLSearchParams({project:project.id}).toString())} onClick={close}><Icon size={18}/><span>{t(`appFlow.${label}`)}</span></Link>)}</div></>}
+    {project && <><div className="nav-group">{[{id:"access",label:"access",icon:KeyRound},{id:"users",label:"users",icon:Users}].map(({id,label,icon:Icon})=><Link key={id} title={t(`appFlow.${label}`)} className={`nav-item ${pageID===id?"is-active":""}`} aria-current={pageID===id?"page":undefined} to={memoryPath(project.provider,id,new URLSearchParams({project:project.id}).toString())} onClick={close}><Icon size={18}/><span>{t(`appFlow.${label}`)}</span></Link>)}</div></>}
     <div className="sidebar-account"><Link className={`nav-item ${accountPage?"is-active":""}`} title={t("appFlow.accountSettings")} aria-current={accountPage?"page":undefined} to="/account/keys" onClick={close}><Settings size={18}/><span>{t("appFlow.accountSettings")}</span></Link></div></div>
   </div>;
   const content = () => {

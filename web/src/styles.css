@@ -67,3 +67,5 @@
 .memory-shell>.collapse-handle{z-index:26;cursor:pointer}.memory-shell>.collapse-handle:hover{background:#e6e6e9;color:var(--foreground)}.memory-shell>.collapse-handle:focus-visible{outline:2px solid var(--ring);outline-offset:3px}
 
 .sidebar-footer{margin-top:auto;padding-top:16px}.sidebar-footer .sidebar-account{margin-top:4px;padding-top:4px}.sidebar-footer>.nav-group{margin-bottom:0}
+
+.platform-navigation>.nav-item:first-child{margin-top:12px}

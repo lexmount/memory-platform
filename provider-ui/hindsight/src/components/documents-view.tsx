@@ -1344,6 +1344,8 @@ export function DocumentsView() {
           <h1 className="text-3xl font-bold mb-2 text-foreground">{tBank("documents")}</h1>
           <p className="text-muted-foreground">{tBank("documentsDescription")}</p>
         </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <AddDocumentTrigger />
         {(canExport || canImport) && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -1378,6 +1380,7 @@ export function DocumentsView() {
             </DropdownMenuContent>
           </DropdownMenu>
         )}
+        </div>
       </div>
 
       {/* Export dialog: offers opt-in inclusion of derived/bank-level knowledge. */}
@@ -1623,7 +1626,6 @@ export function DocumentsView() {
             {t("clearFilters")}
           </Button>
         )}
-        <div className="ml-auto"><AddDocumentTrigger /></div>
       </div>
 
       {/* Hide the count during the very first load so it doesn't read

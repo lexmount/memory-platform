@@ -578,7 +578,7 @@
     "closeMobile": "关闭导航"
   },
   "appFlow": {
-    "overview": "概览",
+    "overview": "应用信息",
     "access": "API 接入",
     "users": "用户与记忆",
     "settings": "项目设置",
@@ -689,5 +689,11 @@
     "open": "账号菜单",
     "language": "语言",
     "logout": "退出登录"
+  },
+  "userSwitcher": {
+    "switch": "切换用户",
+    "default": "默认用户",
+    "failed": "用户列表暂时不可用，请重试。",
+    "overview": "记忆概览"
   }
 }

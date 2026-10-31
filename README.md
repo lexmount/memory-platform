@@ -82,7 +82,7 @@ database before deploying schema changes.
 1. Sign in and select a project, or create one using a configured memory engine.
 2. Save its App Key and App Secret (the secret is shown once).
 3. Connect your application using `X-App-Key`, `X-App-Secret` and `X-User-Id`.
-4. The first request provisions the native user. Connected users then appear in
+4. Each project provisions a `default` user automatically; other users are provisioned on their first request. Connected users appear in
    the console; the console never asks you to pre-create arbitrary user IDs.
 
 Percent-encode `X-User-Id` as a URL path component, e.g. `encodeURIComponent(userid)`.
@@ -152,3 +152,5 @@ migration errors. They skip only when the test database variable is absent.
 
 CI runs Go build/vet, race-enabled PostgreSQL integration tests, UI tests and the
 production UI build. The container uses only this repository as its build context.
+
+Default users use the existing project-scoped native identity mapping: an isolated OpenViking user or Hindsight bank. Startup backfills existing enabled projects without replacing users. Provider failures do not discard a newly created project or its credentials; `default_user_ready` reports the immediate result, and user-list/default-identity access retries provisioning.

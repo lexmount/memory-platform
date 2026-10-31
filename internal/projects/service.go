@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
@@ -227,7 +228,7 @@ func (s *Service) Resolve(ctx context.Context, p *store.MemoryProject, user stri
 	return i, nil
 }
 
-// ResolveExisting is the console path: viewing a project never creates users.
+// ResolveExisting resolves an already provisioned console identity.
 func (s *Service) ResolveExisting(ctx context.Context, p *store.MemoryProject, user string) (*Identity, error) {
 	if !ValidUser(user) {
 		return nil, ErrInvalid
@@ -296,5 +297,28 @@ func (s *Service) List(ctx context.Context, account uuid.UUID) ([]store.MemoryPr
 	if err := initializer.EnsureFirstProject(ctx, p); err != nil {
 		return nil, err
 	}
-	return s.Store.List(ctx, account)
+	items, err = s.Store.List(ctx, account)
+	if err == nil {
+		for n := range items {
+			_ = s.EnsureDefaultUser(ctx, &items[n])
+		}
+	}
+	return items, err
+}
+
+const DefaultUserID = "default"
+
+// EnsureDefaultUser provisions only the reserved onboarding identity. The repository
+// serializes provisioning, preserving the existing project's isolated native mapping.
+func (s *Service) EnsureDefaultUser(ctx context.Context, p *store.MemoryProject) error {
+	if !p.Enabled || p.Revoked {
+		return nil
+	}
+	if u, err := s.Store.User(ctx, p.ID, DefaultUserID); err == nil && u.Provisioned {
+		return nil
+	}
+	provisionCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	_, err := s.Resolve(provisionCtx, p, DefaultUserID)
+	return err
 }

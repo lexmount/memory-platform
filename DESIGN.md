@@ -8,7 +8,7 @@ The header next to Memory displays the selected project name. Its popover lists 
 
 An account with no projects receives one project named 默认项目空间 using Hindsight. Initialization is idempotent; existing projects and their engines are preserved. New project creation defaults to Hindsight and allows selecting OpenViking. The previous internal workspace schema remains compatible with existing deployed data but is not exposed as a second navigation layer.
 
-Selecting a project clears the previous user context. Provider navigation appears within the selected user. Account API keys remain separate from project credentials. Never auto-create users. Credentials appear once after explicit creation or rotation; onboarding projects use the existing credential rotation flow to issue a secret.
+Selecting a project clears the previous user context. Provider navigation appears within the selected user. Account API keys remain separate from project credentials. Each project provisions the reserved `default` user (shown as 默认用户). Other users are created only through external integration. Credentials appear once after explicit creation or rotation; onboarding projects use the existing credential rotation flow to issue a secret.
 
 ## Native provider views
 
@@ -29,3 +29,5 @@ Project settings navigation and page are removed; legacy app-settings URLs redir
 Sidebar collapse control follows InsightFlow developer-frontend Shell: a 13×42px neutral pill centered vertically on the sidebar boundary, with 12px directional chevrons. The expanded/collapsed sidebar width controls its horizontal position. Mobile retains drawer navigation.
 
 The Memory home route now opens the project directory as a first-level entry. Projects appear in a searchable, engine-filterable table inside the shared white card / gray canvas style. Select a project to enter its existing sidebar workspace. Create project opens the creation form, which returns to the directory via its back link.
+
+The persistent user selector sits above Overview and defaults to `default`. Both providers display the same user vocabulary; Hindsight maps each project/user to its own bank. Provider navigation is available immediately; switching users preserves the functional page and clears user-specific query state. The redundant bottom Users and memories navigation is removed. Existing projects receive a background, idempotent default-user backfill on startup; failures retry when their user list/default identity is opened.

@@ -7,10 +7,11 @@ import { MemoryFrame } from "../MemoryFrame";
 import { Badge, Button, Input, Select } from "../ui/index";
 import { emptyMemoryBridge, memoryRequest, type MemoryBridge, type MemoryProject, type MemoryProviderModule, type MemoryWorkspaceContext, type MemoryUserPage } from "./contracts";
 import { memoryModuleRegistry, memoryProviderModules } from "./registry";
+import { UserSwitcher } from "./UserSwitcher";
 import { ProjectDirectory } from "./ProjectDirectory";
 import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 import { NativeWriteNotices } from "./NativeWrites";
-import { memoryPath, memoryProjectSearch } from "./routes";
+import { memoryPath } from "./routes";
 import { CreateProject, ProjectSettings, type IssuedSecret } from "./ProjectSettings";
 
 type Load<T> = { key: string; value?: T; failed?: boolean };
@@ -41,7 +42,7 @@ function UserPicker({ bridge, project, user, onSelect, list = false }: { bridge:
     {list && <div className="app-section-heading"><div><h2>{t("appFlow.users")}</h2><p>{t("appFlow.userIntro")}</p></div><Button onClick={() => { setCursor(""); users.retry(); }}>{t("appFlow.refresh")}</Button></div>}
     {!project.enabled && <p role="alert">{t("appFlow.disabledHint")}</p>}
     {all.length > 0 && list ? <><Input aria-label={t("appFlow.searchUsers")} placeholder={t("appFlow.searchUsers")} value={search} onChange={e => setSearch(e.target.value)} />
-      <div className="app-user-list">{visible.map(item => <button type="button" className="app-user-row" key={item.user_id} disabled={!project.enabled} onClick={() => onSelect(item.user_id)}><Users size={18} /><strong>{item.user_id}</strong><Badge>{t(item.provisioned ? "appFlow.ready" : "appFlow.pending")}</Badge><span>{t("memoryProject.openUser")} <ArrowRight size={16} /></span></button>)}{!visible.length && <p className="app-empty">{t("appFlow.noMatches")}</p>}</div></> : all.length > 0 ? <Select label={t("memoryProject.knownUsers")} value={all.some(item => item.user_id === user) ? user : ""}
+      <div className="app-user-list">{visible.map(item => <button type="button" className="app-user-row" key={item.user_id} disabled={!project.enabled} onClick={() => onSelect(item.user_id)}><Users size={18} /><strong>{item.user_id === "default" ? t("userSwitcher.default") : item.user_id}</strong><Badge>{t(item.provisioned ? "appFlow.ready" : "appFlow.pending")}</Badge><span>{t("memoryProject.openUser")} <ArrowRight size={16} /></span></button>)}{!visible.length && <p className="app-empty">{t("appFlow.noMatches")}</p>}</div></> : all.length > 0 ? <Select label={t("memoryProject.knownUsers")} value={all.some(item => item.user_id === user) ? user : ""}
       options={[{ value: "", label: t("memoryProject.chooseUser") }, ...all.map(item => ({ value: item.user_id, label: item.user_id }))]}
       onChange={value => { if (value) onSelect(value); }} /> : users.value && !users.failed ? <div className="app-empty"><Users size={28} /><h3>{t("appFlow.emptyUsers")}</h3><p>{t("memoryProject.noUsers")}</p><Link className="app-action-link" to={memoryPath(project.provider, "access", new URLSearchParams({ project: project.id }).toString())}>{t("appFlow.goAccess")} <ArrowRight size={16} /></Link></div> : null}
     {!users.value && !users.failed && <p role="status">{t("memory.loading")}</p>}
@@ -83,7 +84,7 @@ function useWorkspace(bridge: MemoryBridge, project: MemoryProject | undefined, 
 }
 function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: MemoryBridge; formatTimeBucket?: MemoryBridge["formatTimeBucket"]; modules: readonly MemoryProviderModule[]; accountID?: string; }) {
   const { t } = useTranslation(), params = useParams(), location = useLocation(), navigate = useNavigate();
-  const query = new URLSearchParams(location.search), projectID = query.get("project") ?? "", user = query.get("userid") ?? "";
+  const query = new URLSearchParams(location.search), projectID = query.get("project") ?? "", user = query.get("userid") || "default";
   const accountPage = location.pathname === "/account/keys";
   const registry = useMemo(() => memoryModuleRegistry(modules), [modules]);
   const loadProjects = useCallback((signal: AbortSignal) => bridge.projects(signal), [bridge]);
@@ -101,18 +102,18 @@ function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: 
   useEffect(() => { setIssued(previous => previous && previous.project === projectID && pageID === "access" ? previous : undefined); }, [projectID, pageID]);
   const active = project && params.provider === project.provider && !["project", "access", "users", "app-settings"].includes(pageID) ? project : undefined;
   const workspace = useWorkspace(bridge, active, user);
-  const choose = (p: MemoryProject, nextUser = "", nextPage = "project") => {
+  const choose = (p: MemoryProject, nextUser = "default", nextPage = "project") => {
     if (p.id !== projectID) setIssued(undefined);
     const search = new URLSearchParams({ project: p.id }); if (nextUser) search.set("userid", nextUser);
     navigate(memoryPath(p.provider, nextPage, search.toString()));
   };
   const navigation = (close: () => void) => <div className="platform-navigation">
-    {project && <Link title={t("appFlow.overview")} className={`nav-item ${pageID==="project"?"is-active":""}`} aria-current={pageID==="project"?"page":undefined} to={memoryPath(project.provider,"project",new URLSearchParams({project:project.id}).toString())} onClick={close}><LayoutGrid size={18}/><span>{t("appFlow.overview")}</span></Link>}
+    {project && <UserSwitcher key={project.id} bridge={bridge} project={project} user={user} onSelect={value=>{choose(project,value,pageID);close()}}/>}
     
 
-    {project && active && user && module && <><div className="memory-context app-user-context"><div className="nav-group-label">{t("appFlow.native")}</div><UserPicker key={project.id} bridge={bridge} project={project} user={user} onSelect={value=>{choose(project,value,pageID);close()}}/></div><div className="nav-group workspace-navigation">{module.navigation.map(({id,labelKey,icon:Icon})=><Link key={id} title={t(labelKey)} className={`nav-item ${pageID===id?"is-active":""}`} aria-current={pageID===id?"page":undefined} to={memoryPath(module.id,id,pageID===id?location.search:memoryProjectSearch(location.search))} onClick={close}><Icon size={18}/><span>{t(labelKey)}</span></Link>)}</div></>}
+    {project && module && <><div className="nav-group workspace-navigation">{module.navigation.map(({id,labelKey,icon:Icon})=><Link key={id} title={t(id==="overview"?"userSwitcher.overview":labelKey)} className={`nav-item ${pageID===id?"is-active":""}`} aria-current={pageID===id?"page":undefined} to={memoryPath(module.id,id,pageID===id?location.search:new URLSearchParams({project:project.id,userid:user}).toString())} onClick={close}><Icon size={18}/><span>{t(id==="overview"?"userSwitcher.overview":labelKey)}</span></Link>)}</div></>}
     <div className="sidebar-footer">
-    {project && <><div className="nav-group">{[{id:"access",label:"access",icon:KeyRound},{id:"users",label:"users",icon:Users}].map(({id,label,icon:Icon})=><Link key={id} title={t(`appFlow.${label}`)} className={`nav-item ${pageID===id?"is-active":""}`} aria-current={pageID===id?"page":undefined} to={memoryPath(project.provider,id,new URLSearchParams({project:project.id}).toString())} onClick={close}><Icon size={18}/><span>{t(`appFlow.${label}`)}</span></Link>)}</div></>}
+    {project && <><div className="nav-group">{[{id:"project",label:"overview",icon:LayoutGrid},{id:"access",label:"access",icon:KeyRound}].map(({id,label,icon:Icon})=><Link key={id} title={t(`appFlow.${label}`)} className={`nav-item ${pageID===id?"is-active":""}`} aria-current={pageID===id?"page":undefined} to={memoryPath(project.provider,id,new URLSearchParams({project:project.id,userid:user}).toString())} onClick={close}><Icon size={18}/><span>{t(`appFlow.${label}`)}</span></Link>)}</div></>}
     </div>
   </div>;
   const content = () => {

@@ -154,7 +154,7 @@ func TestMemoryProjectsHTTPNativeAndConsole(t *testing.T) {
 	if w.Code != 403 {
 		t.Fatalf("console created user: %d", w.Code)
 	}
-	if users, err := s.Users(t.Context(), p.ID, ""); err != nil || len(users) != 0 {
+	if users, err := s.Users(t.Context(), p.ID, ""); err != nil || len(users) != 1 || users[0].UserID != "default" {
 		t.Fatalf("console changed users: %v %v", users, err)
 	}
 	headers := map[string]string{"X-App-Key": p.AppKey, "X-App-Secret": created.Secret, "X-User-Id": url.PathEscape("张三"), "X-API-Key": "attacker", "X-OpenViking-Account": "other", "Cookie": "secret"}

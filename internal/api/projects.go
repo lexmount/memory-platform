@@ -122,7 +122,10 @@ func (h *MemoryProjectsHandler) create(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, r, err)
 		return
 	}
-	writeJSON(w, 201, map[string]any{"project": p, "app_secret": secret})
+	// Project creation remains successful if the provider is temporarily unavailable.
+	// Opening the user list retries the same deterministic default identity.
+	ready := h.service.EnsureDefaultUser(r.Context(), p) == nil
+	writeJSON(w, 201, map[string]any{"project": p, "app_secret": secret, "default_user_ready": ready})
 }
 func (h *MemoryProjectsHandler) owned(w http.ResponseWriter, r *http.Request) *store.MemoryProject {
 	id, err := uuid.Parse(r.PathValue("project"))
@@ -202,6 +205,10 @@ func (h *MemoryProjectsHandler) users(w http.ResponseWriter, r *http.Request) {
 	if p == nil {
 		return
 	}
+	if err := h.service.EnsureDefaultUser(r.Context(), p); err != nil {
+		h.fail(w, r, err)
+		return
+	}
 	items, err := h.service.Store.Users(r.Context(), p.ID, r.URL.Query().Get("after"))
 	if err != nil {
 		h.fail(w, r, err)
@@ -218,6 +225,12 @@ func (h *MemoryProjectsHandler) consoleIdentity(w http.ResponseWriter, r *http.R
 	p := h.owned(w, r)
 	if p == nil {
 		return nil
+	}
+	if user == projects.DefaultUserID {
+		if err := h.service.EnsureDefaultUser(r.Context(), p); err != nil {
+			h.fail(w, r, err)
+			return nil
+		}
 	}
 	i, err := h.service.ResolveExisting(r.Context(), p, user)
 	if err != nil {

@@ -219,8 +219,8 @@ it("clears resource query state, drafts and in-flight writes when switching subj
   await click("Saving…", dialog);
   expect(vi.mocked(memory.invoke).mock.calls.filter(row => row[2] === "write")).toHaveLength(1);
   await act(async () => {
-    const select = shadow.querySelector<HTMLSelectElement>('select[aria-label="Connected users"]')!;
-    select.value = "two"; select.dispatchEvent(new Event("change", { bubbles: true }));
+    const target=[...shadow.querySelectorAll<HTMLButtonElement>('.sidebar-user-switcher .workspace-options button')].find(b=>b.textContent==='two')!;
+    target.click();
   });
   await settle(() => address === "/memory/openviking/content?project=project&userid=two");
   expect(signal?.aborted).toBe(true);

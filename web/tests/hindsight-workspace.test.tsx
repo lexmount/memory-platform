@@ -383,8 +383,7 @@ it("clears resource IDs, filters, pagination and unsaved forms when the subject 
   await settle(() => Boolean(shadow.textContent?.includes("Atlas meeting notes")));
   await click(t("operations.update_document"));
   expect(shadow.querySelector("dialog.hs-modal[open]")).not.toBeNull();
-  const subject = shadow.querySelector<HTMLSelectElement>(`select[aria-label="${developerI18n.t("memoryProject.knownUsers")}"]`)!;
-  await act(async () => { subject.value = "two"; subject.dispatchEvent(new Event("change", { bubbles: true })); });
+  await act(async()=>[...shadow.querySelectorAll<HTMLButtonElement>('.sidebar-user-switcher .workspace-options button')].find(b=>b.textContent==='two')!.click());
   await settle(() => address === "/memory/hindsight/documents?project=project&userid=two");
   expect(shadow.querySelector("dialog.hs-modal[open]")).toBeNull();
   expect(address).not.toContain("hs-resource");

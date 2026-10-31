@@ -342,7 +342,7 @@ it("opens a project from the directory and exposes native navigation after selec
   expect(shadow.querySelector(".workspace-applications .workspace-add")).not.toBeNull();
   expect(shadow.querySelector(".sidebar .sidebar-app-list")).toBeNull();
   expect(address).toContain("/project?project=hindsight");
-  expect(shadow.querySelector('.sidebar a[href*="/browse?"]')).toBeNull();
+  expect(shadow.querySelector('.sidebar a[href*="/browse?"]')).not.toBeNull();
   expect(shadow.textContent).toContain("Get project credentials");
   expect(memory.resolveUser).not.toHaveBeenCalled();
   await act(async () => navigate("/memory/hindsight/users?project=hindsight"));
@@ -394,7 +394,7 @@ it("switches projects directly without retaining the previous user's context", a
  await render('/memory/hindsight/browse?project=hindsight&userid=one',memory,modules);await settle(()=>Boolean(active));const old=active!;
  const switcher=shadow.querySelector<HTMLDetailsElement>('.workspace-picker')!;switcher.open=true;
  const target=switcher.querySelectorAll<HTMLButtonElement>('.workspace-options .project-select')[1]!;const name=target.textContent;
- await act(async()=>target.click());await settle(()=>address==='/memory/openviking/project?project=openviking');
+ await act(async()=>target.click());await settle(()=>address==='/memory/openviking/project?project=openviking&userid=default');
  expect(old.signal.aborted).toBe(true);expect(shadow.querySelector('[data-workspace]')).toBeNull();expect(switcher.open).toBe(false);
  expect(switcher.querySelector('summary')?.textContent).toContain(name);expect(memory.workspaces).not.toHaveBeenCalled();
  expect(switcher.querySelectorAll('.workspace-options')).toHaveLength(1);
@@ -433,7 +433,7 @@ it("requires confirmation before deleting a project and selects the remaining pr
  expect(memory.deleteProject).not.toHaveBeenCalled();
  await act(async()=>shadow.querySelector('.project-action-form')!.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
  expect(memory.deleteProject).toHaveBeenCalledWith('hindsight',expect.any(AbortSignal));
- expect(address).toBe('/memory/openviking/project?project=openviking');
+ expect(address).toBe('/memory/openviking/project?project=openviking&userid=default');
 });
 
 it("filters directory projects without entering their workspaces", async()=>{
@@ -444,5 +444,18 @@ it("filters directory projects without entering their workspaces", async()=>{
  expect(shadow.querySelectorAll('.directory-table tbody tr')).toHaveLength(1);
  expect(address).toBe('/memory');expect(memory.resolveUser).not.toHaveBeenCalled();
  await act(async()=>shadow.querySelector<HTMLButtonElement>('.directory-project-link')!.click());
- expect(address).toBe('/memory/openviking/project?project=openviking');
+ expect(address).toBe('/memory/openviking/project?project=openviking&userid=default');
+});
+it("defaults to a user and keeps application information above API access in the footer",async()=>{
+ const memory=bridge();memory.users=vi.fn(async()=>({items:[{user_id:'default',provisioned:true},{user_id:'two',provisioned:true}],next_cursor:''}));
+ await render('/memory/hindsight/project?project=hindsight',memory,modules);
+ await settle(()=>shadow.querySelectorAll('.sidebar .sidebar-user-switcher .workspace-options button').length===2);
+ expect(shadow.querySelector('.sidebar-user-switcher summary')?.textContent).toContain('Default user');
+ expect(shadow.querySelector('.sidebar .platform-navigation')?.firstElementChild?.classList.contains('sidebar-user-switcher')).toBe(true);
+ expect(shadow.querySelector('.sidebar-footer a[href*="/users?"]')).toBeNull();
+ expect([...shadow.querySelectorAll('.sidebar .sidebar-footer a')].map(a=>a.textContent)).toEqual(['Application information','API integration']);
+ expect(shadow.querySelector('.workspace-navigation a')?.getAttribute('href')).toContain('userid=default');
+ await act(async()=>[...shadow.querySelectorAll<HTMLButtonElement>('.sidebar-user-switcher .workspace-options button')].find(b=>b.textContent==='two')!.click());
+ expect(address).toBe('/memory/hindsight/project?project=hindsight&userid=two');
+ expect(shadow.querySelector('.workspace-navigation a')?.getAttribute('href')).toContain('userid=two');
 });

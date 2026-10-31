@@ -578,7 +578,7 @@
     "closeMobile": "Close navigation"
   },
   "appFlow": {
-    "overview": "Overview",
+    "overview": "Application information",
     "access": "API integration",
     "users": "Users & memory",
     "settings": "Project settings",
@@ -689,5 +689,11 @@
     "open": "Account menu",
     "language": "Language",
     "logout": "Sign out"
+  },
+  "userSwitcher": {
+    "switch": "Switch user",
+    "default": "Default user",
+    "failed": "Users are unavailable. Please retry.",
+    "overview": "Memory overview"
   }
 }

@@ -605,3 +605,81 @@ func TestProjectConnectionsAreIndependentAndRequireNativeKeys(t *testing.T) {
 		t.Fatal("OpenViking accepted missing encryption key")
 	}
 }
+
+func TestDefaultUserIsIdempotentAndProjectScoped(t *testing.T) {
+	for _, provider := range []string{"hindsight", "openviking"} {
+		t.Run(provider, func(t *testing.T) {
+			var mu sync.Mutex
+			banks := map[string]bool{}
+			keys := map[string][2]string{}
+			creates := 0
+			s, _, p, _ := testService(t, provider, func(w http.ResponseWriter, r *http.Request) {
+				mu.Lock()
+				defer mu.Unlock()
+				w.Header().Set("Content-Type", "application/json")
+				switch {
+				case r.URL.Path == "/version":
+					io.WriteString(w, `{"api_version":"1.1.0"}`)
+				case strings.HasSuffix(r.URL.Path, "/config"):
+					bank := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/v1/default/banks/"), "/config")
+					if !banks[bank] {
+						w.WriteHeader(404)
+						io.WriteString(w, `{}`)
+					} else {
+						fmt.Fprintf(w, `{"bank_id":%q}`, bank)
+					}
+				case r.Method == "PUT":
+					banks[strings.TrimPrefix(r.URL.Path, "/v1/default/banks/")] = true
+					creates++
+					io.WriteString(w, `{}`)
+				case r.URL.Path == "/health":
+					who := keys[r.Header.Get("X-API-Key")]
+					fmt.Fprintf(w, `{"version":"0.5.0","auth_mode":"api_key","account_id":%q,"user_id":%q,"role":"user"}`, who[0], who[1])
+				case r.URL.Path == "/api/v1/admin/accounts":
+					io.WriteString(w, `{"result":{}}`)
+				case strings.HasSuffix(r.URL.Path, "/users"):
+					var input map[string]string
+					json.NewDecoder(r.Body).Decode(&input)
+					account := strings.Split(r.URL.Path, "/")[5]
+					key := uuid.NewString()
+					keys[key] = [2]string{account, input["user_id"]}
+					creates++
+					fmt.Fprintf(w, `{"result":{"user_key":%q}}`, key)
+				default:
+					t.Errorf("unexpected provisioning request: %s", r.URL.Path)
+					io.WriteString(w, `{}`)
+				}
+			})
+			var wg sync.WaitGroup
+			for range 4 {
+				wg.Go(func() {
+					if err := s.EnsureDefaultUser(t.Context(), p); err != nil {
+						t.Error(err)
+					}
+				})
+			}
+			wg.Wait()
+			first, err := s.ResolveExisting(t.Context(), p, DefaultUserID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			p2, _, err := s.Create(t.Context(), p.AccountID, "Second", provider)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := s.EnsureDefaultUser(t.Context(), p2); err != nil {
+				t.Fatal(err)
+			}
+			second, err := s.ResolveExisting(t.Context(), p2, DefaultUserID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if first.User.NativeID == second.User.NativeID || fmt.Sprint(first.Mapping) == fmt.Sprint(second.Mapping) {
+				t.Fatal("default identities shared across projects")
+			}
+			if creates != 2 {
+				t.Fatalf("expected two identities, got %d", creates)
+			}
+		})
+	}
+}

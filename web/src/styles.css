@@ -63,3 +63,5 @@
 .workspace-picker summary{width:125px;box-sizing:border-box}.workspace-picker summary>span{flex:1;min-width:0}.workspace-picker summary>svg{flex-shrink:0}@media(max-width:760px){.workspace-picker summary{width:125px}}
 .project-option{position:relative}.project-actions-menu{position:absolute;top:32px;right:5px;z-index:2;margin:0}.workspace-options{overflow:visible;max-height:none}.project-option:last-child .project-actions-menu{top:auto;bottom:0}
 .project-option-row{border-radius:5px}.project-option-row:hover,.project-option-row:focus-within{background:var(--muted)}.workspace-options .project-option-row>button:hover{background:transparent}
+
+.memory-shell>.collapse-handle{z-index:26;cursor:pointer}.memory-shell>.collapse-handle:hover{background:#e6e6e9;color:var(--foreground)}.memory-shell>.collapse-handle:focus-visible{outline:2px solid var(--ring);outline-offset:3px}

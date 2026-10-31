@@ -25,3 +25,5 @@ Validate both languages, project switching and cancellation, first-project concu
 Project selector width is fixed (125px desktop and mobile). Truncated names expose the full name on hover. Each row reveals an ellipsis action on hover or keyboard focus (always visible for touch), offering Rename and Delete. Delete requires confirmation, revokes access and retains native data; deleting the last project does not trigger onboarding again.
 
 Project settings navigation and page are removed; legacy app-settings URLs redirect to the project overview. Rename and delete remain in the project selector.
+
+Sidebar collapse control follows InsightFlow developer-frontend Shell: a 13×42px neutral pill centered vertically on the sidebar boundary, with 12px directional chevrons. The expanded/collapsed sidebar width controls its horizontal position. Mobile retains drawer navigation.

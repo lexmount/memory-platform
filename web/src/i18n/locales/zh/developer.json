@@ -235,11 +235,11 @@
     "overview": "概览",
     "memories": "记忆",
     "documents": "文档",
-    "entities": "实体与关系",
+    "entities": "实体",
     "models": "心智模型",
-    "knowledge": "知识页面",
+    "knowledge": "知识库",
     "playground": "召回与反思",
-    "management": "管理",
+    "management": "记忆库配置",
     "directives": "指令",
     "consolidation": "观察整合",
     "tasks": "任务",
@@ -479,7 +479,9 @@
     "templateHint": "应用模板前，先勾选 Dry run 验证内容。",
     "stateValid": "有效",
     "stateInvalidated": "已失效",
-    "waitingHint": "关闭窗口只会停止本地等待，Hindsight 仍可能完成该请求。"
+    "waitingHint": "关闭窗口只会停止本地等待，Hindsight 仍可能完成该请求。",
+    "recall": "Recall",
+    "reflect": "Reflect"
   },
   "nativeMemory": {
     "title": "全部原生操作",

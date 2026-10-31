@@ -1,6 +1,6 @@
 import { OfficialHindsight } from "./OfficialWorkspace";
 import { useTranslation } from "react-i18next";
-import { Activity, BookOpen, Brain, Files, LayoutDashboard, Network, Settings, Sparkles, Terminal } from "lucide-react";
+import { BookOpen, Brain, Files, LayoutDashboard, Network, Settings, Search, Sparkles } from "lucide-react";
 import { Badge } from "../../ui/index";
 import { type MemoryBridge, type MemoryProviderModule, type MemoryWorkspaceContext } from "../contracts";
 import { type HindsightClient } from "./client";
@@ -18,6 +18,8 @@ function renderPage(page: string, client: HindsightClient, formatTimeBucket?: Me
     case "entities": return <EntityExplorer client={client} />;
     case "models": return <Collection client={client} kind="models" />;
     case "knowledge": return <Knowledge client={client} />;
+    case "recall":
+    case "reflect":
     case "playground": return <Playground client={client} />;
     case "management": return <Management client={client} />;
     default: return null;
@@ -26,7 +28,7 @@ function renderPage(page: string, client: HindsightClient, formatTimeBucket?: Me
 function HindsightWorkspace({ context, page, formatTimeBucket }: { context: MemoryWorkspaceContext; page: string; formatTimeBucket?: MemoryBridge["formatTimeBucket"] }) {
   const { t } = useTranslation(), client = useHindsight(context);
   const pageID = page.split("/")[0] ?? "";
-  if (["memories","documents","entities","models","knowledge","playground"].includes(pageID) && context.provider.version === "1.1.0") return <OfficialHindsight context={context} page={pageID}/>;
+  if (["overview","memories","documents","entities","models","knowledge","playground","recall","reflect","management"].includes(pageID) && context.provider.version === "1.1.0") return <OfficialHindsight context={context} page={pageID}/>;
   return <div className="hs-workspace" data-hindsight-workspace>
     <div className="hs-toolbar hs-intro"><div><strong>{t("hindsight.title")}</strong><Badge>{context.provider.version}</Badge></div>
 
@@ -42,13 +44,12 @@ export const hindsightModule: MemoryProviderModule = Object.freeze({
   navigation: [
     { id: "overview", labelKey: "hindsight.overview", icon: LayoutDashboard },
     { id: "memories", labelKey: "hindsight.memories", icon: Brain },
+    { id: "knowledge", labelKey: "hindsight.knowledge", icon: BookOpen },
+    { id: "recall", labelKey: "hindsight.recall", icon: Search },
+    { id: "reflect", labelKey: "hindsight.reflect", icon: Sparkles },
     { id: "documents", labelKey: "hindsight.documents", icon: Files },
     { id: "entities", labelKey: "hindsight.entities", icon: Network },
-    { id: "models", labelKey: "hindsight.models", icon: Activity },
-    { id: "knowledge", labelKey: "hindsight.knowledge", icon: BookOpen },
-    { id: "playground", labelKey: "hindsight.playground", icon: Sparkles },
     { id: "management", labelKey: "hindsight.management", icon: Settings },
-    { id: "native", labelKey: "nativeMemory.title", icon: Terminal },
   ],
   Workspace: HindsightWorkspace,
 });

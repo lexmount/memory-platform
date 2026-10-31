@@ -1,3 +1,4 @@
+import { AddDocumentTrigger } from "./add-document-trigger";
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
@@ -50,9 +51,11 @@ function flattenAll(nodes: KnowledgeNode[], out: KnowledgeNode[] = []): Knowledg
 
 export function HomeView({
   bankId,
+  bankName,
   onNavigate,
 }: {
   bankId: string;
+  bankName?: string;
   onNavigate: (tab: string) => void;
 }) {
   const t = useTranslations("home");
@@ -182,10 +185,12 @@ export function HomeView({
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-2 text-foreground">{t("title")}</h1>
-      <p className="text-muted-foreground mb-6">
-        {t("subtitle")} <span className="font-mono text-foreground">{bankId}</span>
-      </p>
+      <div className="mb-6 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <h1 className="text-3xl font-bold text-foreground">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">
+          {t("subtitle")} <span>{bankName ?? bankId}</span>
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:h-[520px]">
         {/* Memory constellation — fills the row height so it never leaves a gap. */}
@@ -274,6 +279,7 @@ export function HomeView({
           <div className="bg-card border border-border border-solid rounded-[16px] flex-1 min-h-0 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
               <h2 className="text-sm font-semibold text-foreground">{t("recentDocsTitle")}</h2>
+              <AddDocumentTrigger light />
               {docs.length > 0 && (
                 <button
                   onClick={() => onNavigate("documents")}

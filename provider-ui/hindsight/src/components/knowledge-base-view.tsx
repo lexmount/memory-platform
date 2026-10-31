@@ -69,11 +69,6 @@ import { buildPathIndex } from "@hs/lib/knowledge-path";
 import { isTagFilterActive } from "@hs/lib/tag-filter-params";
 import { downloadMarkdown, printPage } from "@hs/lib/page-download";
 import { UpdateMentalModelDialog } from "./mental-models-view";
-import {
-  AttachmentStrip,
-  attachmentUrl,
-  type RetainedAttachment,
-} from "@hs/components/ui/inline-attachment-text";
 
 type PageDetail = Awaited<ReturnType<typeof client.getKnowledgePage>>;
 
@@ -156,9 +151,6 @@ export function KnowledgeBaseView() {
   // Provenance: how many source memories grounded the open page's last synthesis.
   // Derived from the backing mental model's reflect_response (not the page endpoint).
   const [supportingCount, setSupportingCount] = useState(0);
-  // Images behind the page's evidence, deduplicated: several facts from one
-  // screenshot all carry it, and the page shows it once.
-  const [pageAttachments, setPageAttachments] = useState<RetainedAttachment[]>([]);
   const [selectedMmId, setSelectedMmId] = useState<string | null>(null);
   // Non-null while the provenance dialog (the backing model's based_on) is open.
   const [provenanceMmId, setProvenanceMmId] = useState<string | null>(null);
@@ -331,39 +323,27 @@ export function KnowledgeBaseView() {
   useEffect(() => {
     if (!selected || !currentBank) {
       setSupportingCount(0);
-      setPageAttachments([]);
       return;
     }
     const mmId = allNodes.find((n) => n.id === selected.id)?.mental_model_id;
     setSelectedMmId(mmId ?? null);
     if (!mmId) {
       setSupportingCount(0);
-      setPageAttachments([]);
       return;
     }
     let cancelled = false;
-    // Clear now, not on arrival: until this page's evidence loads, the strip
-    // would otherwise keep showing the previous page's images.
-    setPageAttachments([]);
     client
       .getMentalModel(currentBank, mmId)
       .then((mm) => {
         if (cancelled) return;
         const basedOn = mm.reflect_response?.based_on ?? {};
-        const facts = (["world", "experience", "observation"] as const).flatMap(
-          (ft) => basedOn[ft] ?? []
+        const count = (["world", "experience", "observation"] as const).reduce(
+          (sum, ft) => sum + (basedOn[ft]?.length ?? 0),
+          0
         );
-        setSupportingCount(facts.length);
-        const byId = new Map<string, RetainedAttachment>();
-        for (const fact of facts) {
-          for (const attachment of fact.attachments ?? []) byId.set(attachment.id, attachment);
-        }
-        setPageAttachments([...byId.values()]);
+        setSupportingCount(count);
       })
-      .catch(() => {
-        setSupportingCount(0);
-        setPageAttachments([]);
-      });
+      .catch(() => setSupportingCount(0));
     return () => {
       cancelled = true;
     };
@@ -601,7 +581,6 @@ export function KnowledgeBaseView() {
               onTagFilterChange={setTagFilter}
               pathById={pathById}
               onOpenPage={openPage}
-              initialMentalModelId={selectedMmId}
             />
           )}
 
@@ -719,14 +698,6 @@ export function KnowledgeBaseView() {
                               body: selected.body ?? "",
                               updatedAt: selected.timestamp,
                               tags: selected.tags,
-                              images: currentBank
-                                ? {
-                                    label: t("evidenceImages"),
-                                    urls: pageAttachments
-                                      .filter((a) => a.media_type?.startsWith("image/"))
-                                      .map((a) => attachmentUrl(currentBank, a)),
-                                  }
-                                : undefined,
                             })
                           }
                         >
@@ -826,15 +797,6 @@ export function KnowledgeBaseView() {
                 <p className="text-sm text-muted-foreground italic border-t border-border mt-5 pt-5">
                   {t("noBody")}
                 </p>
-              )}
-
-              {pageAttachments.length > 0 && currentBank && (
-                <section className="border-t border-border mt-5 pt-4">
-                  <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-                    {t("evidenceImages")}
-                  </h3>
-                  <AttachmentStrip bankId={currentBank} attachments={pageAttachments} />
-                </section>
               )}
             </div>
           ) : (

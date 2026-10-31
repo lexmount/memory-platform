@@ -114,10 +114,6 @@ type StrategiesEdits = {
 
 type MCPEdits = {
   mcp_enabled_tools: string[] | null;
-  // The IANA zone a time with no UTC offset is read in. null = inherit the
-  // server default; read from the overrides so saving the tool list never
-  // pins the bank to whatever zone the server happens to resolve today.
-  default_timezone: string | null;
 };
 
 type GeminiSafetySetting = {
@@ -148,12 +144,11 @@ type MentalModelsEdits = {
 };
 
 // The bank's default reflect options (reflect_default_options). Stored as one
-// object, edited as three fields; null means "not set", so reflect falls back to
+// object, edited as two fields; null means "not set", so reflect falls back to
 // the shipped default.
 type ReflectOptionsEdits = {
   reflect_search_observations_max_tokens: number | null;
   reflect_search_observations_include_entities: boolean | null;
-  reflect_search_mental_models_max_tokens: number | null;
 };
 
 // The server's built-in knowledge-page trigger (MemoryEngine.KNOWLEDGE_PAGE_DEFAULT_TRIGGER).
@@ -367,10 +362,9 @@ function strategiesSlice(config: Record<string, any>): StrategiesEdits {
   };
 }
 
-function mcpSlice(config: Record<string, any>, overrides: Record<string, any>): MCPEdits {
+function mcpSlice(config: Record<string, any>): MCPEdits {
   return {
     mcp_enabled_tools: config.mcp_enabled_tools ?? null,
-    default_timezone: overrides.default_timezone ?? null,
   };
 }
 
@@ -414,11 +408,6 @@ function ReflectOptionsSummary({ options }: { options: ReflectOptionsEdits }) {
     options.reflect_search_observations_include_entities === false
       ? t("reflectObservationsEntitiesOff")
       : t("reflectObservationsEntitiesOn"),
-    options.reflect_search_mental_models_max_tokens != null
-      ? t("reflectMentalModelsMaxTokensChip", {
-          tokens: options.reflect_search_mental_models_max_tokens,
-        })
-      : t("reflectMentalModelsMaxTokensChipDefault"),
   ];
   return (
     <div className="flex flex-wrap gap-1.5">
@@ -440,7 +429,6 @@ function reflectOptionsSlice(overrides: Record<string, any>): ReflectOptionsEdit
     reflect_search_observations_max_tokens: opts.reflect_search_observations_max_tokens ?? null,
     reflect_search_observations_include_entities:
       opts.reflect_search_observations_include_entities ?? null,
-    reflect_search_mental_models_max_tokens: opts.reflect_search_mental_models_max_tokens ?? null,
   };
 }
 
@@ -463,7 +451,8 @@ const DEFAULT_PROFILE: ProfileData = {
 
 // ─── BankConfigView ───────────────────────────────────────────────────────────
 
-export function BankConfigView() {
+export function BankConfigView({manageAliases=true}:{manageAliases?:boolean}) {
+  const platformT = useTranslations("bank");
   const t = useTranslations("bankConfig");
   const tMentalModels = useTranslations("mentalModels");
   const { currentBank: bankId } = useBank();
@@ -493,7 +482,7 @@ export function BankConfigView() {
   );
   const [reflectOptionsSaving, setReflectOptionsSaving] = useState(false);
   const [reflectOptionsError, setReflectOptionsError] = useState<string | null>(null);
-  const [mcpEdits, setMcpEdits] = useState<MCPEdits>(mcpSlice({}, {}));
+  const [mcpEdits, setMcpEdits] = useState<MCPEdits>(mcpSlice({}));
   const [geminiEdits, setGeminiEdits] = useState<GeminiEdits>(geminiSlice({}));
   const [auditEdits, setAuditEdits] = useState<AuditEdits>(auditSlice({}));
   const [docStorageEdits, setDocStorageEdits] = useState<DocStorageEdits>(docStorageSlice({}));
@@ -546,8 +535,8 @@ export function BankConfigView() {
     [reflectEdits, baseProfile]
   );
   const mcpDirty = useMemo(
-    () => JSON.stringify(mcpEdits) !== JSON.stringify(mcpSlice(baseConfig, baseOverrides)),
-    [mcpEdits, baseConfig, baseOverrides]
+    () => JSON.stringify(mcpEdits) !== JSON.stringify(mcpSlice(baseConfig)),
+    [mcpEdits, baseConfig]
   );
   const geminiDirty = useMemo(
     () => JSON.stringify(geminiEdits) !== JSON.stringify(geminiSlice(baseConfig)),
@@ -596,7 +585,7 @@ export function BankConfigView() {
       setObservationsEdits(observationsSlice(cfg, overrides));
       setReflectEdits(prof);
       setReflectOptionsForm(reflectOptionsSlice(cfg));
-      setMcpEdits(mcpSlice(cfg, overrides));
+      setMcpEdits(mcpSlice(cfg));
       setGeminiEdits(geminiSlice(cfg));
       setAuditEdits(auditSlice(overrides));
       setDocStorageEdits(docStorageSlice(overrides));
@@ -699,20 +688,8 @@ export function BankConfigView() {
     setMcpSaving(true);
     setMcpError(null);
     try {
-      const response = await client.updateBankConfig(bankId, mcpEdits);
-      // The resolved zone comes back from the server: a cleared override falls
-      // back to a server default this page does not otherwise know.
-      setBaseConfig((prev) => ({
-        ...prev,
-        mcp_enabled_tools: mcpEdits.mcp_enabled_tools,
-        default_timezone: response.config?.default_timezone,
-      }));
-      setBaseOverrides((prev) => {
-        const next = { ...prev };
-        if (mcpEdits.default_timezone === null) delete next.default_timezone;
-        else next.default_timezone = mcpEdits.default_timezone;
-        return next;
-      });
+      await client.updateBankConfig(bankId, mcpEdits);
+      setBaseConfig((prev) => ({ ...prev, ...mcpEdits }));
     } catch (err: any) {
       setMcpError(err.message || t("mcpFailedToSave"));
     } finally {
@@ -1119,28 +1096,6 @@ export function BankConfigView() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-sm font-medium">{t("reflectMentalModelsMaxTokensLabel")}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {t("reflectMentalModelsMaxTokensDescription")}
-                    </p>
-                  </div>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={reflectOptionsForm.reflect_search_mental_models_max_tokens ?? ""}
-                    onChange={(e) =>
-                      setReflectOptionsForm((prev) => ({
-                        ...prev,
-                        reflect_search_mental_models_max_tokens: e.target.value
-                          ? parseInt(e.target.value, 10)
-                          : null,
-                      }))
-                    }
-                    placeholder={t("serverDefault")}
-                  />
-                </div>
               </div>
               {reflectOptionsError && (
                 <Alert variant="destructive">
@@ -1303,7 +1258,7 @@ export function BankConfigView() {
           </Dialog>
         </ConfigSection>
 
-        {/* Memory Bank Section — aliases, bank timezone, MCP tool access */}
+        {/* MCP Tools Section */}
         <ConfigSection
           title={t("clientsTitle")}
           description={t("clientsDescription")}
@@ -1312,34 +1267,15 @@ export function BankConfigView() {
           saving={mcpSaving}
           onSave={saveMCP}
         >
-          <BankAliasRows bankId={bankId} />
-          <FieldRow label={t("defaultTimezoneLabel")} description={t("defaultTimezoneDescription")}>
-            <Input
-              list="bank-config-timezones"
-              value={mcpEdits.default_timezone ?? ""}
-              onChange={(e) =>
-                setMcpEdits((prev) => ({
-                  ...prev,
-                  default_timezone: e.target.value.trim() || null,
-                }))
-              }
-              placeholder={baseConfig.default_timezone ?? "UTC"}
-            />
-            <datalist id="bank-config-timezones">
-              {Intl.supportedValuesOf("timeZone").map((zone) => (
-                <option key={zone} value={zone} />
-              ))}
-            </datalist>
-          </FieldRow>
+          {manageAliases ? <BankAliasRows bankId={bankId} /> : <p className="text-sm text-muted-foreground">{platformT("platformLifecycleManaged")}</p>}
           <FieldRow label={t("restrictToolsLabel")} description={t("restrictToolsDescription")}>
             <div className="flex items-center gap-2 justify-end">
               <Switch
                 checked={mcpEdits.mcp_enabled_tools !== null}
                 onCheckedChange={(restricted) =>
-                  setMcpEdits((prev) => ({
-                    ...prev,
+                  setMcpEdits({
                     mcp_enabled_tools: restricted ? [...ALL_TOOLS] : null,
-                  }))
+                  })
                 }
               />
               <Label className="text-xs text-muted-foreground">
@@ -1350,7 +1286,7 @@ export function BankConfigView() {
           {mcpEdits.mcp_enabled_tools !== null && (
             <ToolSelector
               selected={mcpEdits.mcp_enabled_tools}
-              onChange={(tools) => setMcpEdits((prev) => ({ ...prev, mcp_enabled_tools: tools }))}
+              onChange={(tools) => setMcpEdits({ mcp_enabled_tools: tools })}
             />
           )}
         </ConfigSection>

@@ -5,7 +5,7 @@ import type {MemoryWorkspaceContext} from '../contracts';
 const Native=lazy(()=>import('../../../../provider-ui/openviking/dist/hindsight.js').then(m=>({default:m.HindsightWorkspace})));
 export function OfficialHindsight({context,page}:{context:MemoryWorkspaceContext;page:string}) {
  const {i18n}=useTranslation(),location=useLocation(),navigate=useNavigate();
- const onNavigate=useCallback((next:string)=>navigate('/memory/hindsight/'+next+location.search),[location.search,navigate]);
+ const onNavigate=useCallback((next:string)=>{const [page,query]=next.split('?');const q=new URLSearchParams(query);const current=new URLSearchParams(location.search);for(const key of ['project','userid']){const value=current.get(key);if(value)q.set(key,value)}navigate('/memory/hindsight/'+page+'?'+q)},[location.search,navigate]);
  const surface=document.querySelector('[data-memory-console]')?.shadowRoot;
- return <Suspense fallback={<p role="status">{i18n.language==='zh'?'正在加载工作区…':'Loading workspace…'}</p>}><Native context={context} page={page} language={i18n.language} portalContainer={surface as unknown as HTMLElement|null} onNavigate={onNavigate}/></Suspense>;
+ return <Suspense fallback={<p role="status">{i18n.language==='zh'?'正在加载工作区…':'Loading workspace…'}</p>}><Native context={context} page={page} search={location.search} language={i18n.language} portalContainer={surface as unknown as HTMLElement|null} onNavigate={onNavigate}/></Suspense>;
 }

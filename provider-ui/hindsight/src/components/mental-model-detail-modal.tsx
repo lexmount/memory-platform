@@ -60,7 +60,6 @@ import { DirectiveDetailModal } from "./directive-detail-modal";
 import { formatAbsoluteDateTime as formatDateTime, formatRelativeTime } from "@hs/lib/relative-time";
 import { useTheme } from "@hs/lib/theme-context";
 import { TagChip } from "@hs/components/ui/facet-chip";
-import { AttachmentStrip, type RetainedAttachment } from "@hs/components/ui/inline-attachment-text";
 
 const DIFF_PALETTE = {
   light: {
@@ -88,8 +87,6 @@ type BasedOnFact = {
   text: string;
   type?: string;
   context?: string | null;
-  /** Images behind this fact, resolved by the API on read (not stored with the model). */
-  attachments?: RetainedAttachment[];
 };
 
 type ReflectResponseSnapshot = {
@@ -273,12 +270,10 @@ const FACT_TYPE_ORDER = ["observation", "experience", "world", "directives", "me
 
 function BasedOnList({
   based_on,
-  bankId,
   onViewMemory,
   onViewDirective,
 }: {
   based_on: Record<string, BasedOnFact[]> | undefined;
-  bankId?: string | null;
   onViewMemory?: (id: string) => void;
   onViewDirective?: (id: string) => void;
 }) {
@@ -326,21 +321,14 @@ function BasedOnList({
                     key={fact.id || i}
                     className="group flex items-start gap-3 px-3 py-2 hover:bg-muted/30"
                   >
-                    <div className="text-sm text-foreground leading-relaxed flex-1 min-w-0">
+                    <p className="text-sm text-foreground leading-relaxed flex-1 min-w-0">
                       {fact.text}
                       {fact.context && (
                         <span className="block text-xs text-muted-foreground italic mt-0.5">
                           {fact.context}
                         </span>
                       )}
-                      {bankId && (
-                        <AttachmentStrip
-                          bankId={bankId}
-                          attachments={fact.attachments}
-                          className="mt-2"
-                        />
-                      )}
-                    </div>
+                    </p>
                     {canView && (
                       <button
                         className="text-xs text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5"
@@ -1210,7 +1198,6 @@ export function MentalModelDetailModal({
                     {mentalModel.reflect_response ? (
                       <BasedOnList
                         based_on={basedOn}
-                        bankId={currentBank}
                         onViewMemory={(id) => setViewMemoryId(id)}
                         onViewDirective={(id) => setViewDirectiveId(id)}
                       />

@@ -66,9 +66,10 @@ type Operation struct {
 	Permission   string   `json:"permission"` // UI write/delete presentation only; never authorization.
 }
 type Description struct {
-	Provider   string      `json:"provider"`
-	Version    string      `json:"version"`
-	Operations []Operation `json:"operations"`
+	Features   map[string]bool `json:"features,omitempty"`
+	Provider   string          `json:"provider"`
+	Version    string          `json:"version"`
+	Operations []Operation     `json:"operations"`
 }
 
 func LoadConnections(getenv func(string) string) ([]Config, error) {

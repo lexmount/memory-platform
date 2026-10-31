@@ -1,3 +1,4 @@
+import { AddDocumentTrigger } from "./add-document-trigger";
 "use client";
 
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
@@ -121,7 +122,6 @@ export function DataView({
   prefetchTypes,
 }: DataViewProps) {
   const t = useTranslations("dataView");
-  const tAddDoc = useTranslations("addDocument");
   const { currentBank } = useBank();
   const [viewMode, setViewMode] = useState<ViewMode>(readViewMode);
   const chooseViewMode = (mode: ViewMode) => {
@@ -605,18 +605,7 @@ export function DataView({
           {!documentId && !chunkId && (
             <>
               <p className="text-sm text-muted-foreground mb-6">{t("noMemoriesDescription")}</p>
-              <Button
-                variant="default"
-                size="sm"
-                className="gap-1.5"
-                onClick={() => {
-                  const btn = document.querySelector<HTMLButtonElement>("[data-add-document]");
-                  btn?.click();
-                }}
-              >
-                <Plus className="w-4 h-4" />
-                {tAddDoc("addDocumentButton")}
-              </Button>
+              <AddDocumentTrigger empty />
             </>
           )}
         </div>

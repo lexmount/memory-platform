@@ -103,12 +103,27 @@ func (h *MemoryProjectsHandler) create(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, r, err)
 		return
 	}
-	p, secret, err := h.service.Create(r.Context(), accountFromContext(r.Context()).ID, input.Name, input.Provider)
+	var requestID uuid.UUID
+	if values, supplied := r.Header["Idempotency-Key"]; supplied {
+		var err error
+		if len(values) == 1 {
+			requestID, err = uuid.Parse(values[0])
+		}
+		if len(values) != 1 || err != nil || requestID == uuid.Nil {
+			h.fail(w, r, projects.ErrInvalid)
+			return
+		}
+	}
+	p, secret, err := h.service.CreateOnce(r.Context(), accountFromContext(r.Context()).ID, input.Name, input.Provider, requestID)
 	if err != nil {
 		h.fail(w, r, err)
 		return
 	}
-	writeJSON(w, 201, map[string]any{"project": p, "app_secret": secret})
+	if secret == "" {
+		writeJSON(w, http.StatusOK, map[string]any{"project": p})
+		return
+	}
+	writeJSON(w, http.StatusCreated, map[string]any{"project": p, "app_secret": secret})
 }
 func (h *MemoryProjectsHandler) owned(w http.ResponseWriter, r *http.Request) *store.MemoryProject {
 	id, err := uuid.Parse(r.PathValue("project"))

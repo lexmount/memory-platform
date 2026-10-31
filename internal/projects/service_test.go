@@ -54,6 +54,9 @@ func newTestStore() *testStore {
 func (s *testStore) Create(_ context.Context, p *store.MemoryProject) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if _, exists := s.projects[p.ID]; exists {
+		return store.ErrProjectExists
+	}
 	s.projects[p.ID] = *p
 	return nil
 }

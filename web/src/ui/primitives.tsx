@@ -1,3 +1,4 @@
+import { Button as SharedButton, Input as SharedInput, Textarea as SharedTextarea, Card as SharedCard, Badge as SharedBadge } from "../../../provider-ui/openviking/dist/shared.js";
 import {
   useEffect,
   useId,
@@ -22,14 +23,16 @@ export function Button({
   icon?: ReactNode;
 }) {
   return (
-    <button
+    <SharedButton
+      variant={({default:"outline",primary:"default",text:"ghost",link:"link",danger:"destructive"} as const)[variant]}
+      size={size === "md" ? "default" : size}
       type="button"
       className={`ifd-button ifd-button--${variant} ifd-button--${size} ${className}`}
       {...props}
     >
       {icon}
       {children}
-    </button>
+    </SharedButton>
   );
 }
 export function IconButton({
@@ -58,7 +61,7 @@ export function Badge({
   children: ReactNode;
   tone?: "neutral" | "blue" | "green" | "red";
 }) {
-  return <span className={`ifd-badge ifd-badge--${tone}`}>{children}</span>;
+  return <SharedBadge className={`ifd-badge ifd-badge--${tone}`}>{children}</SharedBadge>;
 }
 export function Card({
   children,
@@ -66,16 +69,16 @@ export function Card({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`ifd-card ${className}`} {...props}>
+    <SharedCard className={`ifd-card ${className}`} {...props}>
       {children}
-    </div>
+    </SharedCard>
   );
 }
 export function Input({
   className = "",
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & { ref?: React.Ref<HTMLInputElement> }) {
-  return <input className={`ifd-input ${className}`} {...props} />;
+  return <SharedInput className={`ifd-input ${className}`} {...props} />;
 }
 // PR #1380's textarea styles are exposed as a component so forms share them.
 export function Textarea({
@@ -83,7 +86,7 @@ export function Textarea({
   variant = "default",
   ...props
 }: TextareaHTMLAttributes<HTMLTextAreaElement> & { variant?: "default" | "plain"; ref?: React.Ref<HTMLTextAreaElement> }) {
-  return <textarea className={`ifd-input ifd-textarea ${variant === "plain" ? "ifd-textarea--plain" : ""} ${className}`} {...props} />;
+  return <SharedTextarea className={`ifd-input ifd-textarea ${variant === "plain" ? "ifd-textarea--plain" : ""} ${className}`} {...props} />;
 }
 export function SearchInput(props: InputHTMLAttributes<HTMLInputElement> & { ref?: React.Ref<HTMLInputElement> }) {
   const { t } = useTranslation();
@@ -270,6 +273,7 @@ export function Modal({
       aria-labelledby={id}
       onCancel={(e) => {
         e.preventDefault();
+        e.stopPropagation();
         onClose();
       }}
       onClick={(e) => {

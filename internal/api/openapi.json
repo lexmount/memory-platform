@@ -239,6 +239,11 @@
                       "hindsight",
                       "openviking"
                     ]
+                  },
+                  "workspace_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Owned project space. Omit to use the default space for backward compatibility."
                   }
                 },
                 "required": [
@@ -2312,6 +2317,156 @@
           }
         ]
       }
+    },
+    "/v1/workspaces": {
+      "get": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "List owned project spaces; ensure the default space exists",
+        "operationId": "listMemoryWorkspaces",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workspaces": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MemoryWorkspace"
+                      }
+                    }
+                  },
+                  "required": [
+                    "workspaces"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "description": "Project spaces belong to the authenticated account and group applications. A space has no provider credentials or memory engine.",
+        "parameters": [
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Create an empty project space without a memory engine",
+        "operationId": "createMemoryWorkspace",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoryWorkspace"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "description": "Project spaces belong to the authenticated account and group applications. A space has no provider credentials or memory engine.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -2352,6 +2507,10 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "workspace_id": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
@@ -2620,6 +2779,31 @@
           "error"
         ],
         "additionalProperties": false
+      },
+      "MemoryWorkspace": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "is_default": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "is_default",
+          "created_at"
+        ]
       }
     },
     "securitySchemes": {

@@ -7,6 +7,9 @@ import { Brain } from "lucide-react";
 import IntegratedApp from "../src/MemoryConsole";
 import developerI18n from "../src/i18n/index";
 import { memoryProviderModules } from "../src/memory/registry";
+import { LegacyOpenVikingWorkspace } from "../src/memory/openviking/Workspace";
+// This suite verifies legacy write recovery; native source transport has its own suite.
+const legacyModules = memoryProviderModules.map(module => module.id === "openviking" ? {...module, Workspace: LegacyOpenVikingWorkspace} : module);
 import {
   emptyMemoryBridge, type MemoryBridge, type MemoryOperation, type MemoryProvider,
   type MemoryProviderModule, type MemoryIdentity, type MemoryWorkspaceContext,
@@ -40,7 +43,7 @@ function Driver({ memory, registered }: { memory?: MemoryBridge; registered?: re
   navigate = useNavigate();
   const location = useLocation();
   address = location.pathname + location.search;
-  return <IntegratedApp memory={memory} memoryModules={registered} />;
+  return <IntegratedApp memory={memory} memoryModules={registered ?? legacyModules} />;
 }
 async function render(path: string, memory?: MemoryBridge, registered?: readonly MemoryProviderModule[]) {
   await act(async () => root.render(<StrictMode><MemoryRouter initialEntries={[path]}><Driver memory={memory} registered={registered} /></MemoryRouter></StrictMode>));
@@ -53,6 +56,7 @@ async function settle(predicate: () => boolean) {
   });
 }
 beforeEach(async () => {
+  localStorage.clear();
   contexts.length = 0; active = undefined;
   node = document.createElement("div"); document.body.append(node); root = createRoot(node);
   vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false, addEventListener() {}, removeEventListener() {} })));
@@ -74,16 +78,16 @@ async function click(label: string, within: ParentNode = shadow) {
   expect(button).toBeDefined(); await act(async () => button.click());
 }
 it("opens connected users without scope selectors or manual userid entry", async () => {
-  const memory = bridge(); await render("/memory/hindsight/project?project=hindsight", memory, modules);
-  await settle(() => Boolean(shadow.querySelector(".memory-project-users")));
+  const memory = bridge(); await render("/memory/hindsight/users?project=hindsight", memory, modules);
+  await settle(() => Boolean(shadow.querySelector(".app-user-list")));
   expect(shadow.querySelector('input[name="userid"]')).toBeNull(); expect(shadow.querySelector('select[aria-label="Subject type"]')).toBeNull();
-  expect(memory.resolveUser).not.toHaveBeenCalled(); await click("one");
+  expect(memory.resolveUser).not.toHaveBeenCalled(); await act(async () => shadow.querySelector<HTMLButtonElement>(".app-user-row")!.click());
   await settle(() => active?.user.user_id === "one"); expect(active?.project.id).toBe("hindsight");
   expect(address).toContain("project=hindsight&userid=one"); expect(active).not.toHaveProperty("scope");
 });
 it("does not create users when viewing an unused project", async () => {
   const memory = bridge(); memory.users = vi.fn(async () => ({ items: [], next_cursor: "" }));
-  await render("/memory/hindsight/project?project=hindsight", memory, modules);
+  await render("/memory/hindsight/users?project=hindsight", memory, modules);
   await settle(() => Boolean(shadow.textContent?.includes("No users have connected")));
   expect(memory.resolveUser).not.toHaveBeenCalled(); expect(memory.invoke).not.toHaveBeenCalled();
 });
@@ -123,21 +127,21 @@ it("drops native resource parameters but preserves project/user navigation", asy
   await act(async () => activeLink.click());
   expect(address).toContain("resource=secret");
 });
-it("creates a project and retires its one-time secret when leaving settings", async () => {
+it("creates a project and retires its one-time secret when leaving API integration", async () => {
   const memory = bridge(), p = memoryProject("hindsight", "created"); let items = await memory.projects(new AbortController().signal);
   memory.projects = vi.fn(async () => items); memory.createProject = vi.fn(async () => { items = [p]; return { project: p, app_secret: "one-time-secret" }; });
-  await render("/memory", memory, modules); await settle(() => Boolean(shadow.querySelector('input[aria-label="Project name"]')));
+  await render("/memory?view=new", memory, modules); await settle(() => Boolean(shadow.querySelector('input[aria-label="Project name"]')));
   const input = shadow.querySelector<HTMLInputElement>('input[aria-label="Project name"]')!;
   await act(async () => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(input, "Created"); input.dispatchEvent(new Event("input", { bubbles: true })); });
   await act(async () => shadow.querySelector("form")!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
   await settle(() => Boolean(shadow.querySelector('input[aria-label="App Secret"]')));
   expect(shadow.querySelector<HTMLInputElement>('input[aria-label="App Secret"]')!.value).toBe("one-time-secret"); expect(memory.createProject).toHaveBeenCalledOnce();
-  await act(async () => navigate("/memory")); await act(async () => navigate("/memory/hindsight/project?project=created"));
+  await act(async () => navigate("/memory")); await act(async () => navigate("/memory/hindsight/access?project=created"));
   await settle(() => Boolean(shadow.querySelector('input[aria-label="App Key"]'))); expect(shadow.querySelector('input[aria-label="App Secret"]')).toBeNull();
 });
 it("rotates and revokes the owned project credential", async () => {
   const memory = bridge(); memory.rotateCredential = vi.fn(async () => ({ app_key: "mp_hindsight", app_secret: "rotated-secret" })); memory.revokeCredential = vi.fn(async () => undefined);
-  await render("/memory/hindsight/project?project=hindsight", memory, modules); await settle(() => Boolean(shadow.querySelector('input[aria-label="App Key"]')));
+  await render("/memory/hindsight/access?project=hindsight", memory, modules); await settle(() => Boolean(shadow.querySelector('input[aria-label="App Key"]')));
   await click("Rotate App Secret"); await click("Confirm", shadow.querySelector("dialog[open]")!); await settle(() => Boolean(shadow.querySelector('input[aria-label="App Secret"]')));
   expect(memory.rotateCredential).toHaveBeenCalledWith("hindsight", expect.any(AbortSignal));
   await click("Revoke credential"); await click("Confirm", shadow.querySelector("dialog[open]")!); await settle(() => vi.mocked(memory.revokeCredential).mock.calls.length === 1);
@@ -152,7 +156,7 @@ it.each(["rotate", "revoke"])("preserves the displayed secret when %s fails", as
   const memory = bridge();
   memory.rotateCredential = vi.fn(async () => ({ app_key: "mp_hindsight", app_secret: "keep-this-secret" }));
   memory.revokeCredential = vi.fn(async () => { throw new Error("unavailable"); });
-  await render("/memory/hindsight/project?project=hindsight", memory, modules);
+  await render("/memory/hindsight/access?project=hindsight", memory, modules);
   await settle(() => Boolean(shadow.querySelector('input[aria-label="App Key"]')));
   await click("Rotate App Secret"); await click("Confirm", shadow.querySelector("dialog[open]")!);
   await settle(() => Boolean(shadow.querySelector('input[aria-label="App Secret"]')));
@@ -325,4 +329,76 @@ it.each([
   expect(Boolean(unconfirmedNotice())).toBe(uncertain);
   expect(unloadPrevented()).toBe(uncertain);
   expect(memory.invoke).toHaveBeenCalledTimes(1);
+});
+
+it("opens an application directly with persistent menus and exposes native navigation after selecting a user", async () => {
+  const memory = bridge(); await render("/memory", memory, modules);
+  await settle(() => address.includes("/project?project=hindsight"));
+  expect(shadow.querySelectorAll(".workspace-applications .workspace-options button")).toHaveLength(2);
+  expect(shadow.querySelector(".app-directory")).toBeNull();
+  expect(shadow.querySelector(".workspace-applications .workspace-add")).not.toBeNull();
+  expect(shadow.querySelector(".sidebar .sidebar-app-list")).toBeNull();
+  expect(address).toContain("/project?project=hindsight");
+  expect(shadow.querySelector('.sidebar a[href*="/browse?"]')).toBeNull();
+  expect(shadow.textContent).toContain("Get project credentials");
+  expect(memory.resolveUser).not.toHaveBeenCalled();
+  await act(async () => navigate("/memory/hindsight/users?project=hindsight"));
+  await settle(() => Boolean(shadow.querySelector(".app-user-row")));
+  await act(async () => shadow.querySelector<HTMLButtonElement>(".app-user-row")!.click());
+  await settle(() => Boolean(active));
+  expect(shadow.querySelector('.sidebar a[href*="/browse?"]')).not.toBeNull();
+});
+
+it("shows a retryable users error without claiming the application has no users", async () => {
+  const memory = bridge(); memory.users = vi.fn(async () => { throw new Error("offline"); });
+  await render("/memory/hindsight/users?project=hindsight", memory, modules);
+  await settle(() => Boolean(shadow.querySelector('[role="alert"]')));
+  expect(shadow.textContent).not.toContain("Waiting for your first user");
+  expect(memory.resolveUser).not.toHaveBeenCalled();
+});
+
+it("keeps navigation while creating an application and on account settings", async () => {
+  const memory = bridge(); await render("/memory?view=new", memory, modules);
+  await settle(() => Boolean(shadow.querySelector('input[aria-label="Project name"]')));
+  expect(shadow.querySelectorAll(".workspace-applications .workspace-options button")).toHaveLength(2);
+  vi.stubGlobal("fetch", vi.fn(async () => Response.json({keys:[]})));
+  await act(async () => navigate("/account/keys"));
+  await settle(() => shadow.querySelectorAll(".workspace-applications .workspace-options button").length === 2);
+  expect(shadow.querySelectorAll(".memory-shell")).toHaveLength(1);
+  expect(shadow.querySelector('.sidebar a[aria-current="page"][href="/account/keys"]')).not.toBeNull();
+});
+it("remembers the selected application without retaining another user's workspace", async () => {
+  const memory = bridge(); await render("/memory/openviking/browse?project=openviking&userid=two",memory,modules);
+  await settle(() => active?.user.user_id === "two");
+  await act(async () => navigate("/memory"));
+  await settle(() => address === "/memory/openviking/project?project=openviking");
+  expect(shadow.querySelector("[data-workspace]")).toBeNull();
+});
+it("opens creation with a persistent menu when there are no applications", async () => {
+  const memory=bridge();memory.createProject=vi.fn(memory.createProject);memory.projects=vi.fn(async()=>[]);await render("/memory",memory,modules);
+  await settle(()=>Boolean(shadow.querySelector('input[aria-label="Project name"]')));
+  expect(shadow.querySelector(".workspace-applications .workspace-add")).not.toBeNull();
+  expect(shadow.querySelector(".sidebar .sidebar-app-list")).toBeNull();
+  expect(shadow.querySelector('.app-directory')).toBeNull();
+  expect(memory.createProject).not.toHaveBeenCalled();
+});
+
+it("switches projects directly without retaining the previous user's context", async () => {
+ const memory=bridge();memory.workspaces=vi.fn(async()=>[]);
+ await render('/memory/hindsight/browse?project=hindsight&userid=one',memory,modules);await settle(()=>Boolean(active));const old=active!;
+ const switcher=shadow.querySelector<HTMLDetailsElement>('.workspace-picker')!;switcher.open=true;
+ const target=switcher.querySelectorAll<HTMLButtonElement>('.workspace-options button')[1]!;const name=target.textContent;
+ await act(async()=>target.click());await settle(()=>address==='/memory/openviking/project?project=openviking');
+ expect(old.signal.aborted).toBe(true);expect(shadow.querySelector('[data-workspace]')).toBeNull();expect(switcher.open).toBe(false);
+ expect(switcher.querySelector('summary')?.textContent).toContain(name);expect(memory.workspaces).not.toHaveBeenCalled();
+ expect(switcher.querySelectorAll('.workspace-options')).toHaveLength(1);
+});
+it("opens project creation directly from the project selector", async () => {
+ const memory=bridge();memory.createProject=vi.fn(memory.createProject);memory.createWorkspace=vi.fn();
+ await render('/memory',memory,modules);await settle(()=>address.includes('/project?project=hindsight'));
+ const switcher=shadow.querySelector<HTMLDetailsElement>('.workspace-picker')!;switcher.open=true;
+ await act(async()=>switcher.querySelector<HTMLButtonElement>('.workspace-add')!.click());
+ await settle(()=>address==='/memory?view=new');expect(switcher.open).toBe(false);
+ expect(shadow.querySelector('input[aria-label="Project name"]')).not.toBeNull();
+ expect(memory.createWorkspace).not.toHaveBeenCalled();expect(memory.createProject).not.toHaveBeenCalled();
 });

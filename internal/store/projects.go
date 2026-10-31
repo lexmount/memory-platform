@@ -9,6 +9,7 @@ import (
 
 // MemoryProject belongs to one Memory account. It has no InsightFlow tenant or Agent identity.
 type MemoryProject struct {
+	WorkspaceID       uuid.UUID `json:"workspace_id"`
 	ID                uuid.UUID `json:"id"`
 	AccountID         uuid.UUID `json:"-"`
 	Name              string    `json:"name"`

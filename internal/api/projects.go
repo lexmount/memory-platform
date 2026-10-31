@@ -46,6 +46,8 @@ func (h *MemoryProjectsHandler) RegisterUserRoutes(mux *http.ServeMux) {
 	developer := h.auth.Require
 
 	mux.HandleFunc("GET /v1/providers", developer(h.providers))
+	mux.HandleFunc("GET /v1/workspaces", developer(h.workspaces))
+	mux.HandleFunc("POST /v1/workspaces", developer(h.createWorkspace))
 	mux.HandleFunc("GET /v1/projects", developer(h.list))
 	mux.HandleFunc("POST /v1/projects", developer(h.create))
 	mux.HandleFunc("GET /v1/projects/{project}", developer(h.get))
@@ -87,7 +89,7 @@ func (h *MemoryProjectsHandler) providers(w http.ResponseWriter, r *http.Request
 	writeJSON(w, 200, map[string]any{"providers": h.service.Providers()})
 }
 func (h *MemoryProjectsHandler) list(w http.ResponseWriter, r *http.Request) {
-	items, err := h.service.Store.List(r.Context(), accountFromContext(r.Context()).ID)
+	items, err := h.service.List(r.Context(), accountFromContext(r.Context()).ID)
 	if err != nil {
 		h.fail(w, r, err)
 		return
@@ -96,14 +98,24 @@ func (h *MemoryProjectsHandler) list(w http.ResponseWriter, r *http.Request) {
 }
 func (h *MemoryProjectsHandler) create(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Name     string `json:"name"`
-		Provider string `json:"provider"`
+		Name        string `json:"name"`
+		Provider    string `json:"provider"`
+		WorkspaceID string `json:"workspace_id"`
 	}
 	if err := memoryProjectJSON(w, r, &input); err != nil {
 		h.fail(w, r, err)
 		return
 	}
-	p, secret, err := h.service.Create(r.Context(), accountFromContext(r.Context()).ID, input.Name, input.Provider)
+	workspace := uuid.Nil
+	if input.WorkspaceID != "" {
+		var err error
+		workspace, err = uuid.Parse(input.WorkspaceID)
+		if err != nil || workspace == uuid.Nil {
+			h.fail(w, r, projects.ErrInvalid)
+			return
+		}
+	}
+	p, secret, err := h.service.Create(r.Context(), accountFromContext(r.Context()).ID, input.Name, input.Provider, workspace)
 	if err != nil {
 		h.fail(w, r, err)
 		return

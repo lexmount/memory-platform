@@ -1,6 +1,6 @@
 import { useMemo, useRef } from "react";
 import { discardMemoryResponse, memoryRequest, type MemoryBridge, type MemoryNativeInput,
- type MemoryProvider, type MemoryProject, type MemoryIdentity, type MemoryUserPage } from "./memory/contracts";
+ type MemoryWorkspace, type MemoryProvider, type MemoryProject, type MemoryIdentity, type MemoryUserPage } from "./memory/contracts";
 const prefix = "/v1";
 export function createMemoryBridge(identity: string, current: () => boolean, accountID?: string) {
   const accountHeaders: Record<string, string> = accountID ? { "X-Memory-Account": accountID } : {};
@@ -41,8 +41,10 @@ export function createMemoryBridge(identity: string, current: () => boolean, acc
   const bridge: MemoryBridge = {
     identity,
     providers: signal => request(signal, async linked => (await json<{ providers: MemoryProvider[] }>(`${prefix}/providers`, "GET", undefined, linked)).providers),
+    workspaces: signal => request(signal, async linked => (await json<{workspaces:MemoryWorkspace[]}>(`${prefix}/workspaces`,"GET",undefined,linked)).workspaces),
+    createWorkspace: (name,signal)=>json<MemoryWorkspace>(`${prefix}/workspaces`,"POST",{name},signal),
     projects: signal => request(signal, async linked => (await json<{ projects: MemoryProject[] }>(`${prefix}/projects`, "GET", undefined, linked)).projects),
-    createProject: (name, provider, signal) => json(`${prefix}/projects`, "POST", { name, provider }, signal),
+    createProject: (name, provider, signal, workspace_id) => json(`${prefix}/projects`, "POST", { name, provider, workspace_id }, signal),
     updateProject: (project, patch, signal) => json(projectPath(project), "PATCH", patch, signal),
     rotateCredential: (project, signal) => json(`${projectPath(project)}/credentials/rotate`, "POST", {}, signal),
     revokeCredential: (project, signal) => json(`${projectPath(project)}/credentials`, "DELETE", undefined, signal),

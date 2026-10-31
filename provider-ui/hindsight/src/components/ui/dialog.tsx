@@ -1,0 +1,12 @@
+import React from "react";
+import * as Shared from "#/components/ui/dialog";
+export const Dialog = Shared.Dialog;
+export const DialogClose = React.forwardRef<any,any>(({asChild,children,onSelect,...props},ref)=><Shared.DialogClose ref={ref} {...props} {...(onSelect?{onClick:onSelect}:{})} {...(asChild?{render:children}:{children})}/>);
+export const DialogContent = Shared.DialogContent;
+export const DialogDescription = Shared.DialogDescription;
+export const DialogFooter = Shared.DialogFooter;
+export const DialogHeader = Shared.DialogHeader;
+export const DialogOverlay = Shared.DialogOverlay;
+export const DialogPortal = Shared.DialogPortal;
+export const DialogTitle = Shared.DialogTitle;
+export const DialogTrigger = React.forwardRef<any,any>(({asChild,children,onSelect,...props},ref)=><Shared.DialogTrigger ref={ref} {...props} {...(onSelect?{onClick:onSelect}:{})} {...(asChild?{render:children}:{children})}/>);

@@ -36,15 +36,22 @@ func NewProjectRepository(db *sql.DB) *ProjectRepository { return &ProjectReposi
 
 var _ MemoryProjectStore = (*ProjectRepository)(nil)
 
-const memoryProjectColumns = `id,account_id,name,provider,connection_id,app_key,secret_hash,credential_version,revoked,enabled,provisioned,created_at,updated_at`
+const memoryProjectColumns = `workspace_id,id,account_id,name,provider,connection_id,app_key,secret_hash,credential_version,revoked,enabled,provisioned,created_at,updated_at`
 
 func scanMemoryProject(row interface{ Scan(...any) error }) (*MemoryProject, error) {
 	p := new(MemoryProject)
-	err := row.Scan(&p.ID, &p.AccountID, &p.Name, &p.Provider, &p.ConnectionID, &p.AppKey, &p.SecretHash, &p.CredentialVersion, &p.Revoked, &p.Enabled, &p.Provisioned, &p.CreatedAt, &p.UpdatedAt)
+	err := row.Scan(&p.WorkspaceID, &p.ID, &p.AccountID, &p.Name, &p.Provider, &p.ConnectionID, &p.AppKey, &p.SecretHash, &p.CredentialVersion, &p.Revoked, &p.Enabled, &p.Provisioned, &p.CreatedAt, &p.UpdatedAt)
 	return p, err
 }
 func (s *ProjectRepository) Create(ctx context.Context, p *MemoryProject) error {
-	return s.db.QueryRowContext(ctx, `INSERT INTO projects(id,account_id,name,provider,connection_id,app_key,secret_hash) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING credential_version,enabled,created_at,updated_at`, p.ID, p.AccountID, p.Name, p.Provider, p.ConnectionID, p.AppKey, p.SecretHash).Scan(&p.CredentialVersion, &p.Enabled, &p.CreatedAt, &p.UpdatedAt)
+	if p.WorkspaceID == uuid.Nil {
+		w, err := s.EnsureDefaultWorkspace(ctx, p.AccountID)
+		if err != nil {
+			return err
+		}
+		p.WorkspaceID = w.ID
+	}
+	return s.db.QueryRowContext(ctx, `INSERT INTO projects(id,account_id,name,provider,connection_id,app_key,secret_hash,workspace_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING credential_version,enabled,created_at,updated_at`, p.ID, p.AccountID, p.Name, p.Provider, p.ConnectionID, p.AppKey, p.SecretHash, p.WorkspaceID).Scan(&p.CredentialVersion, &p.Enabled, &p.CreatedAt, &p.UpdatedAt)
 }
 func (s *ProjectRepository) Get(ctx context.Context, id uuid.UUID) (*MemoryProject, error) {
 	return scanMemoryProject(s.db.QueryRowContext(ctx, `SELECT `+memoryProjectColumns+` FROM projects WHERE id=$1`, id))
@@ -145,4 +152,25 @@ func (s *ProjectRepository) Provision(ctx context.Context, id uuid.UUID, user st
 		return nil, err
 	}
 	return u, nil
+}
+
+// EnsureFirstProject atomically creates the onboarding project only for an empty account.
+func (s *ProjectRepository) EnsureFirstProject(ctx context.Context, p *MemoryProject) error {
+	w, err := s.EnsureDefaultWorkspace(ctx, p.AccountID)
+	if err != nil {
+		return err
+	}
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if _, err = tx.ExecContext(ctx, `SELECT pg_advisory_xact_lock(hashtextextended($1,0))`, "memory-first-project:"+p.AccountID.String()); err != nil {
+		return err
+	}
+	_, err = tx.ExecContext(ctx, `INSERT INTO projects(id,account_id,name,provider,connection_id,app_key,secret_hash,workspace_id) SELECT $1,$2,$3,$4,$5,$6,$7,$8 WHERE NOT EXISTS (SELECT 1 FROM projects WHERE account_id=$2)`, p.ID, p.AccountID, p.Name, p.Provider, p.ConnectionID, p.AppKey, p.SecretHash, w.ID)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }

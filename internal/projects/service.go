@@ -141,7 +141,7 @@ func NewSecret() (string, string, error) {
 	raw := "ms_" + hex.EncodeToString(b)
 	return raw, crypto.HashAPIKey(raw), nil
 }
-func (s *Service) Create(ctx context.Context, account uuid.UUID, name, provider string) (*store.MemoryProject, string, error) {
+func (s *Service) Create(ctx context.Context, account uuid.UUID, name, provider string, workspace ...uuid.UUID) (*store.MemoryProject, string, error) {
 	c := s.connections[provider]
 	name = strings.TrimSpace(name)
 	if c == nil || account == uuid.Nil || name == "" || utf8.RuneCountInString(name) > 100 || !utf8.ValidString(name) {
@@ -152,6 +152,16 @@ func (s *Service) Create(ctx context.Context, account uuid.UUID, name, provider 
 		return nil, "", err
 	}
 	p := &store.MemoryProject{ID: uuid.New(), AccountID: account, Name: name, Provider: provider, ConnectionID: c.ID, AppKey: "mp_" + strings.ReplaceAll(uuid.NewString(), "-", ""), SecretHash: hash, Enabled: true, CredentialVersion: 1}
+	if len(workspace) > 0 && workspace[0] != uuid.Nil {
+		ws, ok := s.Store.(store.WorkspaceStore)
+		if !ok {
+			return nil, "", ErrUnavailable
+		}
+		if _, err := ws.OwnedWorkspace(ctx, account, workspace[0]); err != nil {
+			return nil, "", ErrDenied
+		}
+		p.WorkspaceID = workspace[0]
+	}
 	if err := s.Store.Create(ctx, p); err != nil {
 		return nil, "", err
 	}
@@ -260,4 +270,31 @@ func (s *Service) headers(i *Identity) http.Header {
 		h.Set("X-API-Key", i.key)
 	}
 	return h
+}
+
+// List initializes an empty account with its Hindsight onboarding project.
+func (s *Service) List(ctx context.Context, account uuid.UUID) ([]store.MemoryProject, error) {
+	items, err := s.Store.List(ctx, account)
+	if err != nil || len(items) > 0 {
+		return items, err
+	}
+	initializer, ok := s.Store.(interface {
+		EnsureFirstProject(context.Context, *store.MemoryProject) error
+	})
+	if !ok {
+		return items, nil
+	}
+	c := s.connections["hindsight"]
+	if c == nil {
+		return nil, ErrUnavailable
+	}
+	_, hash, err := NewSecret()
+	if err != nil {
+		return nil, err
+	}
+	p := &store.MemoryProject{ID: uuid.New(), AccountID: account, Name: "默认项目空间", Provider: "hindsight", ConnectionID: c.ID, AppKey: "mp_" + strings.ReplaceAll(uuid.NewString(), "-", ""), SecretHash: hash}
+	if err := initializer.EnsureFirstProject(ctx, p); err != nil {
+		return nil, err
+	}
+	return s.Store.List(ctx, account)
 }

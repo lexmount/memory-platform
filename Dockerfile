@@ -4,6 +4,8 @@ WORKDIR /src/web
 COPY web/package.json web/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY web ./
+COPY provider-ui /src/provider-ui
+RUN npm --prefix /src/provider-ui/openviking ci
 RUN pnpm build
 
 FROM golang:1.26 AS backend

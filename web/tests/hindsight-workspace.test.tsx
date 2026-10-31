@@ -56,6 +56,7 @@ async function settle(predicate: () => boolean) {
   await vi.waitFor(async () => { await act(async () => { await Promise.resolve(); }); expect(predicate()).toBe(true); });
 }
 async function click(label: string, within: ParentNode = shadow) {
+  if (within === shadow) within = [...shadow.querySelectorAll("dialog[open]")].at(-1) ?? shadow;
   const button = [...within.querySelectorAll<HTMLButtonElement>("button")].find(item => item.textContent?.trim() === label);
   expect(button, label).toBeDefined();
   await act(async () => button!.click());
@@ -99,7 +100,7 @@ it.each([
   const memory = await render(page!);
   await settle(() => Boolean(shadow.textContent?.includes(visible!)));
   if (operation) expect(calls(memory, operation).length).toBeGreaterThan(0);
-  expect(shadow.querySelectorAll(".sidebar .nav-item")).toHaveLength(10);
+  expect(shadow.querySelectorAll(".sidebar .workspace-navigation .nav-item")).toHaveLength(9);
   expect(shadow.textContent).not.toContain("hindsight.");
 });
 it("opens an observation history without offering edits to derived observations", async () => {
@@ -112,7 +113,7 @@ it("shows native detail defaults but only patches edited memory fields", async (
   const memory = await render("memories", bridge(), "&hs-resource=mem-a");
   await settle(() => Boolean(shadow.textContent?.includes("Alice works on the Atlas project")));
   await click(t("operations.update_memory"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await change(modal.querySelector<HTMLTextAreaElement>("textarea")!, "Alice leads the Atlas project");
   await click(t("submit"), modal);
   await settle(() => calls(memory, "update_memory").length === 1);
@@ -127,7 +128,7 @@ it("reverts an invalidated memory without resubmitting its content or type", asy
     ? Promise.resolve(Response.json({ ...record(responses.get_memory), state: "invalidated" })) : original(...args));
   await render("memories", memory, "&hs-resource=mem-a");
   await click(t("operations.update_memory"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   const state = modal.querySelector<HTMLSelectElement>(`select[aria-label="${t("state")}"]`)!;
   expect(state.value).toBe("invalidated");
   await act(async () => { state.value = "valid"; state.dispatchEvent(new Event("change", { bubbles: true })); });
@@ -138,7 +139,7 @@ it("reverts an invalidated memory without resubmitting its content or type", asy
 it("sends only new edits after saving memory content in the same dialog", async () => {
   const memory = await render("memories", bridge(), "&hs-resource=mem-a");
   await click(t("operations.update_memory"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await change(modal.querySelector<HTMLTextAreaElement>("textarea")!, "Saved fact");
   await click(t("submit"), modal);
   const state = modal.querySelector<HTMLSelectElement>(`select[aria-label="${t("state")}"]`)!;
@@ -157,7 +158,7 @@ it.each(["Later draft", "Submitted fact"])("keeps edits made during a pending sa
     ? new Promise(resolve => { finish = resolve; }) : original(...args));
   await render("memories", memory, "&hs-resource=mem-a");
   await click(t("operations.update_memory"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   const content = modal.querySelector<HTMLTextAreaElement>("textarea")!;
   await change(content, "Submitted fact");
   await click(t("submit"), modal);
@@ -180,7 +181,7 @@ it("does not resubmit an acknowledged knowledge source query when renaming the p
   const memory = await render("knowledge", bridge(), "&hs-resource=page-a");
   await settle(() => Boolean(shadow.textContent?.includes(t("operations.update_knowledge_node"))));
   await click(t("operations.update_knowledge_node"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await change(modal.querySelector<HTMLTextAreaElement>("textarea")!, "Updated source query");
   await click(t("submit"), modal);
   const name = [...modal.querySelectorAll("label")].find(label => label.querySelector("span")?.textContent === t("name"))!.querySelector<HTMLInputElement>("input")!;
@@ -193,7 +194,7 @@ it("does not resubmit an acknowledged knowledge source query when renaming the p
 it("retains submitted create-form defaults when editing another field for the next request", async () => {
   const memory = await render("memories");
   await click(t("operations.retain_memories"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await change(modal.querySelector<HTMLTextAreaElement>("textarea")!, "Retained fact");
   await click(t("submit"), modal);
   const document = [...modal.querySelectorAll("label")].find(label => label.querySelector("span")?.textContent === t("documentId"))!.querySelector<HTMLInputElement>("input")!;
@@ -209,7 +210,7 @@ it.each([
 ] as const)("opens the advanced %s draft before required form fields are complete", async (page, operation, body) => {
   const memory = await render(page);
   await click(t(`operations.${operation}`));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await click(t("submit"), modal);
   expect(calls(memory, operation)).toHaveLength(0);
   expect(modal.textContent).toContain(t("required"));
@@ -272,7 +273,7 @@ it("uses the page node ID for reads and the linked mental-model ID for refresh",
   expect(inputObject(calls(memory, "get_knowledge_page")[0]![3])).toEqual({ path: { page_id: "page-a" } });
   const pageReads = calls(memory, "get_knowledge_page").length;
   await click(t("operations.refresh_mental_model"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await click(t("submit"), modal);
   await settle(() => calls(memory, "refresh_mental_model").length === 1);
   expect(inputObject(calls(memory, "refresh_mental_model")[0]![3])).toEqual({ path: { mental_model_id: "model-a" } });
@@ -286,7 +287,7 @@ it.each([
   const memory = await render("knowledge", bridge(), `&hs-resource=${id}`);
   await settle(() => Boolean(shadow.textContent?.includes(t("operations.update_knowledge_node"))));
   await click(t("operations.update_knowledge_node"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   const field = [...modal.querySelectorAll(".hs-form label")].find(item => item.querySelector("span")?.textContent === t(label))!;
   await change(field.querySelector<HTMLInputElement>("input")!, value);
   await click(t("submit"), modal);
@@ -333,6 +334,7 @@ it("updates host timezone labels without retiring drafts, in-flight writes or ac
   const bucket = "2026-10-20T00:30:00Z";
   const fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
     const url = new URL(String(input), "https://workspace.test"), signal = init!.signal as AbortSignal;
+    if (url.pathname.endsWith("/workspaces")) return Response.json({workspaces:[{id:"default",name:"默认项目空间",is_default:true,created_at:"2026-10-31"}]});
     if (url.pathname.endsWith("/providers")) return Response.json({ providers: await memory.providers(signal) });
     if (url.pathname.endsWith("/projects")) return Response.json({ projects: await memory.projects(signal) });
     if (url.pathname.endsWith("/users")) return Response.json(await memory.users("project", "", signal));
@@ -351,12 +353,12 @@ it("updates host timezone labels without retiring drafts, in-flight writes or ac
     shadow = node.querySelector("[data-memory-console]")!.shadowRoot!;
     await settle(() => Boolean(shadow.querySelector("[data-hindsight-workspace]")));
     await click(t("operations.retain_memories"));
-    const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+    const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
     await change(modal.querySelector<HTMLTextAreaElement>("textarea")!, "Keep this draft");
     await click(t("submit"), modal);
     const reads = fetch.mock.calls.length;
     await act(async () => setTimezone("Asia/Shanghai"));
-    expect(shadow.querySelector("dialog[open]")).toBe(modal);
+    expect(shadow.querySelector("dialog.hs-modal[open]")).toBe(modal);
     expect(modal.querySelector<HTMLTextAreaElement>("textarea")!.value).toBe("Keep this draft");
     expect(writeSignal.aborted).toBe(false);
     expect(fetch).toHaveBeenCalledTimes(reads);
@@ -364,7 +366,7 @@ it("updates host timezone labels without retiring drafts, in-flight writes or ac
     await settle(() => Boolean(modal.querySelector(".hs-task")));
     const acceptedReads = fetch.mock.calls.length;
     await act(async () => setTimezone("UTC"));
-    expect(shadow.querySelector("dialog[open]")).toBe(modal);
+    expect(shadow.querySelector("dialog.hs-modal[open]")).toBe(modal);
     expect(modal.querySelector(".hs-task > code")!.textContent).toBe("accepted-task");
     expect(fetch).toHaveBeenCalledTimes(acceptedReads);
     await act(async () => navigate("/memory/hindsight/overview?project=project&userid=one"));
@@ -380,12 +382,12 @@ it("clears resource IDs, filters, pagination and unsaved forms when the subject 
   const memory = await render("documents", bridge(), "&hs-resource=doc-a&hs-offset=25&hs-filters=%7B%22q%22%3A%22private%22%7D");
   await settle(() => Boolean(shadow.textContent?.includes("Atlas meeting notes")));
   await click(t("operations.update_document"));
-  expect(shadow.querySelector("dialog[open]")).not.toBeNull();
+  expect(shadow.querySelector("dialog.hs-modal[open]")).not.toBeNull();
   const subject = shadow.querySelector<HTMLSelectElement>(`select[aria-label="${developerI18n.t("memoryProject.knownUsers")}"]`)!;
   await act(async () => { subject.value = "two"; subject.dispatchEvent(new Event("change", { bubbles: true })); });
-  await settle(() => address === "/memory/hindsight/memories?project=project&userid=two");
-  expect(shadow.querySelector("dialog[open]")).toBeNull();
-  expect(shadow.textContent).not.toContain("Atlas meeting notes");
+  await settle(() => address === "/memory/hindsight/documents?project=project&userid=two");
+  expect(shadow.querySelector("dialog.hs-modal[open]")).toBeNull();
+  expect(address).not.toContain("hs-resource");
   expect(calls(memory, "update_document")).toHaveLength(0);
 });
 it.each(["not_found", "new_native_state", "pending", "completed", "failed", "cancelled"])("preserves task %s and offers only valid ordinary actions", async status => {
@@ -412,19 +414,19 @@ it("returns to the task list after synchronous deletion without monitoring the d
   await settle(() => Boolean(shadow.textContent?.includes(t("operations.delete_operation"))));
   const reads = calls(memory, "get_operation_status").length;
   await click(t("operations.delete_operation"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await act(async () => modal.querySelector<HTMLInputElement>('input[type="checkbox"]')!.click());
   await click(t("submit"), modal);
   await settle(() => calls(memory, "delete_operation").length === 1);
   expect(calls(memory, "get_operation_status")).toHaveLength(reads);
   expect(address).not.toContain("hs-resource");
-  expect(shadow.querySelector("dialog[open]")).toBeNull();
+  expect(shadow.querySelector("dialog.hs-modal[open]")).toBeNull();
   expect(calls(memory, "list_operations").length).toBeGreaterThan(0);
 });
 it("imports into the current bank with merge and never collects another target bank", async () => {
   const memory = await render("management", bridge(), "&hs-view=transfer");
   await click(t("operations.import_bank_transfer"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   expect(modal.textContent).not.toContain("target_bank_id");
   const file = modal.querySelector<HTMLInputElement>('input[type="file"]')!;
   await act(async () => {
@@ -445,7 +447,7 @@ it("surfaces a native write failure once, without replaying it", async () => {
     : original(...args));
   await render("memories", memory);
   await click(t("operations.retain_memories"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await change(modal.querySelector<HTMLTextAreaElement>("textarea")!, "A useful project fact");
   await click(t("submit"), modal);
   await settle(() => Boolean(modal.querySelector('[role="alert"]')));
@@ -459,7 +461,7 @@ it("warns about an uncertain native 500 write with a plain detail body", async (
     : original(...args));
   await render("memories", memory);
   await click(t("operations.retain_memories"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await change(modal.querySelector<HTMLTextAreaElement>("textarea")!, "Fact");
   await click(t("submit"), modal);
   await settle(() => Boolean(modal.querySelector('[role="alert"]')));
@@ -481,7 +483,7 @@ it("keeps accepted tasks through another pending/failed submission and accumulat
   });
   await render("memories", memory);
   await click(t("operations.retain_memories"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await change(modal.querySelector<HTMLTextAreaElement>("textarea")!, "Fact");
   await click(t("submit"), modal);
   await settle(() => modal.querySelectorAll(".hs-task").length === 2);
@@ -523,16 +525,16 @@ it("refetches model history with detail on manual refresh, mutation acceptance a
   expect(shadow.textContent).toContain("Current version 2");
   expect(shadow.textContent).not.toContain("Previous version 1");
   await click(t("operations.refresh_mental_model"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await click(t("submit"), modal);
   await settle(() => Boolean(shadow.textContent?.includes("Previous version 3")));
-  expect(shadow.querySelector("dialog[open]")).toBe(modal);
+  expect(shadow.querySelector("dialog.hs-modal[open]")).toBe(modal);
   await settle(() => Boolean(modal.querySelector(".hs-task")));
   version = 4; taskStatus = "completed";
   await click(t("refresh"), modal.querySelector(".hs-task-monitor")!);
   await settle(() => Boolean(shadow.textContent?.includes("Previous version 4")));
   expect(shadow.textContent).toContain("Current version 4");
-  expect(shadow.querySelector("dialog[open]")).toBe(modal);
+  expect(shadow.querySelector("dialog.hs-modal[open]")).toBe(modal);
   expect(calls(memory, "refresh_mental_model")).toHaveLength(1);
   await click(t("cancel"), modal);
   version = 5;
@@ -551,7 +553,7 @@ it("notifies terminal tasks once per accepted ID without re-notifying unrelated 
   });
   await render("models", memory, "&hs-resource=model-a");
   await click(t("operations.refresh_mental_model"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   const taskStatus = (id: string) => [...modal.querySelectorAll(".hs-task")].find(task => task.querySelector("code")?.textContent === id)?.textContent;
   await click(t("submit"), modal);
   await settle(() => Boolean(taskStatus("job-a")?.includes(t("completed"))));
@@ -587,10 +589,10 @@ it("preserves a resource action and its accepted task when the follow-up detail 
   });
   await render("models", memory, "&hs-resource=model-a");
   await click(t("operations.refresh_mental_model"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await click(t("submit"), modal);
   await settle(() => Boolean(shadow.textContent?.includes("Read unavailable")));
-  expect(shadow.querySelector("dialog[open]")).toBe(modal);
+  expect(shadow.querySelector("dialog.hs-modal[open]")).toBe(modal);
   expect(modal.querySelector(".hs-task > code")!.textContent).toBe("refresh-a");
   expect(calls(memory, "refresh_mental_model")).toHaveLength(1);
 });
@@ -786,11 +788,36 @@ it("uses configuration updates and native model history shapes", async () => {
   const memory = await render("management", bridge(), "&hs-view=config");
   await settle(() => Boolean(shadow.textContent?.includes("retain_extraction_mode")));
   await click(t("operations.update_bank_config"));
-  const modal = shadow.querySelector<HTMLDialogElement>("dialog[open]")!;
+  const modal = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
   await click(t("submit"), modal);
   await settle(() => calls(memory, "update_bank_config").length === 1);
   expect(inputObject(calls(memory, "update_bank_config")[0]![3])).toEqual({ body: { updates: record(responses.get_bank_config).overrides } });
   await act(async () => navigate("/memory/hindsight/models?project=project&userid=one&hs-resource=model-a"));
   await settle(() => Boolean(shadow.textContent?.includes("Atlas was preparing")));
   expect(shadow.textContent).toContain("Upstream timeout");
+});
+
+it("filters memory types through the native request and resets pagination", async () => {
+  const memory = await render("memories", bridge(), '&hs-offset=25');
+  await click(developerI18n.t("nativeUI.observation"));
+  await settle(() => calls(memory,"list_memories").some(call => inputObject(call[3]).query.type === "observation"));
+  expect(inputObject(calls(memory,"list_memories").at(-1)![3]).query).toMatchObject({type:"observation",offset:0});
+});
+it("closes a resource viewer back to its filtered document list", async () => {
+  await render("documents", bridge(), '&hs-filters='+encodeURIComponent(JSON.stringify({q:"Atlas"})));
+  await click(t("details"));
+  await settle(() => Boolean(shadow.querySelector("dialog.hs-resource-modal[open]")));
+  await click(t("back"));
+  expect(shadow.querySelector("dialog.hs-resource-modal[open]")).toBeNull();
+  expect(address).toContain("hs-filters="); expect(address).not.toContain("hs-resource=");
+});
+it("keeps the resource viewer open when cancelling a nested action", async () => {
+  await render("documents", bridge());
+  await click(t("details"));
+  await click(t("operations.update_document"));
+  const action = shadow.querySelector<HTMLDialogElement>("dialog.hs-modal[open]")!;
+  await act(async () => action.dispatchEvent(new Event("cancel", { bubbles: true, cancelable: true })));
+  expect(shadow.querySelector("dialog.hs-modal[open]")).toBeNull();
+  expect(shadow.querySelector("dialog.hs-resource-modal[open]")).not.toBeNull();
+  expect(address).toContain("hs-resource=");
 });

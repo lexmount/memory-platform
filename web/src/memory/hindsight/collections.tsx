@@ -1,6 +1,7 @@
+import { CollectionResults } from "./CollectionResults";
 import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { Badge, Button, Card, EmptyState, Field, Input, Select, Textarea } from "../../ui/index";
+import { Badge, Button, Card, EmptyState, Field, Input, Select, Textarea, Tabs, Modal } from "../../ui/index";
 import { HindsightError, type HindsightClient } from "./client";
 import { Actions, ErrorNotice, FileAction, Loading, NativeDetails, Pagination, Raw, RecordTable, Section } from "./components";
 import { useHindsightRead } from "./hooks";
@@ -93,19 +94,22 @@ export function Collection({ client, kind }: { client: HindsightClient; kind: Co
   const { t } = useTranslation(), location = useHindsightLocation();
   const definition = definitions[kind];
   const filters = readFilters(location.get("filters")), offset = pageOffset(location.get("offset")), limit = 25;
-  const list = useHindsightRead(client, definition.list, { query: { ...filters, limit, offset } }, { enabled: !location.resource });
+  const list = useHindsightRead(client, definition.list, { query: { ...filters, limit, offset } });
   const body = record(list.data), rows = records(body.items);
-  if (location.resource) return <ResourceDetail key={`${kind}:${location.resource}`} client={client} kind={kind} id={location.resource} onBack={() => location.open("")} />;
+
   return <Section title={t(`hindsight.${kind}`)} tools={<Actions client={client} operations={definition.create} onSuccess={list.refresh} />}>
-    <Card className="hs-panel">
-      <FilterBar query={definition.q} types={definition.types} tagModes={definition.tagModes} tagDefault={definition.tagDefault} value={filters} onApply={value => location.set({ filters: Object.keys(value).length ? JSON.stringify(value) : undefined, offset: undefined })}>
+    {kind === "memories" && <Tabs label={t("hindsight.type")} value={text(filters.type)} items={["", "world", "experience", "observation"].map(value => ({value, label:t(value ? `nativeUI.${value}` : "hindsight.all")}))} onChange={value => location.set({ filters: JSON.stringify({...filters, type:value || undefined}), offset:undefined })} />}
+    <p className="hs-collection-intro">{t(`nativeUI.${kind}Hint`, { defaultValue: "" })}</p>
+    <Card className="hs-panel hs-collection-panel">
+      <FilterBar query={definition.q} types={undefined} tagModes={definition.tagModes} tagDefault={definition.tagDefault} value={filters} onApply={value => location.set({ filters: Object.keys(value).length ? JSON.stringify(value) : undefined, offset: undefined })}>
         <Tags client={client} />
       </FilterBar>
       <div className="hs-toolbar"><Loading loading={list.loading} /><Button size="sm" onClick={list.refresh}>{t("hindsight.refresh")}</Button></div>
       <ErrorNotice error={list.error} retry={list.refresh} />
-      {list.data !== undefined && <><RecordTable rows={rows} onOpen={row => location.open(text(row.id ?? row.document_id))} />
+      {list.data !== undefined && <><CollectionResults kind={kind} rows={rows} onOpen={row => location.open(text(row.id ?? row.document_id))} />
         <Pagination offset={offset} limit={limit} total={typeof body.total === "number" ? body.total : undefined} count={rows.length} onChange={value => location.set({ offset: value })} /></>}
     </Card>
+    {location.resource && <Modal open className="hs-resource-modal" title={t(`hindsight.${kind}`)} onClose={() => location.open("")}><ResourceDetail key={`${kind}:${location.resource}`} client={client} kind={kind} id={location.resource} onBack={() => location.open("")} /></Modal>}
   </Section>;
 }
 

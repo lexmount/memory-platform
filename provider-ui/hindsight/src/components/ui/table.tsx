@@ -1,0 +1,10 @@
+import React from "react";
+import * as Shared from "#/components/ui/table";
+export const Table = Shared.Table;
+export const TableHeader = Shared.TableHeader;
+export const TableBody = Shared.TableBody;
+export const TableFooter = Shared.TableFooter;
+export const TableHead = Shared.TableHead;
+export const TableRow = Shared.TableRow;
+export const TableCell = Shared.TableCell;
+export const TableCaption = Shared.TableCaption;

@@ -1,0 +1,17 @@
+import React from "react";
+import * as Shared from "#/components/ui/dropdown-menu";
+export const DropdownMenu = Shared.DropdownMenu;
+export const DropdownMenuPortal = Shared.DropdownMenuPortal;
+export const DropdownMenuTrigger = React.forwardRef<any,any>(({asChild,children,onSelect,...props},ref)=><Shared.DropdownMenuTrigger ref={ref} {...props} {...(onSelect?{onClick:onSelect}:{})} {...(asChild?{render:children}:{children})}/>);
+export const DropdownMenuContent = Shared.DropdownMenuContent;
+export const DropdownMenuGroup = Shared.DropdownMenuGroup;
+export const DropdownMenuLabel = Shared.DropdownMenuLabel;
+export const DropdownMenuItem = React.forwardRef<any,any>(({asChild,children,onSelect,...props},ref)=><Shared.DropdownMenuItem ref={ref} {...props} {...(onSelect?{onClick:onSelect}:{})} {...(asChild?{render:children}:{children})}/>);
+export const DropdownMenuCheckboxItem = React.forwardRef<any,any>(({asChild,children,onSelect,...props},ref)=><Shared.DropdownMenuCheckboxItem ref={ref} {...props} {...(onSelect?{onClick:onSelect}:{})} {...(asChild?{render:children}:{children})}/>);
+export const DropdownMenuRadioGroup = Shared.DropdownMenuRadioGroup;
+export const DropdownMenuRadioItem = React.forwardRef<any,any>(({asChild,children,onSelect,...props},ref)=><Shared.DropdownMenuRadioItem ref={ref} {...props} {...(onSelect?{onClick:onSelect}:{})} {...(asChild?{render:children}:{children})}/>);
+export const DropdownMenuSeparator = Shared.DropdownMenuSeparator;
+export const DropdownMenuShortcut = Shared.DropdownMenuShortcut;
+export const DropdownMenuSub = Shared.DropdownMenuSub;
+export const DropdownMenuSubTrigger = React.forwardRef<any,any>(({asChild,children,onSelect,...props},ref)=><Shared.DropdownMenuSubTrigger ref={ref} {...props} {...(onSelect?{onClick:onSelect}:{})} {...(asChild?{render:children}:{children})}/>);
+export const DropdownMenuSubContent = Shared.DropdownMenuSubContent;

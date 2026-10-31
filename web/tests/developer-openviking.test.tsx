@@ -1,3 +1,5 @@
+// Regression coverage for the retained legacy/fallback workspace. Official integration has separate transport and browser coverage.
+import {openVikingModule,LegacyOpenVikingWorkspace} from "../src/memory/openviking/Workspace";
 import { projectBridge } from "./test/memory-project-fixtures";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -40,7 +42,7 @@ function bridge(actions = ["memory.read", "memory.update", "memory.delete"]): Me
 function Driver({ memory }: { memory: MemoryBridge }) {
   navigate = useNavigate();
   const location = useLocation(); address = location.pathname + location.search;
-  return <IntegratedApp memory={memory} />;
+  return <IntegratedApp memoryModules={[{...openVikingModule,Workspace:LegacyOpenVikingWorkspace}]} memory={memory} />;
 }
 async function render(path: string, memory = bridge()) {
   await act(async () => root.render(<MemoryRouter initialEntries={[path]}><Driver memory={memory} /></MemoryRouter>));
@@ -87,7 +89,7 @@ it("registers guided and native OV pages and restores file/layer deep links", as
   const memory = await render(`/memory/openviking/content?project=project&userid=one&uri=${encodeURIComponent(file)}`);
   await settle(() => shadow.textContent?.includes("Use small patches.") === true);
   expect(address).toContain("/memory/openviking/content?");
-  expect(shadow.querySelectorAll('.sidebar a[href^="/memory/openviking/"]')).toHaveLength(14);
+  expect(shadow.querySelectorAll('.sidebar .workspace-navigation a[href^="/memory/openviking/"]')).toHaveLength(13);
   await click("L0 · Abstract");
   await settle(() => vi.mocked(memory.invoke).mock.calls.some(row => row[2] === "abstract"));
   expect(vi.mocked(memory.invoke).mock.calls.find(row => row[2] === "abstract")?.[3]).toEqual({ query: { uri: memoryRoot + "/preferences" } });
@@ -185,7 +187,7 @@ it("allows editing a legitimately empty file", async () => {
 });
 it.each(["list", "tree"])("keeps Previous available on an empty nonfirst %s page", async view => {
   const memory = bridge(), base = memory.invoke;
-  const operation = view === "tree" ? "tree" : "ls";
+  const operation = "ls"; // Explorer loads directories lazily in both modes.
   memory.invoke = vi.fn<MemoryBridge["invoke"]>(async (...args) => {
     const input = args[3] as { query?: { offset: number } };
     if (args[2] === operation) return Response.json({ result: input.query?.offset === 50 ? [] : fixtures.find(row => row.case === "ls")!.result });
@@ -521,4 +523,15 @@ it.each(["", "review"])("refreshes unchanged experience searches '%s' and sends 
   const calls = vi.mocked(memory.invoke).mock.calls.filter(row => ["ls", "find"].includes(row[2]));
   expect(calls).toHaveLength(4);
   expect(calls[3]?.[3]).toEqual({ body: { query: "updated query", limit: 50, level: 2, target_uri: memoryRoot + "/experiences" } });
+});
+
+it("switches between rendered preview and source without losing the selected file", async () => {
+  await render(`/memory/openviking/content?project=project&userid=one&uri=${encodeURIComponent(file)}`);
+  await settle(() => shadow.textContent?.includes("Use small patches.") === true);
+  await click("Source");
+  expect(address).toContain("format=source");
+  expect(shadow.querySelector(".ov-source-view")?.textContent).toContain("Use small patches.");
+  await click("Preview");
+  expect(shadow.querySelector(".ov-source-view")).toBeNull();
+  expect(address).toContain(encodeURIComponent(file));
 });

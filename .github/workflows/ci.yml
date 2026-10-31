@@ -33,5 +33,5 @@ jobs:
         with:
           node-version: '22'
       - run: corepack enable
-      - run: pnpm install --frozen-lockfile && pnpm typecheck && pnpm test && pnpm build
+      - run: pnpm install --frozen-lockfile && npm --prefix ../provider-ui/openviking ci && pnpm build:providers && pnpm typecheck && pnpm test && pnpm build
         working-directory: web

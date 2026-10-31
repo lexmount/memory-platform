@@ -1,8 +1,8 @@
 .app-shell {
-  --sidebar: var(--ifd-sidebar-width);
+  --memory-sidebar: var(--ifd-sidebar-width);
 }
 .app-shell.is-collapsed {
-  --sidebar: 64px;
+  --memory-sidebar: 64px;
 }
 .topbar {
   height: var(--ifd-header-height);
@@ -162,7 +162,7 @@
   left: 0;
   top: 72px;
   bottom: 0;
-  width: var(--sidebar);
+  width: var(--memory-sidebar);
   border-right: 1px solid var(--ifd-border-soft);
   background: #fff;
   transition: width var(--ifd-transition);
@@ -238,7 +238,7 @@
 }
 .collapse-handle {
   position: fixed;
-  left: calc(var(--sidebar) - 6.5px);
+  left: calc(var(--memory-sidebar) - 6.5px);
   top: calc(50% - 21px);
   width: 13px;
   height: 42px;
@@ -253,7 +253,7 @@
 }
 .main-content {
   position: fixed;
-  inset: 72px 0 0 var(--sidebar);
+  inset: 72px 0 0 var(--memory-sidebar);
   overflow: auto;
   background: #fff;
   transition: left var(--ifd-transition);
@@ -855,7 +855,7 @@ h1 {
 }
 @media (max-width: 760px) {
   .app-shell {
-    --sidebar: 64px;
+    --memory-sidebar: 64px;
   }
   .topbar {
     padding: 0 14px;

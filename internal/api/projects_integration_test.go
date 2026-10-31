@@ -104,6 +104,29 @@ func TestMemoryProjectsHTTPNativeAndConsole(t *testing.T) {
 		mux.ServeHTTP(w, r)
 		return w
 	}
+
+	if w := request("GET", "/v1/workspaces", "", "", nil); w.Code != 401 {
+		t.Fatalf("workspace anonymous: %d", w.Code)
+	}
+	wspace := request("GET", "/v1/workspaces", ownerToken, "", nil)
+	var spaces struct {
+		Workspaces []store.Workspace `json:"workspaces"`
+	}
+	if wspace.Code != 200 || json.Unmarshal(wspace.Body.Bytes(), &spaces) != nil || len(spaces.Workspaces) != 1 || spaces.Workspaces[0].Name != "默认项目空间" {
+		t.Fatalf("default workspace: %d %s", wspace.Code, wspace.Body.String())
+	}
+	if w := request("POST", "/v1/workspaces", ownerToken, `{"name":"   "}`, nil); w.Code != 400 {
+		t.Fatalf("empty workspace: %d", w.Code)
+	}
+	second := request("POST", "/v1/workspaces", ownerToken, `{"name":"Second space"}`, nil)
+	var newSpace store.Workspace
+	if second.Code != 201 || json.Unmarshal(second.Body.Bytes(), &newSpace) != nil {
+		t.Fatalf("new workspace: %d %s", second.Code, second.Body.String())
+	}
+	foreign := request("POST", "/v1/projects", otherToken, fmt.Sprintf(`{"name":"Foreign","provider":"hindsight","workspace_id":%q}`, newSpace.ID), nil)
+	if foreign.Code != 403 {
+		t.Fatalf("foreign workspace app creation: %d %s", foreign.Code, foreign.Body.String())
+	}
 	const base = "/v1/projects"
 	w := request("POST", base, ownerToken, `{"name":"Project A","provider":"hindsight"}`, nil)
 	if w.Code != 201 {

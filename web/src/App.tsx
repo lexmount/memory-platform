@@ -18,9 +18,8 @@ function SignedIn({ session, client, error, action }: { session: Session; client
     const url = new URL(location.href); url.searchParams.set("lang", language);
     history.replaceState(history.state, "", url); void i18n.changeLanguage(language);
   };
-  const header = <header className="memory-topbar"><Link className="memory-brand" to="/memory"><Brain size={24} />Memory</Link>
-    <nav><Link to="/memory">{t("memoryProject.projects")}</Link><Link to="/account/keys">{t("memoryAccount.keys")}</Link></nav>
-    <div className="memory-account-actions"><span>{session.account.name || session.account.email}</span>
+  const header = <header className="memory-topbar"><Link className="memory-brand" to="/memory"><Brain size={24} />Memory</Link><span data-workspace-switcher />
+    <div className="memory-account-actions"><span>{session.account.name || session.account.email}</span><Link to="/account/keys">{t("appFlow.accountSettings")}</Link>
       <Button variant="text" aria-label={t("header.language")} onClick={switchLanguage}><Languages size={18} /></Button>
       <Button variant="text" onClick={() => action(client.switchAccount)}>{t("memoryAccount.switch")}</Button><Button variant="text" onClick={() => action(client.logout)}>{t("memoryAccount.logout")}</Button>
     </div>{error && <span role="alert">{t("memoryAccount.failed")}</span>}</header>;

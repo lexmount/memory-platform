@@ -10,6 +10,9 @@ import (
 //go:embed schema.sql
 var schema string
 
+//go:embed workspaces.sql
+var workspaceSchema string
+
 // Migrate owns a separate database. Never run the platform migrations here.
 func Migrate(ctx context.Context, db *sql.DB) error {
 	tx, err := db.BeginTx(ctx, nil)
@@ -35,7 +38,7 @@ func Migrate(ctx context.Context, db *sql.DB) error {
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
-	if version > 1 {
+	if version > 2 {
 		return errors.New("Memory database schema is newer than this binary")
 	}
 	if version == 0 {
@@ -43,6 +46,14 @@ func Migrate(ctx context.Context, db *sql.DB) error {
 			return err
 		}
 		if _, err = tx.ExecContext(ctx, `INSERT INTO memory_schema(version) VALUES(1)`); err != nil {
+			return err
+		}
+	}
+	if version < 2 {
+		if _, err = tx.ExecContext(ctx, workspaceSchema); err != nil {
+			return err
+		}
+		if _, err = tx.ExecContext(ctx, `UPDATE memory_schema SET version=2 WHERE singleton`); err != nil {
 			return err
 		}
 	}

@@ -10,6 +10,7 @@ Provider business data remains in Hindsight / OpenViking.
 ```sh
 cd web
 pnpm install --frozen-lockfile
+npm --prefix ../provider-ui/openviking ci
 pnpm build
 cd ..
 go build -o memory-server ./cmd/memory
@@ -61,7 +62,24 @@ grants. Browser mutations require an exact same-origin `Origin` header.
 
 ## Projects and native access
 
-1. Sign in and create a project using one configured Provider.
+A project owns one memory engine, API credentials, and isolated users. The header
+selector switches projects or creates a new one; the collapsible sidebar contains
+the selected project's functionality. Projects and applications are the same entity.
+
+On first project listing, an empty account receives one `默认项目空间` project using
+Hindsight. Concurrent requests do not create duplicates; existing projects keep
+their engines. Hindsight must be configured for this onboarding flow. To obtain
+credentials for an automatically created project, use the API integration page's
+credential rotation action. Explicit project creation returns the secret once.
+
+Schema version 2 retains an internal workspace association for compatibility.
+Existing projects are backfilled without changing API keys, secrets, or native
+user mappings. `/v1/workspaces` remains available to existing clients, and omitted
+`workspace_id` on project creation resolves to the account's default association.
+This association is not a second UI navigation layer. Back up the dedicated
+database before deploying schema changes.
+
+1. Sign in and select a project, or create one using a configured memory engine.
 2. Save its App Key and App Secret (the secret is shown once).
 3. Connect your application using `X-App-Key`, `X-App-Secret` and `X-User-Id`.
 4. The first request provisions the native user. Connected users then appear in

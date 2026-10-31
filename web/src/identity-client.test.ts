@@ -45,3 +45,14 @@ it("does not restore an old in-flight session after logout", async () => {
     expect(await pending).toBeNull(); expect(change).toHaveBeenCalledExactlyOnceWith(null);
   } finally { auth.dispose(); }
 });
+
+it.each(['login', 'autoLogin', 'switchAccount'] as const)('returns %s to the directory instead of the previous project', async (method) => {
+  history.replaceState(null, '', '/?lang=zh#/memory/hindsight/memories?project=old&userid=other');
+  const fetcher = vi.fn(async (_url: string, _options: RequestInit) => Response.json({ redirect: null }));
+  vi.stubGlobal('fetch', fetcher);
+  const auth = createServerClient();
+  try {
+    await auth[method]();
+    expect(JSON.parse(String(fetcher.mock.calls[0]![1].body))).toMatchObject({ returnTo: '/?lang=zh#/memory' });
+  } finally { auth.dispose(); history.replaceState(null, '', '/'); }
+});

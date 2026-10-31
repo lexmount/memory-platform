@@ -1,0 +1,14 @@
+import React from "react";
+import * as Shared from "#/components/ui/alert-dialog";
+export const AlertDialog = Shared.AlertDialog;
+export const AlertDialogAction = React.forwardRef<any,any>(({asChild,children,onSelect,...props},ref)=><Shared.AlertDialogAction ref={ref} {...props} {...(onSelect?{onClick:onSelect}:{})} {...(asChild?{render:children}:{children})}/>);
+export const AlertDialogCancel = React.forwardRef<any,any>(({asChild,children,onSelect,...props},ref)=><Shared.AlertDialogCancel ref={ref} {...props} {...(onSelect?{onClick:onSelect}:{})} {...(asChild?{render:children}:{children})}/>);
+export const AlertDialogContent = Shared.AlertDialogContent;
+export const AlertDialogDescription = Shared.AlertDialogDescription;
+export const AlertDialogFooter = Shared.AlertDialogFooter;
+export const AlertDialogHeader = Shared.AlertDialogHeader;
+export const AlertDialogMedia = Shared.AlertDialogMedia;
+export const AlertDialogOverlay = Shared.AlertDialogOverlay;
+export const AlertDialogPortal = Shared.AlertDialogPortal;
+export const AlertDialogTitle = Shared.AlertDialogTitle;
+export const AlertDialogTrigger = React.forwardRef<any,any>(({asChild,children,onSelect,...props},ref)=><Shared.AlertDialogTrigger ref={ref} {...props} {...(onSelect?{onClick:onSelect}:{})} {...(asChild?{render:children}:{children})}/>);

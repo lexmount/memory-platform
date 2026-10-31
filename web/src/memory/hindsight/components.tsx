@@ -285,7 +285,10 @@ export function ActionDialog({ client, operation, selected, seed: provided, onCl
 export function Actions({ client, operations, selected, onSuccess }: { client: HindsightClient; operations: readonly HindsightOperation[]; selected?: NativeRecord; onSuccess?: (operation: HindsightOperation) => void }) {
   const { t } = useTranslation();
   const [action, setAction] = useState<HindsightOperation>();
-  return <><div className="hs-actions">{operations.map(operation => <Button key={operation} size="sm" disabled={!client.can(operation)} onClick={() => setAction(operation)}>{t(`hindsight.operations.${operation}`)}</Button>)}</div>
+  const primary = operations.filter(op => !op.startsWith("dry_run") && op !== "preview_prompt");
+  const advanced = operations.filter(op => !primary.includes(op));
+  const buttons = (items: readonly HindsightOperation[]) => items.map(operation => <Button key={operation} size="sm" disabled={!client.can(operation)} onClick={() => setAction(operation)}>{t(`hindsight.operations.${operation}`)}</Button>);
+  return <><div className="hs-actions">{buttons(primary)}{advanced.length > 0 && <details className="hs-advanced-actions"><summary>{t("nativeUI.moreActions")}</summary><div>{buttons(advanced)}</div></details>}</div>
     {action && <ActionDialog key={`${action}:${text(selected?.id ?? selected?.operation_id)}`} client={client} operation={action} selected={selected} onClose={() => setAction(undefined)} onSuccess={() => onSuccess?.(action)} />}</>;
 }
 export function Section({ title, children, tools }: { title: string; children: ReactNode; tools?: ReactNode }) {

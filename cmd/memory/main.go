@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/lexmount/memory-platform/internal/api"
 	"github.com/lexmount/memory-platform/internal/auth"
@@ -67,6 +68,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	go backfillDefaultUsers(ctx, db, service)
 	accounts := &auth.Repository{DB: db}
 	identity, err := auth.New(startup, auth.Config{Issuer: os.Getenv("MEMORY_SSO_ISSUER"), ClientID: os.Getenv("MEMORY_SSO_CLIENT_ID"), ClientSecret: os.Getenv("MEMORY_SSO_CLIENT_SECRET"), PublicURL: os.Getenv("MEMORY_PUBLIC_URL")}, accounts)
 	if err != nil {
@@ -136,4 +138,43 @@ func run() error {
 			return server.Shutdown(shutdown)
 		}
 	}
+}
+
+// Upgrade existing projects without blocking server startup or replacing users.
+func backfillDefaultUsers(ctx context.Context, db *sql.DB, service *projects.Service) {
+	rows, err := db.QueryContext(ctx, `SELECT id FROM projects p WHERE deleted_at IS NULL AND enabled AND NOT revoked AND NOT EXISTS (SELECT 1 FROM project_users u WHERE u.project_id=p.id AND u.user_id='default' AND u.provisioned)`)
+	if err != nil {
+		slog.Warn("Default user backfill query failed")
+		return
+	}
+	var ids []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			rows.Close()
+			return
+		}
+		ids = append(ids, id)
+	}
+	err = rows.Err()
+	rows.Close()
+	if err != nil {
+		return
+	}
+	ready, failed := 0, 0
+	for _, id := range ids {
+		if ctx.Err() != nil {
+			return
+		}
+		p, err := service.Store.Get(ctx, id)
+		if err == nil {
+			err = service.EnsureDefaultUser(ctx, p)
+		}
+		if err != nil {
+			failed++
+		} else {
+			ready++
+		}
+	}
+	slog.Info("Default user backfill completed", "ready", ready, "failed", failed)
 }

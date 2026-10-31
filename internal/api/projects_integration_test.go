@@ -104,7 +104,43 @@ func TestMemoryProjectsHTTPNativeAndConsole(t *testing.T) {
 		mux.ServeHTTP(w, r)
 		return w
 	}
+
+	if w := request("GET", "/v1/workspaces", "", "", nil); w.Code != 401 {
+		t.Fatalf("workspace anonymous: %d", w.Code)
+	}
+	wspace := request("GET", "/v1/workspaces", ownerToken, "", nil)
+	var spaces struct {
+		Workspaces []store.Workspace `json:"workspaces"`
+	}
+	if wspace.Code != 200 || json.Unmarshal(wspace.Body.Bytes(), &spaces) != nil || len(spaces.Workspaces) != 1 || spaces.Workspaces[0].Name != "默认项目空间" {
+		t.Fatalf("default workspace: %d %s", wspace.Code, wspace.Body.String())
+	}
+	if w := request("POST", "/v1/workspaces", ownerToken, `{"name":"   "}`, nil); w.Code != 400 {
+		t.Fatalf("empty workspace: %d", w.Code)
+	}
+	second := request("POST", "/v1/workspaces", ownerToken, `{"name":"Second space"}`, nil)
+	var newSpace store.Workspace
+	if second.Code != 201 || json.Unmarshal(second.Body.Bytes(), &newSpace) != nil {
+		t.Fatalf("new workspace: %d %s", second.Code, second.Body.String())
+	}
+	foreign := request("POST", "/v1/projects", otherToken, fmt.Sprintf(`{"name":"Foreign","provider":"hindsight","workspace_id":%q}`, newSpace.ID), nil)
+	if foreign.Code != 403 {
+		t.Fatalf("foreign workspace app creation: %d %s", foreign.Code, foreign.Body.String())
+	}
 	const base = "/v1/projects"
+	for range 2 {
+		empty := request("GET", base, ownerToken, "", nil)
+		var result struct {
+			Projects []store.MemoryProject `json:"projects"`
+		}
+		if empty.Code != 200 || json.Unmarshal(empty.Body.Bytes(), &result) != nil || len(result.Projects) != 0 {
+			t.Fatalf("new account should remain empty: %d %s", empty.Code, empty.Body.String())
+		}
+		persisted, err := s.List(t.Context(), account)
+		if err != nil || len(persisted) != 0 {
+			t.Fatalf("listing created a project: %v %v", persisted, err)
+		}
+	}
 	w := request("POST", base, ownerToken, `{"name":"Project A","provider":"hindsight"}`, nil)
 	if w.Code != 201 {
 		t.Fatalf("create: %d %s", w.Code, w.Body.String())
@@ -131,7 +167,7 @@ func TestMemoryProjectsHTTPNativeAndConsole(t *testing.T) {
 	if w.Code != 403 {
 		t.Fatalf("console created user: %d", w.Code)
 	}
-	if users, err := s.Users(t.Context(), p.ID, ""); err != nil || len(users) != 0 {
+	if users, err := s.Users(t.Context(), p.ID, ""); err != nil || len(users) != 1 || users[0].UserID != "default" {
 		t.Fatalf("console changed users: %v %v", users, err)
 	}
 	headers := map[string]string{"X-App-Key": p.AppKey, "X-App-Secret": created.Secret, "X-User-Id": url.PathEscape("张三"), "X-API-Key": "attacker", "X-OpenViking-Account": "other", "Cookie": "secret"}
@@ -196,6 +232,21 @@ func TestMemoryProjectsHTTPNativeAndConsole(t *testing.T) {
 	w = request("POST", "/v1/memory/identity", "", `{}`, headers)
 	if w.Code != 403 {
 		t.Fatalf("revoked credential active: %d", w.Code)
+	}
+	for _, token := range []string{otherToken, "invalid-token"} {
+		w := request("DELETE", detail, token, "", nil)
+		if w.Code != 403 && w.Code != 401 {
+			t.Fatalf("foreign delete: %d", w.Code)
+		}
+	}
+	if w := request("DELETE", detail, ownerToken, "", nil); w.Code != 204 {
+		t.Fatalf("delete: %d", w.Code)
+	}
+	if w := request("GET", detail, ownerToken, "", nil); w.Code != 403 {
+		t.Fatalf("deleted get: %d", w.Code)
+	}
+	if w := request("PATCH", detail, ownerToken, `{"name":"Restored"}`, nil); w.Code != 403 {
+		t.Fatalf("deleted rename: %d", w.Code)
 	}
 	mu.Lock()
 	defer mu.Unlock()

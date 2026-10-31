@@ -1,3 +1,4 @@
+import { OfficialHindsight } from "./OfficialWorkspace";
 import { useTranslation } from "react-i18next";
 import { Activity, BookOpen, Brain, Files, LayoutDashboard, Network, Settings, Sparkles, Terminal } from "lucide-react";
 import { Badge } from "../../ui/index";
@@ -25,6 +26,7 @@ function renderPage(page: string, client: HindsightClient, formatTimeBucket?: Me
 function HindsightWorkspace({ context, page, formatTimeBucket }: { context: MemoryWorkspaceContext; page: string; formatTimeBucket?: MemoryBridge["formatTimeBucket"] }) {
   const { t } = useTranslation(), client = useHindsight(context);
   const pageID = page.split("/")[0] ?? "";
+  if (["memories","documents","entities","models","knowledge","playground"].includes(pageID) && context.provider.version === "1.1.0") return <OfficialHindsight context={context} page={pageID}/>;
   return <div className="hs-workspace" data-hindsight-workspace>
     <div className="hs-toolbar hs-intro"><div><strong>{t("hindsight.title")}</strong><Badge>{context.provider.version}</Badge></div>
 

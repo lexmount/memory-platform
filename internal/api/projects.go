@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -46,10 +47,13 @@ func (h *MemoryProjectsHandler) RegisterUserRoutes(mux *http.ServeMux) {
 	developer := h.auth.Require
 
 	mux.HandleFunc("GET /v1/providers", developer(h.providers))
+	mux.HandleFunc("GET /v1/workspaces", developer(h.workspaces))
+	mux.HandleFunc("POST /v1/workspaces", developer(h.createWorkspace))
 	mux.HandleFunc("GET /v1/projects", developer(h.list))
 	mux.HandleFunc("POST /v1/projects", developer(h.create))
 	mux.HandleFunc("GET /v1/projects/{project}", developer(h.get))
 	mux.HandleFunc("PATCH /v1/projects/{project}", developer(h.update))
+	mux.HandleFunc("DELETE /v1/projects/{project}", developer(h.delete))
 	mux.HandleFunc("POST /v1/projects/{project}/credentials/rotate", developer(h.rotate))
 	mux.HandleFunc("DELETE /v1/projects/{project}/credentials", developer(h.revoke))
 	mux.HandleFunc("GET /v1/projects/{project}/users", developer(h.users))
@@ -87,7 +91,7 @@ func (h *MemoryProjectsHandler) providers(w http.ResponseWriter, r *http.Request
 	writeJSON(w, 200, map[string]any{"providers": h.service.Providers()})
 }
 func (h *MemoryProjectsHandler) list(w http.ResponseWriter, r *http.Request) {
-	items, err := h.service.Store.List(r.Context(), accountFromContext(r.Context()).ID)
+	items, err := h.service.List(r.Context(), accountFromContext(r.Context()).ID)
 	if err != nil {
 		h.fail(w, r, err)
 		return
@@ -96,19 +100,32 @@ func (h *MemoryProjectsHandler) list(w http.ResponseWriter, r *http.Request) {
 }
 func (h *MemoryProjectsHandler) create(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Name     string `json:"name"`
-		Provider string `json:"provider"`
+		Name        string `json:"name"`
+		Provider    string `json:"provider"`
+		WorkspaceID string `json:"workspace_id"`
 	}
 	if err := memoryProjectJSON(w, r, &input); err != nil {
 		h.fail(w, r, err)
 		return
 	}
-	p, secret, err := h.service.Create(r.Context(), accountFromContext(r.Context()).ID, input.Name, input.Provider)
+	workspace := uuid.Nil
+	if input.WorkspaceID != "" {
+		var err error
+		workspace, err = uuid.Parse(input.WorkspaceID)
+		if err != nil || workspace == uuid.Nil {
+			h.fail(w, r, projects.ErrInvalid)
+			return
+		}
+	}
+	p, secret, err := h.service.Create(r.Context(), accountFromContext(r.Context()).ID, input.Name, input.Provider, workspace)
 	if err != nil {
 		h.fail(w, r, err)
 		return
 	}
-	writeJSON(w, 201, map[string]any{"project": p, "app_secret": secret})
+	// Project creation remains successful if the provider is temporarily unavailable.
+	// Opening the user list retries the same deterministic default identity.
+	ready := h.service.EnsureDefaultUser(r.Context(), p) == nil
+	writeJSON(w, 201, map[string]any{"project": p, "app_secret": secret, "default_user_ready": ready})
 }
 func (h *MemoryProjectsHandler) owned(w http.ResponseWriter, r *http.Request) *store.MemoryProject {
 	id, err := uuid.Parse(r.PathValue("project"))
@@ -188,6 +205,10 @@ func (h *MemoryProjectsHandler) users(w http.ResponseWriter, r *http.Request) {
 	if p == nil {
 		return
 	}
+	if err := h.service.EnsureDefaultUser(r.Context(), p); err != nil {
+		h.fail(w, r, err)
+		return
+	}
 	items, err := h.service.Store.Users(r.Context(), p.ID, r.URL.Query().Get("after"))
 	if err != nil {
 		h.fail(w, r, err)
@@ -204,6 +225,12 @@ func (h *MemoryProjectsHandler) consoleIdentity(w http.ResponseWriter, r *http.R
 	p := h.owned(w, r)
 	if p == nil {
 		return nil
+	}
+	if user == projects.DefaultUserID {
+		if err := h.service.EnsureDefaultUser(r.Context(), p); err != nil {
+			h.fail(w, r, err)
+			return nil
+		}
 	}
 	i, err := h.service.ResolveExisting(r.Context(), p, user)
 	if err != nil {
@@ -387,4 +414,23 @@ func (w memoryProjectFlushWriter) Write(p []byte) (int, error) {
 	n, err := w.Writer.Write(p)
 	w.flusher.Flush()
 	return n, err
+}
+
+func (h *MemoryProjectsHandler) delete(w http.ResponseWriter, r *http.Request) {
+	p := h.owned(w, r)
+	if p == nil {
+		return
+	}
+	repository, ok := h.service.Store.(interface {
+		Delete(context.Context, uuid.UUID, uuid.UUID) error
+	})
+	if !ok {
+		h.fail(w, r, projects.ErrUnavailable)
+		return
+	}
+	if err := repository.Delete(r.Context(), p.AccountID, p.ID); err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

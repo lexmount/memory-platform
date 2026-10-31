@@ -8,8 +8,9 @@ export type MemoryOperation = Readonly<{
 export type MemoryProvider = Readonly<{
   provider: string; version: string; operations: readonly MemoryOperation[];
 }>;
+export type MemoryWorkspace = Readonly<{id:string;name:string;is_default:boolean;created_at:string}>;
 export type MemoryProject = Readonly<{
-  id: string; name: string; provider: string; app_key: string;
+  id: string; workspace_id?: string; name: string; provider: string; app_key: string;
   enabled: boolean; revoked: boolean; created_at: string; updated_at: string;
 }>;
 export type MemoryIdentity = Readonly<{
@@ -30,10 +31,13 @@ export interface MemoryBridge {
   readonly identity: string;
   formatTimeBucket?(bucket: string, granularity: "hour" | "day", language: string): string;
   providers(signal: AbortSignal): Promise<readonly MemoryProvider[]>;
+  workspaces?(signal:AbortSignal):Promise<readonly MemoryWorkspace[]>;
+  createWorkspace?(name:string,signal:AbortSignal):Promise<MemoryWorkspace>;
   projects(signal: AbortSignal): Promise<readonly MemoryProject[]>;
-  createProject(name: string, provider: string, signal: AbortSignal): Promise<{ project: MemoryProject; app_secret: string }>;
+  createProject(name: string, provider: string, signal: AbortSignal, workspace?:string): Promise<{ project: MemoryProject; app_secret: string }>;
   updateProject(project: string, patch: { name?: string; enabled?: boolean }, signal: AbortSignal): Promise<MemoryProject>;
   rotateCredential(project: string, signal: AbortSignal): Promise<{ app_key: string; app_secret: string }>;
+  deleteProject?(project: string, signal: AbortSignal): Promise<void>;
   revokeCredential(project: string, signal: AbortSignal): Promise<void>;
   users(project: string, after: string, signal: AbortSignal): Promise<MemoryUserPage>;
   resolveUser(project: string, user: string, signal: AbortSignal): Promise<MemoryIdentity>;

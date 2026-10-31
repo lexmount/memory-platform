@@ -6,9 +6,10 @@
   "packageManager": "pnpm@10.30.1",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p tsconfig.build.json --noEmit && vite build",
+    "build": "pnpm build:providers && tsc -p tsconfig.build.json --noEmit && vite build",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build:providers": "npm --prefix ../provider-ui/openviking run build:platform"
   },
   "dependencies": {
     "i18next": "^26.0.1",

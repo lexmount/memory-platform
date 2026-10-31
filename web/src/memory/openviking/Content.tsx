@@ -1,6 +1,7 @@
+import { DirectoryTree } from "./DirectoryTree";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowUp, Download, FileText, Folder, House, RefreshCw } from "lucide-react";
+import { ArrowUp, Download, FileText, Folder, House, RefreshCw, FolderTree, Search } from "lucide-react";
 import { Badge, Button, Card, EmptyState, Field, IconButton, Input, Modal, SectionHeader, Select, Tabs, Textarea } from "../../ui/index";
 import type { MemoryWorkspaceContext } from "../contracts";
 import { memoryURI, parentMemoryURI, type OVClient, type Receipt } from "./client";
@@ -11,25 +12,23 @@ type Props = { context: MemoryWorkspaceContext; client: OVClient };
 
 export function ContentPage({ context, client }: Props) {
   const { t } = useTranslation();
-  const { params, set } = useOVLocation();
+  const { params, set, go } = useOVLocation();
   const domains: Record<string, string> = { memory: context.user.mapping.memory_uri ?? "", resources: context.user.mapping.resources_uri ?? "", skills: context.user.mapping.skills_uri ?? "", privateResources: context.user.mapping.private_resources_uri ?? "", privateSkills: context.user.mapping.private_skills_uri ?? "", all: "viking://" };
   const domain = params.get("domain") || "memory";
   const root = domains[domain] ?? "";
   const directory = params.get("directory") || root;
   const selected = params.get("uri") || directory;
   const tree = params.get("view") === "tree";
+  const [treeRevision, setTreeRevision] = useState(0);
   const offset = offsetParam(params);
   const valid = memoryURI(root, directory) && memoryURI(root, selected);
-  const listing = useOVRead(context, JSON.stringify([directory, tree, offset]), signal => client.list(directory, offset, tree, signal), valid);
+  const listing = useOVRead(context, JSON.stringify([directory, tree, offset]), signal => client.list(directory, offset, false, signal), valid && !tree);
   const parent = parentMemoryURI(root, directory);
   const peerPrefix = root.replace(/\/memories$/, "") + "/peers/";
   const peer = directory.startsWith(peerPrefix) ? directory.slice(peerPrefix.length).split("/")[0] : "";
   return <>
-    <SectionHeader title={t("ov.content")} description={t("ov.contentDescription")} actions={<Button icon={<RefreshCw size={16} />} onClick={listing.reload}>{t("ov.refresh")}</Button>} />
-    <Field label={t("nativeMemory.domain")}><Select label={t("nativeMemory.domain")} value={domain}
-      options={Object.keys(domains).filter(key => domains[key]).map(value => ({ value, label: t(value === "privateResources" || value === "privateSkills" ? `memoryProject.${value}` : `nativeMemory.${value}`) }))}
-      onChange={value => set({ domain: value, directory: null, uri: null, offset: null, layer: null })} /></Field>
-    <Card className="ov-content-browser">
+    <SectionHeader title={t("ov.content")} description={t("ov.contentDescription")} actions={<Button icon={<RefreshCw size={16} />} onClick={()=>{listing.reload();setTreeRevision(value=>value+1);}}>{t("ov.refresh")}</Button>} />
+    <Card className="ov-content-browser ov-studio-browser">
       <form key={directory} className="ov-location-bar" onSubmit={event => {
         event.preventDefault();
         const value = new FormData(event.currentTarget).get("uri")?.toString().trim() ?? "";
@@ -57,9 +56,14 @@ export function ContentPage({ context, client }: Props) {
       </details>}
       {!valid ? <div className="ov-error" role="alert">{t("ov.invalidURI")}</div> : <div className="ov-browser">
         <aside className="ov-list-panel" aria-label={t("ov.content")}>
+          <header className="ov-explorer-heading"><FolderTree size={18}/><strong>{t("nativeUI.explorer")}</strong><IconButton variant="text" label={t("ov.retrieval")} onClick={()=>go("retrieval",{uri:directory})}><Search size={16}/></IconButton></header>
+    <Field label={t("nativeMemory.domain")}><Select label={t("nativeMemory.domain")} value={domain}
+      options={Object.keys(domains).filter(key => domains[key]).map(value => ({ value, label: t(value === "privateResources" || value === "privateSkills" ? `memoryProject.${value}` : `nativeMemory.${value}`) }))}
+      onChange={value => set({ domain: value, directory: null, uri: null, offset: null, layer: null })} /></Field>
+
           <Tabs label={t("ov.mode")} value={tree ? "tree" : "list"} items={[{ value: "list", label: t("ov.list") }, { value: "tree", label: t("ov.tree") }]}
             onChange={value => set({ view: value, offset: null })} />
-          <LoadState state={listing} empty={listing.data?.length === 0}>{entries => <>
+          {tree ? <DirectoryTree key={`${directory}:${treeRevision}`} context={context} client={client} root={root} uri={directory} selected={selected} pageOffset={offset} onPage={offset=>set({offset})} onSelect={uri=>set({uri,layer:null})}/> : <LoadState state={listing} empty={listing.data?.length === 0}>{entries => <>
             <ul className="ov-files">{entries.slice(0, 50).filter(entry => memoryURI(root, entry.uri)).map(entry =>
               <li key={entry.uri} className={`ov-file-row ${entry.uri === selected ? "is-active" : ""}`}>
                 {entry.isDir ? <Folder size={17} /> : <FileText size={17} />}
@@ -68,8 +72,8 @@ export function ContentPage({ context, client }: Props) {
                 {tree && <small>{entry.uri.replace(directory + "/", "")}</small>}
               </li>,
             )}</ul>
-          </>}</LoadState>
-          {(offset > 0 || (listing.data?.length ?? 0) > 50) && <Pagination offset={offset} more={(listing.data?.length ?? 0) > 50} onChange={value => set({ offset: value })} />}
+          </>}</LoadState>}
+          {!tree && (offset > 0 || (listing.data?.length ?? 0) > 50) && <Pagination offset={offset} more={(listing.data?.length ?? 0) > 50} onChange={value => set({ offset: value })} />}
         </aside>
         <ContentDetail key={selected} context={context} client={client} uri={selected} root={root} />
       </div>}
@@ -85,6 +89,7 @@ function ContentDetail({ context, client, uri, root }: Props & { uri: string; ro
   const [receipt, setReceipt] = useState<Receipt>();
   const mutation = useOVMutation(context);
   const rawLayer = params.get("layer") ?? "read";
+  const source = params.get("format") === "source";
   const layer = ["abstract", "overview", "metadata"].includes(rawLayer) ? rawLayer : "read";
   const stat = useOVRead(context, uri, signal => client.stat(uri, signal));
   const isDir = typeof stat.data?.isDir === "boolean" ? stat.data.isDir : undefined;
@@ -119,11 +124,13 @@ function ContentDetail({ context, client, uri, root }: Props & { uri: string; ro
       </div>
     </div>
     <div className="ov-detail-body">
+      {layer === "read" && isDir === false && <Tabs label={t("nativeUI.display")} value={source ? "source" : "preview"} items={[{value:"preview",label:t("nativeUI.preview")},{value:"source",label:t("nativeUI.source")}]} onChange={value=>set({format:value})}/>}
+
       <ErrorNotice error={mutation.error} />
       <ReceiptNotice receipt={receipt} onTask={task => go("tasks", { task, resource: uri, taskType: "admin_reindex" })} />
       <LoadState state={stat}>{value => typeof value.isDir !== "boolean" ? <NativeDetails value={value} /> : <>
-        {layer === "read" && isDir ? <EmptyState title={t("ov.selectFile")} /> : <LoadState state={read}>{value =>
-          layer === "metadata" ? <NativeDetails value={value} label={t("ov.metadata")} /> : <ContentText value={value} />
+        {layer === "read" && isDir ? <div className="ov-directory-empty"><FolderTree size={40}/><EmptyState title={t("ov.selectFile")} description={t("nativeUI.directoryHint")}/><div className="ov-actions"><Button onClick={()=>set({layer:"abstract"})}>{t("ov.abstract")}</Button><Button onClick={()=>set({layer:"overview"})}>{t("ov.overview")}</Button></div></div> : <LoadState state={read}>{value =>
+          layer === "metadata" ? <NativeDetails value={value} label={t("ov.metadata")} /> : source && layer === "read" && typeof value === "string" ? <pre className="ov-source-view">{value}</pre> : <ContentText value={value} />
         }</LoadState>}
         <NativeDetails value={value} />
       </>}</LoadState>

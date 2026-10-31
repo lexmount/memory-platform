@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
@@ -141,7 +142,7 @@ func NewSecret() (string, string, error) {
 	raw := "ms_" + hex.EncodeToString(b)
 	return raw, crypto.HashAPIKey(raw), nil
 }
-func (s *Service) Create(ctx context.Context, account uuid.UUID, name, provider string) (*store.MemoryProject, string, error) {
+func (s *Service) Create(ctx context.Context, account uuid.UUID, name, provider string, workspace ...uuid.UUID) (*store.MemoryProject, string, error) {
 	c := s.connections[provider]
 	name = strings.TrimSpace(name)
 	if c == nil || account == uuid.Nil || name == "" || utf8.RuneCountInString(name) > 100 || !utf8.ValidString(name) {
@@ -152,6 +153,16 @@ func (s *Service) Create(ctx context.Context, account uuid.UUID, name, provider 
 		return nil, "", err
 	}
 	p := &store.MemoryProject{ID: uuid.New(), AccountID: account, Name: name, Provider: provider, ConnectionID: c.ID, AppKey: "mp_" + strings.ReplaceAll(uuid.NewString(), "-", ""), SecretHash: hash, Enabled: true, CredentialVersion: 1}
+	if len(workspace) > 0 && workspace[0] != uuid.Nil {
+		ws, ok := s.Store.(store.WorkspaceStore)
+		if !ok {
+			return nil, "", ErrUnavailable
+		}
+		if _, err := ws.OwnedWorkspace(ctx, account, workspace[0]); err != nil {
+			return nil, "", ErrDenied
+		}
+		p.WorkspaceID = workspace[0]
+	}
 	if err := s.Store.Create(ctx, p); err != nil {
 		return nil, "", err
 	}
@@ -217,7 +228,7 @@ func (s *Service) Resolve(ctx context.Context, p *store.MemoryProject, user stri
 	return i, nil
 }
 
-// ResolveExisting is the console path: viewing a project never creates users.
+// ResolveExisting resolves an already provisioned console identity.
 func (s *Service) ResolveExisting(ctx context.Context, p *store.MemoryProject, user string) (*Identity, error) {
 	if !ValidUser(user) {
 		return nil, ErrInvalid
@@ -260,4 +271,26 @@ func (s *Service) headers(i *Identity) http.Header {
 		h.Set("X-API-Key", i.key)
 	}
 	return h
+}
+
+// List returns projects without provisioning resources for an empty account.
+func (s *Service) List(ctx context.Context, account uuid.UUID) ([]store.MemoryProject, error) {
+	return s.Store.List(ctx, account)
+}
+
+const DefaultUserID = "default"
+
+// EnsureDefaultUser provisions only the reserved onboarding identity. The repository
+// serializes provisioning, preserving the existing project's isolated native mapping.
+func (s *Service) EnsureDefaultUser(ctx context.Context, p *store.MemoryProject) error {
+	if !p.Enabled || p.Revoked {
+		return nil
+	}
+	if u, err := s.Store.User(ctx, p.ID, DefaultUserID); err == nil && u.Provisioned {
+		return nil
+	}
+	provisionCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	_, err := s.Resolve(provisionCtx, p, DefaultUserID)
+	return err
 }

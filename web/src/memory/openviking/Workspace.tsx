@@ -1,3 +1,4 @@
+import { OfficialWorkspace, officialPages } from "./OfficialWorkspace";
 import { useMemo } from "react";
 import { BookOpen, FileText, ListTodo, MessagesSquare, Search, Database, Code, Shield, RefreshCw, Settings, Terminal } from "lucide-react";
 import type { MemoryProviderModule, MemoryWorkspaceContext } from "../contracts";
@@ -10,7 +11,7 @@ import { RetrievalPage } from "./Retrieval";
 import { TasksPage } from "./Tasks";
 import { ExperiencePage } from "./Experience";
 
-function Workspace({ context, page }: { context: MemoryWorkspaceContext; page: string }) {
+export function LegacyOpenVikingWorkspace({ context, page }: { context: MemoryWorkspaceContext; page: string }) {
   const client = useMemo(() => createOVClient(context), [context]);
   if (!context.user.mapping.memory_uri) return <ErrorNotice error={new OVError("invalidResponse", "Missing memory mapping")} />;
   const section = page.split("/")[0] ?? "";
@@ -19,6 +20,9 @@ function Workspace({ context, page }: { context: MemoryWorkspaceContext; page: s
   // Page-specific mutations, drafts and timers end on navigation, even though
   // the host deliberately keeps the subject context alive between pages.
   return Component ? <div className="ov-workspace"><Component key={page} context={context} client={client} /></div> : null;
+}
+function Workspace({context,page}:{context:MemoryWorkspaceContext;page:string}) {
+ return officialPages.has(page.split('/')[0]||'') ? <OfficialWorkspace context={context} page={page}/> : <LegacyOpenVikingWorkspace context={context} page={page}/>;
 }
 export const openVikingModule: MemoryProviderModule = {
   id: "openviking", labelKey: "ov.label", defaultPage: "content",

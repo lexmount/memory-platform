@@ -5,7 +5,7 @@ import { Button, Input } from "./ui/index";
 import { MemoryFrame } from "./MemoryFrame";
 
 type APIKey = { id: string; name: string; prefix: string; created_at: string; revoked_at: string | null };
-export function AccountKeys({ accountID }: { accountID?: string }) {
+export function AccountKeys({ accountID, embedded = false }: { accountID?: string; embedded?: boolean }) {
   const { t } = useTranslation();
   const [keys, setKeys] = useState<APIKey[]>(), [name, setName] = useState(""), [issued, setIssued] = useState<{ key: string; secret: string }>(), [error, setError] = useState(false), [busy, setBusy] = useState(false), [revision, setRevision] = useState(0);
   useEffect(() => {
@@ -25,7 +25,7 @@ export function AccountKeys({ accountID }: { accountID?: string }) {
       setRevision(v => v + 1);
     } catch { setError(true); } finally { setBusy(false); }
   };
-  return <MemoryFrame navigationContent={() => <Link className="nav-item" to="/memory">{t("memoryProject.projects")}</Link>}>
+  const content = <>
     <section className="memory-page memory-account"><h1>{t("memoryAccount.keys")}</h1><p>{t("memoryAccount.keyHint")}</p>
       <form onSubmit={e => { e.preventDefault(); void change(); }}><label>{t("memoryAccount.keyName")}<Input aria-label={t("memoryAccount.keyName")} value={name} onChange={e => setName(e.target.value)} maxLength={100} required /></label><Button type="submit" disabled={busy || !name.trim()}>{t("memoryAccount.createKey")}</Button></form>
       {issued && <div className="memory-secret" role="status"><p>{t("memoryAccount.secretOnce")}</p><code>{issued.secret}</code><Button onClick={() => setIssued(undefined)}>{t("memoryAccount.dismiss")}</Button></div>}
@@ -35,5 +35,6 @@ export function AccountKeys({ accountID }: { accountID?: string }) {
         {key.revoked_at ? <span>{t("memoryAccount.revoked")}</span> : <Button disabled={busy} onClick={() => void change(key.id)}>{t("memoryAccount.revoke")}</Button>}
       </article>)}</div>
     </section>
-  </MemoryFrame>;
+  </>;
+  return embedded ? content : <MemoryFrame navigationContent={() => <Link className="nav-item" to="/memory">{t("memoryProject.projects")}</Link>}>{content}</MemoryFrame>;
 }

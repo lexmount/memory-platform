@@ -6,3 +6,6 @@
 /web/dist/
 *.tsbuildinfo
 .DS_Store
+
+/provider-ui/*/node_modules/
+/provider-ui/*/dist/

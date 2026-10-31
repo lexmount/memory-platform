@@ -10,6 +10,7 @@ Provider business data remains in Hindsight / OpenViking.
 ```sh
 cd web
 pnpm install --frozen-lockfile
+npm --prefix ../provider-ui/openviking ci
 pnpm build
 cd ..
 go build -o memory-server ./cmd/memory
@@ -61,10 +62,25 @@ grants. Browser mutations require an exact same-origin `Origin` header.
 
 ## Projects and native access
 
-1. Sign in and create a project using one configured Provider.
+A project owns one memory engine, API credentials, and isolated users. The header
+selector switches projects or creates a new one; the collapsible sidebar contains
+the selected project's functionality. Projects and applications are the same entity.
+
+After login, users land on the project directory. Empty accounts create their first
+project explicitly; listing projects never provisions one. Project creation defaults
+to Hindsight, allows choosing OpenViking, and returns the secret once.
+
+Schema version 3 adds soft deletion (project removal revokes access and retains native data). Deleting the last project does not recreate the onboarding project. The schema retains an internal workspace association for compatibility.
+Existing projects are backfilled without changing API keys, secrets, or native
+user mappings. `/v1/workspaces` remains available to existing clients, and omitted
+`workspace_id` on project creation resolves to the account's default association.
+This association is not a second UI navigation layer. Back up the dedicated
+database before deploying schema changes.
+
+1. Sign in and select a project, or create one using a configured memory engine.
 2. Save its App Key and App Secret (the secret is shown once).
 3. Connect your application using `X-App-Key`, `X-App-Secret` and `X-User-Id`.
-4. The first request provisions the native user. Connected users then appear in
+4. Each project provisions a `default` user automatically; other users are provisioned on their first request. Connected users appear in
    the console; the console never asks you to pre-create arbitrary user IDs.
 
 Percent-encode `X-User-Id` as a URL path component, e.g. `encodeURIComponent(userid)`.
@@ -134,3 +150,5 @@ migration errors. They skip only when the test database variable is absent.
 
 CI runs Go build/vet, race-enabled PostgreSQL integration tests, UI tests and the
 production UI build. The container uses only this repository as its build context.
+
+Default users use the existing project-scoped native identity mapping: an isolated OpenViking user or Hindsight bank. Startup backfills existing enabled projects without replacing users. Provider failures do not discard a newly created project or its credentials; `default_user_ready` reports the immediate result, and user-list/default-identity access retries provisioning.

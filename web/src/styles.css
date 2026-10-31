@@ -65,3 +65,5 @@
 .project-option-row{border-radius:5px}.project-option-row:hover,.project-option-row:focus-within{background:var(--muted)}.workspace-options .project-option-row>button:hover{background:transparent}
 
 .memory-shell>.collapse-handle{z-index:26;cursor:pointer}.memory-shell>.collapse-handle:hover{background:#e6e6e9;color:var(--foreground)}.memory-shell>.collapse-handle:focus-visible{outline:2px solid var(--ring);outline-offset:3px}
+
+.sidebar-footer{margin-top:auto;padding-top:16px}.sidebar-footer .sidebar-account{margin-top:4px;padding-top:4px}.sidebar-footer>.nav-group{margin-bottom:0}

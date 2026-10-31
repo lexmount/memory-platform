@@ -49,17 +49,17 @@ function UserPicker({ bridge, project, user, onSelect, list = false }: { bridge:
   </div>;
 }
 function providerName(id: string) { return id === "openviking" ? "OpenViking" : id === "hindsight" ? "Hindsight" : id; }
-function ApplicationOverview({ project, bridge }: { project: MemoryProject; bridge: MemoryBridge }) {
+function ApplicationOverview({ project }: { project: MemoryProject }) {
   const { t } = useTranslation();
-  const load = useCallback((signal: AbortSignal) => bridge.users(project.id, "", signal), [bridge, project.id]);
-  const connected = useMemoryLoad(project.id, load);
-  const hasUsers = Boolean(connected.value?.items.length);
   const target = (page: string) => memoryPath(project.provider, page, new URLSearchParams({ project: project.id }).toString());
-  return <div className="app-overview"><div className="app-overview-summary"><div><h2>{providerName(project.provider)}</h2><p>{t(`appFlow.${project.provider}`, { defaultValue: project.provider })}</p></div><Badge tone={project.enabled ? "green" : "neutral"}>{t(project.enabled ? "memoryProject.enabled" : "memoryProject.disabled")}</Badge></div>
-    <dl className="app-facts"><div><dt>{t("appFlow.created")}</dt><dd>{new Date(project.created_at).toLocaleDateString()}</dd></div><div><dt>App ID</dt><dd><code>{project.id}</code></dd></div></dl>
-    {hasUsers && <div className="app-connected"><div><h2>{t("appFlow.connectedTitle")}</h2><p>{t("appFlow.connectedHint")}</p></div><Link className="app-action-link is-primary" to={target("users")}>{t("appFlow.users")} <ArrowRight size={16} /></Link></div>}
-    <details className="app-onboarding-details" open={!hasUsers}><summary>{t(hasUsers ? "appFlow.integrationGuide" : "appFlow.next")}</summary><ol className="app-onboarding">{[["stepCredentials", "access", KeyRound], ["stepUser", "access", Users], ["stepExplore", "users", Brain]].map(([key, page, Icon], index) => { const Glyph = Icon as typeof Brain; return <li key={String(key)}><span className="app-step">{index + 1}</span><div><Link to={target(String(page))}><Glyph size={18} /><strong>{t(`appFlow.${key}`)}</strong><ArrowRight size={16} /></Link><p>{t(`appFlow.${key}Hint`)}</p></div></li>; })}</ol></details>
-    <div className="app-project-actions"><Link className={`app-action-link ${hasUsers ? "" : "is-primary"}`} to={target("access")}>{t("appFlow.access")} <ArrowRight size={16} /></Link></div>
+  return <div className="app-overview">
+    <section className="app-overview-card"><div className="app-overview-card-heading"><h2>{t("appFlow.projectInfo")}</h2><Badge tone={project.enabled ? "green" : "neutral"}>{t(project.enabled ? "memoryProject.enabled" : "memoryProject.disabled")}</Badge></div>
+      <dl className="app-facts"><div><dt>{t("memoryProject.projectName")}</dt><dd>{project.name}</dd></div><div><dt>{t("appFlow.engine")}</dt><dd>{providerName(project.provider)}</dd></div><div><dt>App ID</dt><dd><code>{project.id}</code></dd></div><div><dt>{t("appFlow.created")}</dt><dd>{new Date(project.created_at).toLocaleDateString()}</dd></div></dl>
+      <p className="app-engine-description">{t(`appFlow.${project.provider}`, { defaultValue: project.provider })}</p>
+    </section>
+    <details className="app-onboarding-details app-overview-card" open><summary>{t("appFlow.integrationGuide")}</summary><ol className="app-onboarding">{[["stepCredentials", "access", KeyRound], ["stepUser", "access", Users], ["stepExplore", "users", Brain]].map(([key, page, Icon], index) => { const Glyph = Icon as typeof Brain; return <li key={String(key)}><span className="app-step">{index + 1}</span><div><Link to={target(String(page))}><Glyph size={18} /><strong>{t(`appFlow.${key}`)}</strong><ArrowRight size={16} /></Link><p>{t(`appFlow.${key}Hint`)}</p></div></li>; })}</ol>
+      <div className="app-project-actions"><Link className="app-action-link" to={target("access")}>{t("appFlow.access")} <ArrowRight size={16} /></Link></div>
+    </details>
   </div>;
 }
 function useWorkspace(bridge: MemoryBridge, project: MemoryProject | undefined, user: string) {
@@ -123,7 +123,7 @@ function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: 
       return <><p className="app-intro">{t("appFlow.intro")}</p><CreateProject bridge={bridge} providers={providers.value} onCreate={(p,secret)=>{list.retry();choose(p,"","access");setIssued({project:p.id,app_key:p.app_key,app_secret:secret})}}/></>;
     }
     if (!project || !module || params.provider !== project.provider) return <Status failed retry={list.retry} />;
-    if (pageID === "project") return <ApplicationOverview key={project.id} project={project} bridge={bridge} />;
+    if (pageID === "project") return <ApplicationOverview key={project.id} project={project} />;
     if (pageID === "users") return <UserPicker key={project.id} list bridge={bridge} project={project} user={user} onSelect={value => choose(project, value, module.defaultPage)} />;
     if (pageID === "app-settings") return <Navigate replace to={memoryPath(project.provider,"project",new URLSearchParams({project:project.id}).toString())}/>;
     if (pageID === "access") return <ProjectSettings key={`${project.id}:${pageID}`} bridge={bridge} project={project} issued={issued} clearSecret={() => setIssued(undefined)} onSecret={setIssued} reload={list.retry} />;

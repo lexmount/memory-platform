@@ -622,7 +622,9 @@
     "connectedTitle": "Your users are connected",
     "connectedHint": "Choose a user to browse, search and manage their memory.",
     "integrationGuide": "Integration guide",
-    "userCount": "Connected users"
+    "userCount": "Connected users",
+    "projectInfo": "Project information",
+    "engine": "Memory engine"
   },
   "nativeUI": {
     "application": "Project management",

@@ -622,7 +622,9 @@
     "connectedTitle": "用户已接入，开始查看记忆",
     "connectedHint": "在用户列表中选择 User，浏览、检索和管理其记忆。",
     "integrationGuide": "接入指南",
-    "userCount": "已接入 User"
+    "userCount": "已接入 User",
+    "projectInfo": "项目信息",
+    "engine": "记忆引擎"
   },
   "nativeUI": {
     "application": "项目管理",

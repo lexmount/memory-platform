@@ -1,0 +1,6 @@
+{
+  "package_version": "0.10.3",
+  "commit": "eb6df499d35300e5b2f3f029b2e6adda04ed90f8",
+  "openapi_sha256": "4fe146e6de97153673ddab2fd802e85af47f7d372c7437cc7a400e1d9c2386e2",
+  "source": "https://github.com/vectorize-io/hindsight/blob/eb6df499d35300e5b2f3f029b2e6adda04ed90f8/hindsight-docs/static/openapi.json"
+}

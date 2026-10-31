@@ -1,0 +1,2650 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Memory service API",
+    "version": "1.0.0",
+    "description": "Standalone account and project management. Browser mutations require the configured Origin. Native HTTP/MCP use project App Key + App Secret + percent-encoded X-User-Id; Provider payloads are preserved. No tenant, scope or RBAC."
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "security": [
+    {
+      "accountSession": []
+    },
+    {
+      "accountAPIKey": []
+    }
+  ],
+  "paths": {
+    "/v1/providers": {
+      "get": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "List configured providers",
+        "operationId": "listDeveloperMemoryProviders",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "providers": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MemoryProjectProvider"
+                      }
+                    }
+                  },
+                  "required": [
+                    "providers"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "description": "Requires a Memory account session or account API key and ownership of the project. Console access only resolves users already created by external calls.",
+        "parameters": [
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ]
+      }
+    },
+    "/v1/projects": {
+      "get": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "List owned Memory projects",
+        "operationId": "listMemoryProjects",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projects": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MemoryProject"
+                      }
+                    }
+                  },
+                  "required": [
+                    "projects"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "description": "Requires a Memory account session or account API key and ownership of the project. Console access only resolves users already created by external calls.",
+        "parameters": [
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Create Memory project and issue secret once",
+        "operationId": "createMemoryProject",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "project": {
+                      "$ref": "#/components/schemas/MemoryProject"
+                    },
+                    "app_secret": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "project",
+                    "app_secret"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "description": "Requires a Memory account session or account API key and ownership of the project. Console access only resolves users already created by external calls.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "hindsight",
+                      "openviking"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "provider"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ]
+      }
+    },
+    "/v1/projects/{project}": {
+      "get": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Read owned Memory project",
+        "operationId": "getMemoryProject",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoryProject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ],
+        "description": "Requires a Memory account session or account API key and ownership of the project. Console access only resolves users already created by external calls."
+      },
+      "patch": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Rename, enable or disable project",
+        "operationId": "updateMemoryProject",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoryProject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ],
+        "description": "Requires a Memory account session or account API key and ownership of the project. Console access only resolves users already created by external calls.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/projects/{project}/credentials/rotate": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Rotate project secret; invalidate old MCP sessions",
+        "operationId": "rotateMemoryProjectSecret",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "app_key": {
+                      "type": "string"
+                    },
+                    "app_secret": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "app_key",
+                    "app_secret"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ],
+        "description": "Requires a Memory account session or account API key and ownership of the project. Console access only resolves users already created by external calls."
+      }
+    },
+    "/v1/projects/{project}/credentials": {
+      "delete": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Revoke project credential",
+        "operationId": "revokeMemoryProjectCredential",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ],
+        "description": "Requires a Memory account session or account API key and ownership of the project. Console access only resolves users already created by external calls."
+      }
+    },
+    "/v1/projects/{project}/users": {
+      "get": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "List automatically connected users",
+        "operationId": "listMemoryProjectUsers",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "project_id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "user_id": {
+                            "type": "string"
+                          },
+                          "provisioned": {
+                            "type": "boolean"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "project_id",
+                          "user_id",
+                          "provisioned",
+                          "created_at"
+                        ]
+                      }
+                    },
+                    "next_cursor": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "next_cursor"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque cursor returned by the previous page; at most 100 users per page."
+          },
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ],
+        "description": "Requires a Memory account session or account API key and ownership of the project. Console access only resolves users already created by external calls."
+      }
+    },
+    "/v1/projects/{project}/identity": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Resolve existing connected user for console",
+        "operationId": "resolveMemoryProjectUser",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoryProjectIdentity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ],
+        "description": "Requires a Memory account session or account API key and ownership of the project. Console access only resolves users already created by external calls.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "user_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "user_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/projects/{project}/schemas/{operation}": {
+      "get": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Read native OpenAPI operation and components",
+        "operationId": "getMemoryProjectSchema",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "operation": {},
+                    "components": {}
+                  },
+                  "required": [
+                    "operation",
+                    "components"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Service unavailable"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 765
+            },
+            "description": "External application userid, UTF-8 up to 255 bytes. Percent-encode the complete value (encodeURIComponent); decode once. It is not an InsightDev member ID."
+          },
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "operation",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ],
+        "description": "Requires a Memory account session or account API key and ownership of the project. Console access only resolves users already created by external calls."
+      }
+    },
+    "/v1/projects/{project}/requests/{operation}": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Execute native request from console",
+        "operationId": "executeMemoryProjectConsole",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Unmodified native status, body and media type. X-Memory-Native-Status distinguishes native responses from platform errors. JSON, multipart results, binary and SSE are supported. Credential headers and cookies are stripped.",
+            "headers": {
+              "X-Memory-Native-Status": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Mcp-Session-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque platform session bound to project, userid and credential version."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          },
+          "503": {
+            "description": "Service unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 765
+            },
+            "description": "External application userid, UTF-8 up to 255 bytes. Percent-encode the complete value (encodeURIComponent); decode once. It is not an InsightDev member ID."
+          },
+          {
+            "name": "request",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "JSON transport fields for multipart/octet-stream uploads; at most 32 KiB."
+          },
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "operation",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ],
+        "description": "Requires a Memory account session or account API key and ownership of the project. Console access only resolves users already created by external calls. Native requests are forwarded without scope injection or tool/schema translation. Memory service failures use an error object without X-Memory-Native-Status.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemoryProjectConsoleRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/memory/identity": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Resolve or provision native project user",
+        "operationId": "resolveNativeMemoryIdentity",
+        "security": [
+          {
+            "memoryAppKey": [],
+            "memoryAppSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoryProjectIdentity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Platform login required"
+          },
+          "403": {
+            "description": "Project credential or owner access denied"
+          },
+          "404": {
+            "description": "Unknown MCP session"
+          },
+          "503": {
+            "description": "Provider or mapping unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 765
+            },
+            "description": "External application userid, UTF-8 up to 255 bytes. Percent-encode the complete value (encodeURIComponent); decode once. It is not an InsightDev member ID."
+          }
+        ],
+        "description": "App Key + App Secret identify the project; X-User-Id resolves its native user. First use provisions the native identity. Native business permissions remain with the Provider."
+      }
+    },
+    "/mcp/memory": {
+      "get": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Forward native MCP GET",
+        "operationId": "nativeMemoryMCPGet",
+        "security": [
+          {
+            "memoryAppKey": [],
+            "memoryAppSecret": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Unmodified native status, body and media type. X-Memory-Native-Status distinguishes native responses from platform errors. JSON, multipart results, binary and SSE are supported. Credential headers and cookies are stripped.",
+            "headers": {
+              "X-Memory-Native-Status": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Mcp-Session-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque platform session bound to project, userid and credential version."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Mcp-Session-Id",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Mcp-Protocol-Version",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 765
+            },
+            "description": "External application userid, UTF-8 up to 255 bytes. Percent-encode the complete value (encodeURIComponent); decode once. It is not an InsightDev member ID."
+          }
+        ],
+        "description": "App Key + App Secret identify the project; X-User-Id resolves its native user. First use provisions the native identity. Native business permissions remain with the Provider. Native requests are forwarded without scope injection or tool/schema translation. Memory service failures use an error object without X-Memory-Native-Status."
+      },
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Forward native MCP POST",
+        "operationId": "nativeMemoryMCPPost",
+        "security": [
+          {
+            "memoryAppKey": [],
+            "memoryAppSecret": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Unmodified native status, body and media type. X-Memory-Native-Status distinguishes native responses from platform errors. JSON, multipart results, binary and SSE are supported. Credential headers and cookies are stripped.",
+            "headers": {
+              "X-Memory-Native-Status": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Mcp-Session-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque platform session bound to project, userid and credential version."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Mcp-Session-Id",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Mcp-Protocol-Version",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 765
+            },
+            "description": "External application userid, UTF-8 up to 255 bytes. Percent-encode the complete value (encodeURIComponent); decode once. It is not an InsightDev member ID."
+          }
+        ],
+        "description": "App Key + App Secret identify the project; X-User-Id resolves its native user. First use provisions the native identity. Native business permissions remain with the Provider. Native requests are forwarded without scope injection or tool/schema translation. Memory service failures use an error object without X-Memory-Native-Status.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {},
+              "example": {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/list"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Forward native MCP DELETE",
+        "operationId": "nativeMemoryMCPDelete",
+        "security": [
+          {
+            "memoryAppKey": [],
+            "memoryAppSecret": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Unmodified native status, body and media type. X-Memory-Native-Status distinguishes native responses from platform errors. JSON, multipart results, binary and SSE are supported. Credential headers and cookies are stripped.",
+            "headers": {
+              "X-Memory-Native-Status": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Mcp-Session-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque platform session bound to project, userid and credential version."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Mcp-Session-Id",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Mcp-Protocol-Version",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 765
+            },
+            "description": "External application userid, UTF-8 up to 255 bytes. Percent-encode the complete value (encodeURIComponent); decode once. It is not an InsightDev member ID."
+          }
+        ],
+        "description": "App Key + App Secret identify the project; X-User-Id resolves its native user. First use provisions the native identity. Native business permissions remain with the Provider. Native requests are forwarded without scope injection or tool/schema translation. Memory service failures use an error object without X-Memory-Native-Status."
+      }
+    },
+    "/v1/memory/native/{path}": {
+      "get": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Forward native Provider HTTP GET",
+        "operationId": "nativeMemoryHTTPGet",
+        "security": [
+          {
+            "memoryAppKey": [],
+            "memoryAppSecret": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Unmodified native status, body and media type. X-Memory-Native-Status distinguishes native responses from platform errors. JSON, multipart results, binary and SSE are supported. Credential headers and cookies are stripped.",
+            "headers": {
+              "X-Memory-Native-Status": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Mcp-Session-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque platform session bound to project, userid and credential version."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Complete native path without its leading slash, e.g. api/v1/fs/ls or v1/default/banks/{mapped_bank_id}/memories/recall. Preserve native query parameters."
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 765
+            },
+            "description": "External application userid, UTF-8 up to 255 bytes. Percent-encode the complete value (encodeURIComponent); decode once. It is not an InsightDev member ID."
+          }
+        ],
+        "description": "App Key + App Secret identify the project; X-User-Id resolves its native user. First use provisions the native identity. Native business permissions remain with the Provider. Native requests are forwarded without scope injection or tool/schema translation. Memory service failures use an error object without X-Memory-Native-Status."
+      },
+      "head": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Forward native Provider HTTP HEAD",
+        "operationId": "nativeMemoryHTTPHead",
+        "security": [
+          {
+            "memoryAppKey": [],
+            "memoryAppSecret": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Unmodified native status, body and media type. X-Memory-Native-Status distinguishes native responses from platform errors. JSON, multipart results, binary and SSE are supported. Credential headers and cookies are stripped.",
+            "headers": {
+              "X-Memory-Native-Status": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Mcp-Session-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque platform session bound to project, userid and credential version."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Complete native path without its leading slash, e.g. api/v1/fs/ls or v1/default/banks/{mapped_bank_id}/memories/recall. Preserve native query parameters."
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 765
+            },
+            "description": "External application userid, UTF-8 up to 255 bytes. Percent-encode the complete value (encodeURIComponent); decode once. It is not an InsightDev member ID."
+          }
+        ],
+        "description": "App Key + App Secret identify the project; X-User-Id resolves its native user. First use provisions the native identity. Native business permissions remain with the Provider. Native requests are forwarded without scope injection or tool/schema translation. Memory service failures use an error object without X-Memory-Native-Status."
+      },
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Forward native Provider HTTP POST",
+        "operationId": "nativeMemoryHTTPPost",
+        "security": [
+          {
+            "memoryAppKey": [],
+            "memoryAppSecret": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Unmodified native status, body and media type. X-Memory-Native-Status distinguishes native responses from platform errors. JSON, multipart results, binary and SSE are supported. Credential headers and cookies are stripped.",
+            "headers": {
+              "X-Memory-Native-Status": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Mcp-Session-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque platform session bound to project, userid and credential version."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Complete native path without its leading slash, e.g. api/v1/fs/ls or v1/default/banks/{mapped_bank_id}/memories/recall. Preserve native query parameters."
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 765
+            },
+            "description": "External application userid, UTF-8 up to 255 bytes. Percent-encode the complete value (encodeURIComponent); decode once. It is not an InsightDev member ID."
+          }
+        ],
+        "description": "App Key + App Secret identify the project; X-User-Id resolves its native user. First use provisions the native identity. Native business permissions remain with the Provider. Native requests are forwarded without scope injection or tool/schema translation. Memory service failures use an error object without X-Memory-Native-Status.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {}
+            },
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Forward native Provider HTTP PUT",
+        "operationId": "nativeMemoryHTTPPut",
+        "security": [
+          {
+            "memoryAppKey": [],
+            "memoryAppSecret": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Unmodified native status, body and media type. X-Memory-Native-Status distinguishes native responses from platform errors. JSON, multipart results, binary and SSE are supported. Credential headers and cookies are stripped.",
+            "headers": {
+              "X-Memory-Native-Status": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Mcp-Session-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque platform session bound to project, userid and credential version."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Complete native path without its leading slash, e.g. api/v1/fs/ls or v1/default/banks/{mapped_bank_id}/memories/recall. Preserve native query parameters."
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 765
+            },
+            "description": "External application userid, UTF-8 up to 255 bytes. Percent-encode the complete value (encodeURIComponent); decode once. It is not an InsightDev member ID."
+          }
+        ],
+        "description": "App Key + App Secret identify the project; X-User-Id resolves its native user. First use provisions the native identity. Native business permissions remain with the Provider. Native requests are forwarded without scope injection or tool/schema translation. Memory service failures use an error object without X-Memory-Native-Status.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {}
+            },
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Forward native Provider HTTP PATCH",
+        "operationId": "nativeMemoryHTTPPatch",
+        "security": [
+          {
+            "memoryAppKey": [],
+            "memoryAppSecret": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Unmodified native status, body and media type. X-Memory-Native-Status distinguishes native responses from platform errors. JSON, multipart results, binary and SSE are supported. Credential headers and cookies are stripped.",
+            "headers": {
+              "X-Memory-Native-Status": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Mcp-Session-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque platform session bound to project, userid and credential version."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Complete native path without its leading slash, e.g. api/v1/fs/ls or v1/default/banks/{mapped_bank_id}/memories/recall. Preserve native query parameters."
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 765
+            },
+            "description": "External application userid, UTF-8 up to 255 bytes. Percent-encode the complete value (encodeURIComponent); decode once. It is not an InsightDev member ID."
+          }
+        ],
+        "description": "App Key + App Secret identify the project; X-User-Id resolves its native user. First use provisions the native identity. Native business permissions remain with the Provider. Native requests are forwarded without scope injection or tool/schema translation. Memory service failures use an error object without X-Memory-Native-Status.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {}
+            },
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Forward native Provider HTTP DELETE",
+        "operationId": "nativeMemoryHTTPDelete",
+        "security": [
+          {
+            "memoryAppKey": [],
+            "memoryAppSecret": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Unmodified native status, body and media type. X-Memory-Native-Status distinguishes native responses from platform errors. JSON, multipart results, binary and SSE are supported. Credential headers and cookies are stripped.",
+            "headers": {
+              "X-Memory-Native-Status": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Mcp-Session-Id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque platform session bound to project, userid and credential version."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Complete native path without its leading slash, e.g. api/v1/fs/ls or v1/default/banks/{mapped_bank_id}/memories/recall. Preserve native query parameters."
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 765
+            },
+            "description": "External application userid, UTF-8 up to 255 bytes. Percent-encode the complete value (encodeURIComponent); decode once. It is not an InsightDev member ID."
+          }
+        ],
+        "description": "App Key + App Secret identify the project; X-User-Id resolves its native user. First use provisions the native identity. Native business permissions remain with the Provider. Native requests are forwarded without scope injection or tool/schema translation. Memory service failures use an error object without X-Memory-Native-Status."
+      }
+    },
+    "/v1/account": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Current Memory account",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          },
+          "503": {
+            "description": "Service unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ]
+      }
+    },
+    "/v1/account/keys": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "List account API key metadata",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountAPIKeyList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          },
+          "503": {
+            "description": "Service unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Create an account API key; secret returned only once",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created; secret is returned once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedAccountAPIKey"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          },
+          "503": {
+            "description": "Service unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ]
+      }
+    },
+    "/v1/account/keys/{key}": {
+      "delete": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Revoke an account API key",
+        "security": [
+          {
+            "accountSession": []
+          },
+          {
+            "accountAPIKey": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Memory account authentication required"
+          },
+          "403": {
+            "description": "Account ownership or same-origin check failed"
+          },
+          "409": {
+            "description": "Expected account no longer matches authenticated account"
+          },
+          "503": {
+            "description": "Service unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Memory-Account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Optional expected account ID. A mismatch fails with 409 before dispatch; this header never chooses or authenticates an account."
+          }
+        ]
+      }
+    },
+    "/auth/session": {
+      "get": {
+        "tags": [
+          "Identity"
+        ],
+        "summary": "session",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountSessionResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Session storage unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Identity"
+        ],
+        "summary": "login",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "redirect": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "SSO authorization URL, or null when automatic login is suppressed."
+                    }
+                  },
+                  "required": [
+                    "redirect"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Login unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "login",
+                      "switch"
+                    ],
+                    "default": "login"
+                  },
+                  "returnTo": {
+                    "type": "string",
+                    "default": "/",
+                    "description": "Same-origin path; /auth/* is forbidden."
+                  }
+                },
+                "required": [
+                  "mode",
+                  "returnTo"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Must equal the configured Memory public origin."
+          }
+        ]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Identity"
+        ],
+        "summary": "logout",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Logout failed; session may remain active",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Must equal the configured Memory public origin."
+          }
+        ]
+      }
+    },
+    "/auth/callback": {
+      "get": {
+        "tags": [
+          "Identity"
+        ],
+        "summary": "callback",
+        "security": [],
+        "responses": {
+          "303": {
+            "description": "Return to the original same-origin page",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing, expired or consumed transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Session storage unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MemoryProject": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "hindsight",
+              "openviking"
+            ]
+          },
+          "app_key": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "revoked": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "provider",
+          "app_key",
+          "enabled",
+          "revoked",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "MemoryProjectProvider": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "request_media": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "permission": {
+                  "type": "string",
+                  "description": "Console presentation hint only; native Provider enforces business permissions."
+                }
+              },
+              "required": [
+                "id",
+                "method",
+                "path",
+                "description",
+                "request_media",
+                "permission"
+              ]
+            }
+          }
+        },
+        "required": [
+          "provider",
+          "version",
+          "operations"
+        ]
+      },
+      "MemoryProjectIdentity": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string"
+          },
+          "mapping": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Resolved native identifiers, including the real bank_id for Hindsight SDKs; no native credential."
+          },
+          "provider": {
+            "$ref": "#/components/schemas/MemoryProjectProvider"
+          }
+        },
+        "required": [
+          "project_id",
+          "user_id",
+          "mapping"
+        ]
+      },
+      "MemoryProjectConsoleRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "object",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            }
+          },
+          "query": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "body": {}
+        },
+        "description": "Console-only native HTTP transport fields. No scope or native envelope. Raw body numbers are preserved. Schemas come from GET /v1/projects/{project}/schemas/{operation}."
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email"
+        ],
+        "additionalProperties": false
+      },
+      "AccountAPIKey": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "prefix": {
+            "type": "string",
+            "description": "Display prefix only; never a usable credential."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revoked_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "prefix",
+          "created_at",
+          "revoked_at"
+        ],
+        "additionalProperties": false
+      },
+      "AccountAPIKeyList": {
+        "type": "object",
+        "properties": {
+          "keys": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountAPIKey"
+            }
+          }
+        },
+        "required": [
+          "keys"
+        ],
+        "additionalProperties": false
+      },
+      "CreatedAccountAPIKey": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/AccountAPIKey"
+          },
+          "secret": {
+            "type": "string",
+            "description": "One-time account API key. Store it securely; it cannot be retrieved again.",
+            "pattern": "^ma_[A-Za-z0-9_-]{43}$"
+          }
+        },
+        "required": [
+          "key",
+          "secret"
+        ],
+        "additionalProperties": false
+      },
+      "AccountSession": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "expires": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Session expiration in Unix milliseconds."
+          }
+        },
+        "required": [
+          "account",
+          "expires"
+        ],
+        "additionalProperties": false
+      },
+      "AccountSessionResponse": {
+        "type": "object",
+        "properties": {
+          "session": {
+            "type": "object",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AccountSession"
+              }
+            ]
+          }
+        },
+        "required": [
+          "session"
+        ],
+        "additionalProperties": false
+      },
+      "IdentityError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "returnTo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "accountSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "memory_identity"
+      },
+      "accountAPIKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Account API key (ma_). No InsightFlow credentials."
+      },
+      "memoryAppKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-App-Key",
+        "description": "Project credential. Both App Key and App Secret are required; rotate/revoke in InsightDev."
+      },
+      "memoryAppSecret": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-App-Secret",
+        "description": "Project credential. Both App Key and App Secret are required; rotate/revoke in InsightDev."
+      }
+    }
+  }
+}

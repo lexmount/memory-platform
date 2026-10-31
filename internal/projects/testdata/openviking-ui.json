@@ -1,0 +1,697 @@
+[
+  {
+    "case": "ls",
+    "operation": "ls",
+    "input": {
+      "query": {
+        "uri": "viking://user/subject/memories",
+        "output": "original",
+        "node_limit": 51,
+        "offset": 0,
+        "sort_by": "name",
+        "sort_order": "asc"
+      }
+    },
+    "result": [
+      {
+        "name": "editor.md",
+        "uri": "viking://user/subject/memories/preferences/editor.md",
+        "isDir": false,
+        "size": 24,
+        "modTime": "2026-10-21T08:00:00Z"
+      }
+    ]
+  },
+  {
+    "case": "tree",
+    "operation": "tree",
+    "input": {
+      "query": {
+        "uri": "viking://user/subject/memories",
+        "output": "original",
+        "node_limit": 51,
+        "offset": 0,
+        "level_limit": 2
+      }
+    },
+    "result": [
+      {
+        "name": "editor.md",
+        "uri": "viking://user/subject/memories/preferences/editor.md",
+        "isDir": false,
+        "size": 24,
+        "modTime": "2026-10-21T08:00:00Z"
+      }
+    ]
+  },
+  {
+    "case": "stat",
+    "operation": "stat",
+    "input": {
+      "query": {
+        "uri": "viking://user/subject/memories/preferences/editor.md"
+      }
+    },
+    "result": {
+      "name": "editor.md",
+      "uri": "viking://user/subject/memories/preferences/editor.md",
+      "isDir": false,
+      "size": 24,
+      "modTime": "2026-10-21T08:00:00Z"
+    }
+  },
+  {
+    "case": "attrs",
+    "operation": "attrs",
+    "input": {
+      "query": {
+        "uri": "viking://user/subject/memories/preferences/editor.md"
+      }
+    },
+    "result": {
+      "tags": [
+        "topic=editor"
+      ],
+      "category": "preferences"
+    }
+  },
+  {
+    "case": "read",
+    "operation": "read",
+    "input": {
+      "query": {
+        "uri": "viking://user/subject/memories/preferences/editor.md"
+      }
+    },
+    "result": "# Editor\nUse small patches."
+  },
+  {
+    "case": "abstract",
+    "operation": "abstract",
+    "input": {
+      "query": {
+        "uri": "viking://user/subject/memories/preferences/editor.md"
+      }
+    },
+    "result": "# Editor\nUse small patches."
+  },
+  {
+    "case": "overview",
+    "operation": "overview",
+    "input": {
+      "query": {
+        "uri": "viking://user/subject/memories/preferences/editor.md"
+      }
+    },
+    "result": "# Editor\nUse small patches."
+  },
+  {
+    "case": "download",
+    "operation": "download",
+    "input": {
+      "query": {
+        "uri": "viking://user/subject/memories/preferences/editor.md"
+      }
+    },
+    "result": "# Editor\nUse small patches."
+  },
+  {
+    "case": "write",
+    "operation": "write",
+    "input": {
+      "body": {
+        "uri": "viking://user/subject/memories/preferences/editor.md",
+        "content": "Use small patches.",
+        "mode": "replace",
+        "wait": false
+      }
+    },
+    "result": {
+      "uri": "viking://user/subject/memories/preferences/editor.md",
+      "status": "success"
+    }
+  },
+  {
+    "case": "reindex",
+    "operation": "reindex",
+    "input": {
+      "body": {
+        "uri": "viking://user/subject/memories/preferences/editor.md",
+        "wait": false
+      }
+    },
+    "result": {
+      "task_id": "index-one",
+      "status": "pending"
+    }
+  },
+  {
+    "case": "list_sessions",
+    "operation": "list_sessions",
+    "input": {},
+    "result": [
+      {
+        "session_id": "session-one",
+        "uri": "viking://user/subject/sessions/session-one",
+        "is_dir": true,
+        "mod_time": "2026-10-21T08:00:00Z"
+      }
+    ]
+  },
+  {
+    "case": "get_session",
+    "operation": "get_session",
+    "input": {
+      "path": {
+        "session_id": "session-one"
+      },
+      "query": {
+        "auto_create": false
+      }
+    },
+    "result": {
+      "session_id": "session-one",
+      "commit_count": 1,
+      "message_count": 1,
+      "updated_at": "2026-10-21T08:00:00Z"
+    }
+  },
+  {
+    "case": "create_session",
+    "operation": "create_session",
+    "input": {
+      "body": {
+        "session_id": "session-one"
+      }
+    },
+    "result": {
+      "session_id": "session-one",
+      "user": {
+        "user_id": "subject"
+      }
+    }
+  },
+  {
+    "case": "delete_session",
+    "operation": "delete_session",
+    "input": {
+      "path": {
+        "session_id": "session-one"
+      }
+    },
+    "result": {
+      "session_id": "session-one"
+    }
+  },
+  {
+    "case": "get_session_context",
+    "operation": "get_session_context",
+    "input": {
+      "path": {
+        "session_id": "session-one"
+      }
+    },
+    "result": {
+      "latest_archive_overview": "Previous conversation summary",
+      "messages": [
+        {
+          "id": "message-one",
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "Prefer concise explanations."
+            }
+          ]
+        }
+      ],
+      "estimatedTokens": 12,
+      "stats": {
+        "totalArchives": 1
+      }
+    }
+  },
+  {
+    "case": "get_session_archive",
+    "operation": "get_session_archive",
+    "input": {
+      "path": {
+        "session_id": "session-one",
+        "archive_id": "archive_001"
+      }
+    },
+    "result": {
+      "archive_id": "archive_001",
+      "abstract": "Preference",
+      "overview": "Earlier conversation",
+      "messages": [
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "Understood."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "case": "add_message",
+    "operation": "add_message",
+    "input": {
+      "path": {
+        "session_id": "session-one"
+      },
+      "body": {
+        "role": "user",
+        "content": "Remember this."
+      }
+    },
+    "result": {
+      "session_id": "session-one",
+      "message_count": 2,
+      "pending_tokens": 19
+    }
+  },
+  {
+    "case": "add_message_parts",
+    "operation": "add_message",
+    "input": {
+      "path": {
+        "session_id": "session-one"
+      },
+      "body": {
+        "role": "assistant",
+        "parts": [
+          {
+            "type": "text",
+            "text": "Understood."
+          }
+        ]
+      }
+    },
+    "result": {
+      "session_id": "session-one",
+      "message_count": 3
+    }
+  },
+  {
+    "case": "commit_session",
+    "operation": "commit_session",
+    "input": {
+      "path": {
+        "session_id": "session-one"
+      },
+      "body": {
+        "keep_recent_count": 1
+      }
+    },
+    "result": {
+      "session_id": "session-one",
+      "status": "accepted",
+      "archived": true,
+      "archive_uri": "viking://user/subject/sessions/session-one/history/archive_001",
+      "task_id": "task-one"
+    }
+  },
+  {
+    "case": "list_tool_results",
+    "operation": "list_tool_results",
+    "input": {
+      "path": {
+        "session_id": "session-one"
+      },
+      "query": {
+        "limit": 50,
+        "tool_name": "read_file"
+      }
+    },
+    "result": {
+      "tool_results": [
+        {
+          "tool_result_id": "tr_one",
+          "tool_name": "read_file",
+          "original_chars": 21000
+        }
+      ]
+    }
+  },
+  {
+    "case": "read_tool_result",
+    "operation": "read_tool_result",
+    "input": {
+      "path": {
+        "session_id": "session-one",
+        "tool_result_id": "tr_one"
+      },
+      "query": {
+        "offset": 20000,
+        "limit": 20000,
+        "include_metadata": true
+      }
+    },
+    "result": {
+      "tool_result_id": "tr_one",
+      "content": "Tool output tail",
+      "offset": 20000,
+      "limit": 20000,
+      "offset_unit": "unicode_code_point",
+      "total_chars": 21000,
+      "has_more": false,
+      "metadata": {
+        "tool_name": "read_file"
+      }
+    }
+  },
+  {
+    "case": "search_tool_result",
+    "operation": "search_tool_result",
+    "input": {
+      "path": {
+        "session_id": "session-one",
+        "tool_result_id": "tr_one"
+      },
+      "query": {
+        "q": "needle",
+        "limit": 20
+      }
+    },
+    "result": {
+      "tool_result_id": "tr_one",
+      "matches": [
+        {
+          "offset": 20,
+          "offset_unit": "unicode_code_point",
+          "snippet": "Find the needle here."
+        }
+      ]
+    }
+  },
+  {
+    "case": "find",
+    "operation": "find",
+    "input": {
+      "body": {
+        "query": "editor",
+        "limit": 10,
+        "target_uri": "viking://user/subject/memories"
+      }
+    },
+    "result": {
+      "memories": [
+        {
+          "uri": "viking://user/subject/memories/preferences/editor.md",
+          "abstract": "Editor preference",
+          "score": 0.91
+        }
+      ],
+      "resources": [],
+      "skills": []
+    }
+  },
+  {
+    "case": "search",
+    "operation": "search",
+    "input": {
+      "body": {
+        "query": "editor",
+        "limit": 10,
+        "target_uri": "viking://user/subject/memories",
+        "mode": "list",
+        "search_type": "semantic"
+      }
+    },
+    "result": {
+      "memories": [
+        {
+          "uri": "viking://user/subject/memories/preferences/editor.md",
+          "abstract": "Editor preference",
+          "score": 0.91
+        }
+      ],
+      "resources": [],
+      "skills": []
+    }
+  },
+  {
+    "case": "search_context",
+    "operation": "search",
+    "input": {
+      "body": {
+        "query": "editor",
+        "limit": 10,
+        "mode": "context",
+        "search_type": "semantic",
+        "max_tokens": 1600,
+        "filter": {
+          "op": "must",
+          "field": "uri",
+          "conds": [
+            "viking://user/subject/memories"
+          ],
+          "para": "-d=-1"
+        }
+      }
+    },
+    "result": {
+      "entries": [
+        {
+          "uri": "viking://user/subject/memories/editor.md",
+          "category": "preferences",
+          "score": 0.91,
+          "detail": "L2",
+          "text": "Use small patches."
+        }
+      ],
+      "rendered": "Use small patches.",
+      "digest": "",
+      "stats": {
+        "total_tokens": 8
+      }
+    }
+  },
+  {
+    "case": "search_peer_context",
+    "operation": "search",
+    "input": {
+      "body": {
+        "query": "editor",
+        "limit": 10,
+        "mode": "context",
+        "search_type": "semantic",
+        "max_tokens": 1600,
+        "filter": {
+          "op": "must",
+          "field": "uri",
+          "conds": [
+            "viking://user/subject/peers/reviewer/memories"
+          ],
+          "para": "-d=-1"
+        }
+      },
+      "headers": {
+        "X-OpenViking-Actor-Peer": "reviewer"
+      }
+    },
+    "result": {
+      "entries": [
+        {
+          "uri": "viking://user/subject/peers/reviewer/memories/editor.md",
+          "category": "preferences",
+          "score": 0.91,
+          "detail": "L2",
+          "text": "Use small patches."
+        }
+      ],
+      "rendered": "Use small patches.",
+      "digest": "",
+      "stats": {
+        "total_tokens": 8
+      }
+    }
+  },
+  {
+    "case": "grep",
+    "operation": "grep",
+    "input": {
+      "body": {
+        "uri": "viking://user/subject/memories",
+        "pattern": "editor",
+        "case_insensitive": false,
+        "node_limit": 10
+      }
+    },
+    "result": {
+      "matches": [
+        {
+          "uri": "viking://user/subject/memories/preferences/editor.md",
+          "line": 2,
+          "content": "editor"
+        }
+      ],
+      "count": 1
+    }
+  },
+  {
+    "case": "glob",
+    "operation": "glob",
+    "input": {
+      "body": {
+        "uri": "viking://user/subject/memories",
+        "pattern": "*.md",
+        "node_limit": 10
+      }
+    },
+    "result": {
+      "matches": [
+        "viking://user/subject/memories/preferences/editor.md"
+      ],
+      "count": 1
+    }
+  },
+  {
+    "case": "list_tasks",
+    "operation": "list_tasks",
+    "input": {
+      "query": {
+        "task_type": "session_commit",
+        "pagination": "cursor",
+        "limit": 20
+      }
+    },
+    "result": {
+      "items": [
+        {
+          "task_id": "task-one",
+          "task_type": "session_commit",
+          "status": "running",
+          "resource_id": "session-one",
+          "created_at": 1792569600,
+          "created_at_iso": "2026-10-21T08:00:00+00:00",
+          "stage": "extracting"
+        }
+      ],
+      "has_more": true,
+      "next_cursor": "opaque-next"
+    }
+  },
+  {
+    "case": "get_task",
+    "operation": "get_task",
+    "input": {
+      "path": {
+        "task_id": "task-one"
+      },
+      "query": {
+        "include_events": true
+      }
+    },
+    "result": {
+      "task_id": "task-one",
+      "task_type": "session_commit",
+      "status": "running",
+      "resource_id": "session-one",
+      "created_at": 1792569600,
+      "created_at_iso": "2026-10-21T08:00:00+00:00",
+      "stage": "extracting",
+      "execution_events": {
+        "items": [
+          {
+            "seq": 1,
+            "recorded_at": "2026-10-21T08:00:01+00:00",
+            "kind": "stage_changed",
+            "status": "running",
+            "stage": "extracting",
+            "operation": null,
+            "error": null
+          }
+        ],
+        "dropped_count": 0,
+        "started_mid_task": false
+      }
+    }
+  },
+  {
+    "case": "cancel_task",
+    "operation": "cancel_task",
+    "input": {
+      "path": {
+        "task_id": "task-one"
+      }
+    },
+    "result": {
+      "task_id": "task-one",
+      "task_type": "session_commit",
+      "status": "cancelling",
+      "resource_id": "session-one",
+      "created_at": 1792569600,
+      "created_at_iso": "2026-10-21T08:00:00+00:00",
+      "stage": "extracting"
+    }
+  },
+  {
+    "case": "list_experience_trajectories",
+    "operation": "list_experience_trajectories",
+    "input": {
+      "query": {
+        "experience_uri": "viking://user/subject/memories/experiences/review.md",
+        "offset": 0,
+        "limit": 20,
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-21"
+      }
+    },
+    "result": {
+      "experience_uri": "viking://user/subject/memories/experiences/review.md",
+      "items": [
+        {
+          "uri": "viking://user/subject/memories/trajectories/review.md",
+          "name": "Review",
+          "description": "Applied review experience"
+        }
+      ],
+      "total": 1,
+      "offset": 0,
+      "limit": 20,
+      "has_more": false
+    }
+  },
+  {
+    "case": "get_experience_outcome_distribution",
+    "operation": "get_experience_outcome_distribution",
+    "input": {
+      "query": {
+        "experience_uri": "viking://user/subject/memories/experiences/review.md",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-21"
+      }
+    },
+    "result": {
+      "experience_uri": "viking://user/subject/memories/experiences/review.md",
+      "outcome_distribution": [
+        {
+          "outcome": "success",
+          "count": 1
+        },
+        {
+          "outcome": "failure",
+          "count": 0
+        },
+        {
+          "outcome": "partial",
+          "count": 0
+        },
+        {
+          "outcome": "unknown",
+          "count": 0
+        },
+        {
+          "outcome": "unfinished",
+          "count": 0
+        }
+      ]
+    }
+  }
+]

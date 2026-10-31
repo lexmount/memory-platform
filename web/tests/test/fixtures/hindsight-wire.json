@@ -1,0 +1,1282 @@
+{
+  "provenance": {
+    "version": "0.10.3",
+    "commit": "eb6df499d35300e5b2f3f029b2e6adda04ed90f8",
+    "sha256": "4fe146e6de97153673ddab2fd802e85af47f7d372c7437cc7a400e1d9c2386e2",
+    "kind": "Schema-derived shape fixtures; not live responses. Opaque results are tested separately."
+  },
+  "cases": [
+    {
+      "operation": "get_graph",
+      "input": {},
+      "response": {
+        "edges": [
+          {
+            "data": {
+              "id": "1-2-semantic",
+              "linkType": "semantic",
+              "source": "1",
+              "target": "2",
+              "weight": 0.8
+            }
+          }
+        ],
+        "limit": 1000,
+        "nodes": [
+          {
+            "data": {
+              "id": "1",
+              "label": "Alice works at Google",
+              "text": "Alice works at Google"
+            }
+          },
+          {
+            "data": {
+              "id": "2",
+              "label": "Bob went hiking",
+              "text": "Bob went hiking"
+            }
+          }
+        ],
+        "table_rows": [
+          {
+            "context": "Work info",
+            "date": "2024-01-15 10:30",
+            "entities": "Alice (PERSON), Google (ORGANIZATION)",
+            "id": "abc12345...",
+            "text": "Alice works at Google"
+          }
+        ],
+        "total_units": 2
+      },
+      "responseSchema": "#/components/schemas/GraphDataResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "list_memories",
+      "input": {},
+      "response": {
+        "items": [
+          {
+            "context": "Work conversation",
+            "date": "2024-01-15T10:30:00Z",
+            "entities": "Alice, Google",
+            "fact_type": "world",
+            "id": "550e8400-e29b-41d4-a716-446655440000",
+            "metadata": {
+              "channel": "engineering",
+              "source": "slack"
+            },
+            "state": "valid",
+            "tags": [
+              "user:alice"
+            ],
+            "text": "Alice works at Google on the AI team"
+          }
+        ],
+        "limit": 100,
+        "offset": 0,
+        "total": 150
+      },
+      "responseSchema": "#/components/schemas/ListMemoryUnitsResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "dry_run_extract_memories",
+      "input": {
+        "body": {
+          "content": "example"
+        }
+      },
+      "response": {},
+      "responseSchema": "#/components/schemas/DryRunExtractionResult",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "preview_prompt",
+      "input": {
+        "body": {}
+      },
+      "response": {},
+      "responseSchema": "#/components/schemas/PromptPreviewResponse",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "get_memory",
+      "input": {
+        "path": {
+          "memory_id": "example"
+        }
+      },
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": []
+    },
+    {
+      "operation": "update_memory",
+      "input": {
+        "path": {
+          "memory_id": "example"
+        },
+        "body": {}
+      },
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "get_observation_history",
+      "input": {
+        "path": {
+          "memory_id": "example"
+        }
+      },
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": []
+    },
+    {
+      "operation": "recall_memories",
+      "input": {
+        "body": {
+          "query": "example"
+        }
+      },
+      "response": {
+        "chunks": {
+          "456e7890-e12b-34d5-a678-901234567890": {
+            "chunk_index": 0,
+            "id": "456e7890-e12b-34d5-a678-901234567890",
+            "text": "Alice works at Google on the AI team. She's been there for 3 years..."
+          }
+        },
+        "entities": {
+          "Alice": {
+            "canonical_name": "Alice",
+            "entity_id": "123e4567-e89b-12d3-a456-426614174001",
+            "observations": [
+              {
+                "mentioned_at": "2024-01-15T10:30:00Z",
+                "text": "Alice works at Google on the AI team"
+              }
+            ]
+          }
+        },
+        "results": [
+          {
+            "chunk_id": "456e7890-e12b-34d5-a678-901234567890",
+            "context": "work info",
+            "entities": [
+              "Alice",
+              "Google"
+            ],
+            "id": "123e4567-e89b-12d3-a456-426614174000",
+            "occurred_end": "2024-01-15T10:30:00Z",
+            "occurred_start": "2024-01-15T10:30:00Z",
+            "text": "Alice works at Google on the AI team",
+            "type": "world"
+          }
+        ],
+        "trace": {
+          "num_results": 1,
+          "query": "What did Alice say about machine learning?",
+          "time_seconds": 0.123
+        }
+      },
+      "responseSchema": "#/components/schemas/RecallResponse",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "reflect",
+      "input": {
+        "body": {
+          "query": "example"
+        }
+      },
+      "response": {
+        "based_on": {
+          "memories": [
+            {
+              "id": "123",
+              "text": "AI is used in healthcare",
+              "type": "world"
+            },
+            {
+              "id": "456",
+              "text": "I discussed AI applications last week",
+              "type": "experience"
+            }
+          ]
+        },
+        "structured_output": {
+          "key_points": [
+            "Used in healthcare",
+            "Discussed recently"
+          ],
+          "summary": "AI is transformative"
+        },
+        "text": "## AI Overview\n\nBased on my understanding, AI is a **transformative technology**:\n\n- Used extensively in healthcare\n- Discussed in recent conversations\n- Continues to evolve rapidly",
+        "trace": {
+          "llm_calls": [
+            {
+              "duration_ms": 1200,
+              "scope": "agent_1"
+            }
+          ],
+          "observations": [
+            {
+              "id": "obs-1",
+              "name": "AI Technology",
+              "subtype": "structural",
+              "type": "concept"
+            }
+          ],
+          "tool_calls": [
+            {
+              "duration_ms": 150,
+              "input": {
+                "query": "AI"
+              },
+              "tool": "recall"
+            }
+          ]
+        },
+        "usage": {
+          "input_tokens": 1500,
+          "output_tokens": 500,
+          "total_tokens": 2000
+        }
+      },
+      "responseSchema": "#/components/schemas/ReflectResponse",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "get_agent_stats",
+      "input": {},
+      "response": {
+        "bank_id": "user123",
+        "failed_consolidation": 0,
+        "failed_operations": 0,
+        "last_consolidated_at": "2024-01-15T10:30:00Z",
+        "last_memory_write_at": "2024-01-15T11:05:00Z",
+        "links_breakdown": {
+          "fact": {
+            "entity": 40,
+            "semantic": 60,
+            "temporal": 100
+          }
+        },
+        "links_by_fact_type": {
+          "fact": 200,
+          "observation": 40,
+          "preference": 60
+        },
+        "links_by_link_type": {
+          "entity": 50,
+          "semantic": 100,
+          "temporal": 150
+        },
+        "nodes_by_fact_type": {
+          "fact": 100,
+          "observation": 20,
+          "preference": 30
+        },
+        "pending_consolidation": 0,
+        "pending_operations": 2,
+        "total_documents": 10,
+        "total_links": 300,
+        "total_nodes": 150,
+        "total_observations": 45
+      },
+      "responseSchema": "#/components/schemas/BankStatsResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "get_memories_timeseries",
+      "input": {},
+      "response": {
+        "bank_id": "sample",
+        "period": "sample",
+        "trunc": "sample"
+      },
+      "responseSchema": "#/components/schemas/MemoriesTimeseriesResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "list_entities",
+      "input": {},
+      "response": {
+        "items": [
+          {
+            "canonical_name": "John",
+            "first_seen": "2024-01-15T10:30:00Z",
+            "id": "123e4567-e89b-12d3-a456-426614174000",
+            "last_seen": "2024-02-01T14:00:00Z",
+            "mention_count": 15
+          }
+        ],
+        "limit": 100,
+        "offset": 0,
+        "total": 150
+      },
+      "responseSchema": "#/components/schemas/EntityListResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "get_entity_graph",
+      "input": {},
+      "response": {
+        "edges": [
+          {
+            "data": {
+              "color": "#ffd700",
+              "id": "uuid-1-uuid-2",
+              "lastCooccurred": "2024-02-01T14:00:00Z",
+              "lineStyle": "solid",
+              "linkType": "cooccurrence",
+              "source": "uuid-1",
+              "target": "uuid-2",
+              "weight": 5
+            }
+          }
+        ],
+        "limit": 1000,
+        "nodes": [
+          {
+            "data": {
+              "color": "#42a5f5",
+              "id": "uuid-1",
+              "label": "Alice",
+              "mentionCount": 12
+            }
+          },
+          {
+            "data": {
+              "color": "#42a5f5",
+              "id": "uuid-2",
+              "label": "Google",
+              "mentionCount": 8
+            }
+          }
+        ],
+        "total_edges": 1,
+        "total_entities": 2
+      },
+      "responseSchema": "#/components/schemas/EntityGraphResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "get_entity",
+      "input": {
+        "path": {
+          "entity_id": "example"
+        }
+      },
+      "response": {
+        "canonical_name": "John",
+        "first_seen": "2024-01-15T10:30:00Z",
+        "id": "123e4567-e89b-12d3-a456-426614174000",
+        "last_seen": "2024-02-01T14:00:00Z",
+        "mention_count": 15,
+        "observations": [
+          {
+            "mentioned_at": "2024-01-15T10:30:00Z",
+            "text": "John works at Google"
+          }
+        ]
+      },
+      "responseSchema": "#/components/schemas/EntityDetailResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "list_mental_models",
+      "input": {},
+      "response": {
+        "items": [],
+        "total": 1,
+        "limit": 1,
+        "offset": 1
+      },
+      "responseSchema": "#/components/schemas/MentalModelListResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "create_mental_model",
+      "input": {
+        "body": {
+          "name": "example",
+          "source_query": "example"
+        }
+      },
+      "response": {
+        "operation_id": "sample"
+      },
+      "responseSchema": "#/components/schemas/CreateMentalModelResponse",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "get_mental_model",
+      "input": {
+        "path": {
+          "mental_model_id": "example"
+        }
+      },
+      "response": {
+        "id": "sample",
+        "bank_id": "sample",
+        "name": "sample"
+      },
+      "responseSchema": "#/components/schemas/MentalModelResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "update_mental_model",
+      "input": {
+        "path": {
+          "mental_model_id": "example"
+        },
+        "body": {}
+      },
+      "response": {
+        "id": "sample",
+        "bank_id": "sample",
+        "name": "sample"
+      },
+      "responseSchema": "#/components/schemas/MentalModelResponse",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "delete_mental_model",
+      "input": {
+        "path": {
+          "mental_model_id": "example"
+        }
+      },
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": []
+    },
+    {
+      "operation": "get_mental_model_history",
+      "input": {
+        "path": {
+          "mental_model_id": "example"
+        }
+      },
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": []
+    },
+    {
+      "operation": "refresh_mental_model",
+      "input": {
+        "path": {
+          "mental_model_id": "example"
+        }
+      },
+      "response": {
+        "operation_id": "550e8400-e29b-41d4-a716-446655440000",
+        "status": "queued"
+      },
+      "responseSchema": "#/components/schemas/AsyncOperationSubmitResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "dry_run_refresh_mental_model",
+      "input": {
+        "path": {
+          "mental_model_id": "example"
+        }
+      },
+      "response": {
+        "effective_mode": "full",
+        "facts": {
+          "retrieved": {
+            "observation": 12
+          },
+          "used": {
+            "observation": 4
+          }
+        },
+        "mental_model_id": "coding-style",
+        "mode_fallback_reason": "source_query_changed",
+        "name": "Coding Style",
+        "outcome": "content_written",
+        "requested_mode": "delta",
+        "warnings": [],
+        "would_persist": true
+      },
+      "responseSchema": "#/components/schemas/MentalModelDryRunRefreshResult",
+      "requestMedia": []
+    },
+    {
+      "operation": "clear_mental_model",
+      "input": {
+        "path": {
+          "mental_model_id": "example"
+        }
+      },
+      "response": {
+        "id": "sample",
+        "bank_id": "sample",
+        "name": "sample"
+      },
+      "responseSchema": "#/components/schemas/MentalModelResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "get_knowledge_base_tree",
+      "input": {},
+      "response": {
+        "roots": []
+      },
+      "responseSchema": "#/components/schemas/KnowledgeTreeResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "create_knowledge_folder",
+      "input": {
+        "body": {
+          "name": "example"
+        }
+      },
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "create_knowledge_page",
+      "input": {
+        "body": {
+          "name": "example",
+          "source_query": "example"
+        }
+      },
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "search_knowledge_base",
+      "input": {
+        "query": {
+          "q": "example"
+        }
+      },
+      "response": {
+        "results": [],
+        "total": 1
+      },
+      "responseSchema": "#/components/schemas/KnowledgePageSearchResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "get_knowledge_page",
+      "input": {
+        "path": {
+          "page_id": "example"
+        }
+      },
+      "response": {
+        "id": "sample",
+        "name": "sample",
+        "type": "sample",
+        "markdown": "sample"
+      },
+      "responseSchema": "#/components/schemas/KnowledgePageResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "update_knowledge_node",
+      "input": {
+        "path": {
+          "node_id": "example"
+        },
+        "body": {}
+      },
+      "response": {
+        "id": "sample",
+        "kind": "folder",
+        "name": "sample"
+      },
+      "responseSchema": "#/components/schemas/KnowledgeNode",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "delete_knowledge_node",
+      "input": {
+        "path": {
+          "node_id": "example"
+        }
+      },
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": []
+    },
+    {
+      "operation": "list_directives",
+      "input": {},
+      "response": {
+        "items": [],
+        "total": 1,
+        "limit": 1,
+        "offset": 1
+      },
+      "responseSchema": "#/components/schemas/DirectiveListResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "create_directive",
+      "input": {
+        "body": {
+          "name": "example",
+          "content": "example"
+        }
+      },
+      "response": {
+        "id": "sample",
+        "bank_id": "sample",
+        "name": "sample",
+        "content": "sample"
+      },
+      "responseSchema": "#/components/schemas/DirectiveResponse",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "get_directive",
+      "input": {
+        "path": {
+          "directive_id": "example"
+        }
+      },
+      "response": {
+        "id": "sample",
+        "bank_id": "sample",
+        "name": "sample",
+        "content": "sample"
+      },
+      "responseSchema": "#/components/schemas/DirectiveResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "update_directive",
+      "input": {
+        "path": {
+          "directive_id": "example"
+        },
+        "body": {}
+      },
+      "response": {
+        "id": "sample",
+        "bank_id": "sample",
+        "name": "sample",
+        "content": "sample"
+      },
+      "responseSchema": "#/components/schemas/DirectiveResponse",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "delete_directive",
+      "input": {
+        "path": {
+          "directive_id": "example"
+        }
+      },
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": []
+    },
+    {
+      "operation": "list_documents",
+      "input": {},
+      "response": {
+        "items": [
+          {
+            "bank_id": "user123",
+            "content_hash": "abc123",
+            "created_at": "2024-01-15T10:30:00Z",
+            "id": "session_1",
+            "memory_unit_count": 15,
+            "tags": [
+              "user_a",
+              "session_123"
+            ],
+            "text_length": 5420,
+            "updated_at": "2024-01-15T10:30:00Z"
+          }
+        ],
+        "limit": 100,
+        "offset": 0,
+        "total": 50
+      },
+      "responseSchema": "#/components/schemas/ListDocumentsResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "list_document_chunks",
+      "input": {
+        "path": {
+          "document_id": "example"
+        }
+      },
+      "response": {
+        "items": [],
+        "total": 1,
+        "limit": 1,
+        "offset": 1
+      },
+      "responseSchema": "#/components/schemas/ListChunksResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "reprocess_document",
+      "input": {
+        "path": {
+          "document_id": "example"
+        }
+      },
+      "response": {
+        "success": true,
+        "operation_id": "sample",
+        "items_count": 1
+      },
+      "responseSchema": "#/components/schemas/ReprocessDocumentResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "get_document",
+      "input": {
+        "path": {
+          "document_id": "example"
+        }
+      },
+      "response": {
+        "bank_id": "user123",
+        "content_hash": "abc123",
+        "created_at": "2024-01-15T10:30:00Z",
+        "document_metadata": {
+          "channel": "#general",
+          "source": "slack"
+        },
+        "id": "session_1",
+        "memory_unit_count": 15,
+        "original_text": "Full document text here...",
+        "retain_params": {
+          "context": "Team meeting notes",
+          "event_date": "2024-01-15"
+        },
+        "tags": [
+          "user_a",
+          "session_123"
+        ],
+        "updated_at": "2024-01-15T10:30:00Z"
+      },
+      "responseSchema": "#/components/schemas/DocumentResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "update_document",
+      "input": {
+        "path": {
+          "document_id": "example"
+        },
+        "body": {}
+      },
+      "response": {},
+      "responseSchema": "#/components/schemas/UpdateDocumentResponse",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "delete_document",
+      "input": {
+        "path": {
+          "document_id": "example"
+        }
+      },
+      "response": {
+        "document_id": "session_1",
+        "memory_units_deleted": 5,
+        "message": "Document 'session_1' and 5 associated memory units deleted successfully",
+        "success": true
+      },
+      "responseSchema": "#/components/schemas/DeleteDocumentResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "list_tags",
+      "input": {},
+      "response": {
+        "items": [
+          {
+            "count": 42,
+            "tag": "user:alice"
+          },
+          {
+            "count": 15,
+            "tag": "user:bob"
+          },
+          {
+            "count": 8,
+            "tag": "session:abc123"
+          }
+        ],
+        "limit": 100,
+        "offset": 0,
+        "total": 25
+      },
+      "responseSchema": "#/components/schemas/ListTagsResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "get_chunk",
+      "input": {
+        "path": {
+          "chunk_id": "example"
+        }
+      },
+      "response": {
+        "bank_id": "user123",
+        "chunk_id": "user123_session_1_0",
+        "chunk_index": 0,
+        "chunk_text": "This is the first chunk of the document...",
+        "created_at": "2024-01-15T10:30:00Z",
+        "document_id": "session_1"
+      },
+      "responseSchema": "#/components/schemas/ChunkResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "list_operations",
+      "input": {},
+      "response": {
+        "bank_id": "user123",
+        "limit": 20,
+        "offset": 0,
+        "operations": [
+          {
+            "created_at": "2024-01-15T10:30:00Z",
+            "id": "550e8400-e29b-41d4-a716-446655440000",
+            "items_count": 5,
+            "status": "pending",
+            "task_type": "retain"
+          }
+        ],
+        "total": 150
+      },
+      "responseSchema": "#/components/schemas/OperationsListResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "get_operation_status",
+      "input": {
+        "path": {
+          "operation_id": "example"
+        }
+      },
+      "response": {
+        "completed_at": "2024-01-15T10:31:30Z",
+        "created_at": "2024-01-15T10:30:00Z",
+        "operation_id": "550e8400-e29b-41d4-a716-446655440000",
+        "operation_type": "refresh_mental_model",
+        "status": "completed",
+        "updated_at": "2024-01-15T10:31:30Z"
+      },
+      "responseSchema": "#/components/schemas/OperationStatusResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "cancel_operation",
+      "input": {
+        "path": {
+          "operation_id": "example"
+        }
+      },
+      "response": {
+        "message": "Operation 550e8400-e29b-41d4-a716-446655440000 cancelled",
+        "operation_id": "550e8400-e29b-41d4-a716-446655440000",
+        "success": true
+      },
+      "responseSchema": "#/components/schemas/CancelOperationResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "retry_operation",
+      "input": {
+        "path": {
+          "operation_id": "example"
+        }
+      },
+      "response": {
+        "message": "Operation 550e8400-e29b-41d4-a716-446655440000 queued for retry",
+        "operation_id": "550e8400-e29b-41d4-a716-446655440000",
+        "success": true
+      },
+      "responseSchema": "#/components/schemas/RetryOperationResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "delete_operation",
+      "input": {
+        "path": {
+          "operation_id": "example"
+        }
+      },
+      "response": {
+        "message": "Operation 550e8400-e29b-41d4-a716-446655440000 deleted",
+        "operation_id": "550e8400-e29b-41d4-a716-446655440000",
+        "success": true
+      },
+      "responseSchema": "#/components/schemas/DeleteOperationResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "import_bank_template",
+      "input": {
+        "body": {
+          "version": "example"
+        }
+      },
+      "response": {
+        "bank_id": "sample",
+        "config_applied": true
+      },
+      "responseSchema": "#/components/schemas/BankTemplateImportResponse",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "export_bank_template",
+      "input": {},
+      "response": {
+        "bank": {
+          "disposition_empathy": 5,
+          "enable_observations": true,
+          "reflect_mission": "You are helping a support agent remember customer interactions.",
+          "retain_mission": "Extract customer issues, resolutions, and sentiment."
+        },
+        "directives": [
+          {
+            "content": "Always respond with empathy and understanding.",
+            "name": "Always be empathetic",
+            "priority": 10
+          }
+        ],
+        "mental_models": [
+          {
+            "id": "sentiment-overview",
+            "name": "Customer Sentiment Overview",
+            "source_query": "What is the overall sentiment trend?",
+            "trigger": {
+              "refresh_after_consolidation": true
+            }
+          }
+        ],
+        "version": "1"
+      },
+      "responseSchema": "#/components/schemas/BankTemplateManifest",
+      "requestMedia": []
+    },
+    {
+      "operation": "export_bank_transfer",
+      "input": {},
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": []
+    },
+    {
+      "operation": "import_bank_transfer",
+      "input": {
+        "query": {
+          "mode": "merge"
+        }
+      },
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": [
+        "multipart/form-data"
+      ]
+    },
+    {
+      "operation": "get_bank_attachment",
+      "input": {
+        "path": {
+          "attachment_id": "example"
+        }
+      },
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": []
+    },
+    {
+      "operation": "download_file",
+      "input": {
+        "path": {
+          "key": "example"
+        }
+      },
+      "response": {},
+      "responseSchema": null,
+      "requestMedia": []
+    },
+    {
+      "operation": "clear_observations",
+      "input": {},
+      "response": {
+        "deleted_count": 10,
+        "message": "Deleted successfully",
+        "success": true
+      },
+      "responseSchema": "#/components/schemas/DeleteResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "list_observation_scopes",
+      "input": {},
+      "response": {
+        "limit": 100,
+        "offset": 0,
+        "scopes": [
+          {
+            "count": 12,
+            "tags": [
+              "user:alice"
+            ]
+          },
+          {
+            "count": 4,
+            "tags": [
+              "user:alice",
+              "project:apollo"
+            ]
+          },
+          {
+            "count": 2,
+            "tags": []
+          }
+        ],
+        "total": 3
+      },
+      "responseSchema": "#/components/schemas/ObservationScopesResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "preview_consolidation_strategies",
+      "input": {
+        "body": {
+          "strategies": [
+            {}
+          ]
+        }
+      },
+      "response": {
+        "strategies": [],
+        "default": {
+          "match_count": 1,
+          "observation_count": 1,
+          "samples": []
+        },
+        "scopes_scanned": 1,
+        "complete": true
+      },
+      "responseSchema": "#/components/schemas/ConsolidationStrategiesPreview",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "recover_consolidation",
+      "input": {},
+      "response": {
+        "retried_count": 42
+      },
+      "responseSchema": "#/components/schemas/RecoverConsolidationResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "get_bank_config",
+      "input": {},
+      "response": {
+        "bank_id": "my-bank",
+        "config": {
+          "retain_chunk_size": 3000,
+          "retain_extraction_mode": "verbose"
+        },
+        "overrides": {
+          "retain_extraction_mode": "verbose"
+        }
+      },
+      "responseSchema": "#/components/schemas/BankConfigResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "update_bank_config",
+      "input": {
+        "body": {
+          "updates": {}
+        }
+      },
+      "response": {
+        "bank_id": "my-bank",
+        "config": {
+          "retain_chunk_size": 3000,
+          "retain_extraction_mode": "verbose"
+        },
+        "overrides": {
+          "retain_extraction_mode": "verbose"
+        }
+      },
+      "responseSchema": "#/components/schemas/BankConfigResponse",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "reset_bank_config",
+      "input": {},
+      "response": {
+        "bank_id": "my-bank",
+        "config": {
+          "retain_chunk_size": 3000,
+          "retain_extraction_mode": "verbose"
+        },
+        "overrides": {
+          "retain_extraction_mode": "verbose"
+        }
+      },
+      "responseSchema": "#/components/schemas/BankConfigResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "trigger_consolidation",
+      "input": {},
+      "response": {
+        "operation_id": "sample"
+      },
+      "responseSchema": "#/components/schemas/ConsolidationResponse",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "retain_memories",
+      "input": {
+        "body": {
+          "items": [
+            {
+              "content": "example"
+            }
+          ]
+        }
+      },
+      "response": {
+        "async": false,
+        "bank_id": "user123",
+        "items_count": 2,
+        "success": true,
+        "usage": {
+          "input_tokens": 500,
+          "output_tokens": 100,
+          "total_tokens": 600
+        }
+      },
+      "responseSchema": "#/components/schemas/RetainResponse",
+      "requestMedia": [
+        "application/json"
+      ]
+    },
+    {
+      "operation": "file_retain",
+      "input": {},
+      "response": {
+        "operation_ids": [
+          "550e8400-e29b-41d4-a716-446655440000",
+          "550e8400-e29b-41d4-a716-446655440001",
+          "550e8400-e29b-41d4-a716-446655440002"
+        ]
+      },
+      "responseSchema": "#/components/schemas/FileRetainResponse",
+      "requestMedia": [
+        "multipart/form-data"
+      ]
+    },
+    {
+      "operation": "list_audit_logs",
+      "input": {},
+      "response": {
+        "bank_id": "sample",
+        "total": 1,
+        "limit": 1,
+        "offset": 1,
+        "items": []
+      },
+      "responseSchema": "#/components/schemas/AuditLogListResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "audit_log_stats",
+      "input": {},
+      "response": {
+        "bank_id": "sample",
+        "period": "sample",
+        "trunc": "sample",
+        "start": "sample",
+        "buckets": []
+      },
+      "responseSchema": "#/components/schemas/AuditLogStatsResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "list_llm_requests",
+      "input": {},
+      "response": {
+        "bank_id": "sample",
+        "total": 1,
+        "limit": 1,
+        "offset": 1,
+        "items": []
+      },
+      "responseSchema": "#/components/schemas/LLMRequestListResponse",
+      "requestMedia": []
+    },
+    {
+      "operation": "llm_request_stats",
+      "input": {},
+      "response": {
+        "bank_id": "sample",
+        "period": "sample",
+        "trunc": "sample",
+        "start": "sample",
+        "buckets": []
+      },
+      "responseSchema": "#/components/schemas/LLMRequestStatsResponse",
+      "requestMedia": []
+    }
+  ]
+}

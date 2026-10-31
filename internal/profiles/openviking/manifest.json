@@ -1,0 +1,602 @@
+{
+  "provider": "openviking",
+  "version": "0.5.0",
+  "operations": [
+    {
+      "id": "check_consistency",
+      "method": "POST",
+      "path": "/api/v1/system/consistency",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Check Consistency"
+    },
+    {
+      "id": "list_experience_trajectories",
+      "method": "GET",
+      "path": "/api/v1/agent-evolution/experiences/trajectories",
+      "request_media": [],
+      "description": "List Experience Trajectories"
+    },
+    {
+      "id": "get_experience_outcome_distribution",
+      "method": "GET",
+      "path": "/api/v1/agent-evolution/experiences/outcomes",
+      "request_media": [],
+      "description": "Get Experience Outcome Distribution"
+    },
+    {
+      "id": "create_compile",
+      "method": "POST",
+      "path": "/api/v1/compile",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Create Compile"
+    },
+    {
+      "id": "compile_capabilities",
+      "method": "GET",
+      "path": "/api/v1/compile/capabilities",
+      "request_media": [],
+      "description": "Compile Capabilities"
+    },
+    {
+      "id": "get_submission",
+      "method": "GET",
+      "path": "/api/v1/compile/submissions/{key}",
+      "request_media": [],
+      "description": "Get Submission"
+    },
+    {
+      "id": "temp_upload",
+      "method": "POST",
+      "path": "/api/v1/resources/temp_upload",
+      "request_media": [
+        "multipart/form-data"
+      ],
+      "description": "Temp Upload"
+    },
+    {
+      "id": "add_resource",
+      "method": "POST",
+      "path": "/api/v1/resources",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Add Resource"
+    },
+    {
+      "id": "add_skill",
+      "method": "POST",
+      "path": "/api/v1/skills",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Add Skill"
+    },
+    {
+      "id": "list_skills",
+      "method": "GET",
+      "path": "/api/v1/skills",
+      "request_media": [],
+      "description": "List Skills"
+    },
+    {
+      "id": "ls",
+      "method": "GET",
+      "path": "/api/v1/fs/ls",
+      "request_media": [],
+      "description": "Ls"
+    },
+    {
+      "id": "tree",
+      "method": "GET",
+      "path": "/api/v1/fs/tree",
+      "request_media": [],
+      "description": "Tree"
+    },
+    {
+      "id": "stat",
+      "method": "GET",
+      "path": "/api/v1/fs/stat",
+      "request_media": [],
+      "description": "Stat"
+    },
+    {
+      "id": "attrs",
+      "method": "GET",
+      "path": "/api/v1/fs/attrs",
+      "request_media": [],
+      "description": "Attrs"
+    },
+    {
+      "id": "attrs_set_tags",
+      "method": "POST",
+      "path": "/api/v1/fs/attrs/set_tags",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Attrs Set Tags"
+    },
+    {
+      "id": "mkdir",
+      "method": "POST",
+      "path": "/api/v1/fs/mkdir",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Mkdir"
+    },
+    {
+      "id": "rm",
+      "method": "DELETE",
+      "path": "/api/v1/fs",
+      "request_media": [],
+      "description": "Rm"
+    },
+    {
+      "id": "cp",
+      "method": "POST",
+      "path": "/api/v1/fs/cp",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Cp"
+    },
+    {
+      "id": "mv",
+      "method": "POST",
+      "path": "/api/v1/fs/mv",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Mv"
+    },
+    {
+      "id": "read",
+      "method": "GET",
+      "path": "/api/v1/content/read",
+      "request_media": [],
+      "description": "Read"
+    },
+    {
+      "id": "abstract",
+      "method": "GET",
+      "path": "/api/v1/content/abstract",
+      "request_media": [],
+      "description": "Abstract"
+    },
+    {
+      "id": "overview",
+      "method": "GET",
+      "path": "/api/v1/content/overview",
+      "request_media": [],
+      "description": "Overview"
+    },
+    {
+      "id": "download",
+      "method": "GET",
+      "path": "/api/v1/content/download",
+      "request_media": [],
+      "description": "Download"
+    },
+    {
+      "id": "write",
+      "method": "POST",
+      "path": "/api/v1/content/write",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Write"
+    },
+    {
+      "id": "batch_write",
+      "method": "POST",
+      "path": "/api/v1/content/batch-write",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Batch Write"
+    },
+    {
+      "id": "set_tags",
+      "method": "POST",
+      "path": "/api/v1/content/set_tags",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Set Tags"
+    },
+    {
+      "id": "reindex",
+      "method": "POST",
+      "path": "/api/v1/content/reindex",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Reindex"
+    },
+    {
+      "id": "token_series",
+      "method": "GET",
+      "path": "/api/v1/console/tokens",
+      "request_media": [],
+      "description": "Token Series"
+    },
+    {
+      "id": "context_commits",
+      "method": "GET",
+      "path": "/api/v1/console/context-commits",
+      "request_media": [],
+      "description": "Context Commits"
+    },
+    {
+      "id": "audit_logs",
+      "method": "GET",
+      "path": "/api/v1/console/audit",
+      "request_media": [],
+      "description": "Audit Logs"
+    },
+    {
+      "id": "find",
+      "method": "POST",
+      "path": "/api/v1/search/find",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Find"
+    },
+    {
+      "id": "search",
+      "method": "POST",
+      "path": "/api/v1/search/search",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Search"
+    },
+    {
+      "id": "grep",
+      "method": "POST",
+      "path": "/api/v1/search/grep",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Grep"
+    },
+    {
+      "id": "glob",
+      "method": "POST",
+      "path": "/api/v1/search/glob",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Glob"
+    },
+    {
+      "id": "list_privacy_categories",
+      "method": "GET",
+      "path": "/api/v1/privacy-configs",
+      "request_media": [],
+      "description": "List Privacy Categories"
+    },
+    {
+      "id": "list_privacy_targets",
+      "method": "GET",
+      "path": "/api/v1/privacy-configs/{category}",
+      "request_media": [],
+      "description": "List Privacy Targets"
+    },
+    {
+      "id": "get_privacy_current",
+      "method": "GET",
+      "path": "/api/v1/privacy-configs/{category}/{target_key}",
+      "request_media": [],
+      "description": "Get Privacy Current"
+    },
+    {
+      "id": "upsert_privacy_config",
+      "method": "POST",
+      "path": "/api/v1/privacy-configs/{category}/{target_key}",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Upsert Privacy Config"
+    },
+    {
+      "id": "list_privacy_versions",
+      "method": "GET",
+      "path": "/api/v1/privacy-configs/{category}/{target_key}/versions",
+      "request_media": [],
+      "description": "List Privacy Versions"
+    },
+    {
+      "id": "get_privacy_version",
+      "method": "GET",
+      "path": "/api/v1/privacy-configs/{category}/{target_key}/versions/{version}",
+      "request_media": [],
+      "description": "Get Privacy Version"
+    },
+    {
+      "id": "activate_privacy_version",
+      "method": "POST",
+      "path": "/api/v1/privacy-configs/{category}/{target_key}/activate",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Activate Privacy Version"
+    },
+    {
+      "id": "find_skills",
+      "method": "POST",
+      "path": "/api/v1/skills/find",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Find Skills"
+    },
+    {
+      "id": "validate_skill",
+      "method": "POST",
+      "path": "/api/v1/skills/validate",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Validate Skill"
+    },
+    {
+      "id": "get_skill",
+      "method": "GET",
+      "path": "/api/v1/skills/{skill_name}",
+      "request_media": [],
+      "description": "Get Skill"
+    },
+    {
+      "id": "create_session",
+      "method": "POST",
+      "path": "/api/v1/sessions",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Create Session"
+    },
+    {
+      "id": "list_sessions",
+      "method": "GET",
+      "path": "/api/v1/sessions",
+      "request_media": [],
+      "description": "List Sessions"
+    },
+    {
+      "id": "get_session",
+      "method": "GET",
+      "path": "/api/v1/sessions/{session_id}",
+      "request_media": [],
+      "description": "Get Session"
+    },
+    {
+      "id": "delete_session",
+      "method": "DELETE",
+      "path": "/api/v1/sessions/{session_id}",
+      "request_media": [],
+      "description": "Delete Session"
+    },
+    {
+      "id": "update_session_config",
+      "method": "PATCH",
+      "path": "/api/v1/sessions/{session_id}/config",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Update Session Config"
+    },
+    {
+      "id": "list_tool_results",
+      "method": "GET",
+      "path": "/api/v1/sessions/{session_id}/tool-results",
+      "request_media": [],
+      "description": "List Tool Results"
+    },
+    {
+      "id": "read_tool_result",
+      "method": "GET",
+      "path": "/api/v1/sessions/{session_id}/tool-results/{tool_result_id}",
+      "request_media": [],
+      "description": "Read Tool Result"
+    },
+    {
+      "id": "search_tool_result",
+      "method": "GET",
+      "path": "/api/v1/sessions/{session_id}/tool-results/{tool_result_id}/search",
+      "request_media": [],
+      "description": "Search Tool Result"
+    },
+    {
+      "id": "get_session_context",
+      "method": "GET",
+      "path": "/api/v1/sessions/{session_id}/context",
+      "request_media": [],
+      "description": "Get Session Context"
+    },
+    {
+      "id": "get_session_archive",
+      "method": "GET",
+      "path": "/api/v1/sessions/{session_id}/archives/{archive_id}",
+      "request_media": [],
+      "description": "Get Session Archive"
+    },
+    {
+      "id": "commit_session",
+      "method": "POST",
+      "path": "/api/v1/sessions/{session_id}/commit",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Commit Session"
+    },
+    {
+      "id": "extract_session",
+      "method": "POST",
+      "path": "/api/v1/sessions/{session_id}/extract",
+      "request_media": [],
+      "description": "Extract Session"
+    },
+    {
+      "id": "add_message",
+      "method": "POST",
+      "path": "/api/v1/sessions/{session_id}/messages",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Add Message"
+    },
+    {
+      "id": "batch_add_messages",
+      "method": "POST",
+      "path": "/api/v1/sessions/{session_id}/messages/batch",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Batch Add Messages"
+    },
+    {
+      "id": "get_session_stats",
+      "method": "GET",
+      "path": "/api/v1/stats/sessions/{session_id}",
+      "request_media": [],
+      "description": "Get Session Stats"
+    },
+    {
+      "id": "export_ovpack",
+      "method": "POST",
+      "path": "/api/v1/pack/export",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Export Ovpack"
+    },
+    {
+      "id": "resolve_assets",
+      "method": "POST",
+      "path": "/api/v1/openviking-assets/resolve",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Resolve Assets"
+    },
+    {
+      "id": "preflight_asset",
+      "method": "POST",
+      "path": "/api/v1/openviking-assets/preflight",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Preflight Asset"
+    },
+    {
+      "id": "get_task",
+      "method": "GET",
+      "path": "/api/v1/tasks/{task_id}",
+      "request_media": [],
+      "description": "Get Task"
+    },
+    {
+      "id": "cancel_task",
+      "method": "POST",
+      "path": "/api/v1/tasks/{task_id}/cancel",
+      "request_media": [],
+      "description": "Cancel Task"
+    },
+    {
+      "id": "list_tasks",
+      "method": "GET",
+      "path": "/api/v1/tasks",
+      "request_media": [],
+      "description": "List Tasks"
+    },
+    {
+      "id": "get_add_locations",
+      "method": "GET",
+      "path": "/api/v1/user-settings/add-locations",
+      "request_media": [],
+      "description": "Get Add Locations"
+    },
+    {
+      "id": "patch_add_locations",
+      "method": "PATCH",
+      "path": "/api/v1/user-settings/add-locations",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Patch Add Locations"
+    },
+    {
+      "id": "delete_add_locations",
+      "method": "DELETE",
+      "path": "/api/v1/user-settings/add-locations",
+      "request_media": [],
+      "description": "Delete Add Locations"
+    },
+    {
+      "id": "list_or_get_watch",
+      "method": "GET",
+      "path": "/api/v1/watches",
+      "request_media": [],
+      "description": "List Or Get Watch"
+    },
+    {
+      "id": "patch_watch_by_uri",
+      "method": "PATCH",
+      "path": "/api/v1/watches",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Patch Watch By Uri"
+    },
+    {
+      "id": "delete_watch_by_uri",
+      "method": "DELETE",
+      "path": "/api/v1/watches",
+      "request_media": [],
+      "description": "Delete Watch By Uri"
+    },
+    {
+      "id": "get_watch",
+      "method": "GET",
+      "path": "/api/v1/watches/{task_id}",
+      "request_media": [],
+      "description": "Get Watch"
+    },
+    {
+      "id": "patch_watch_by_id",
+      "method": "PATCH",
+      "path": "/api/v1/watches/{task_id}",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Patch Watch By Id"
+    },
+    {
+      "id": "delete_watch_by_id",
+      "method": "DELETE",
+      "path": "/api/v1/watches/{task_id}",
+      "request_media": [],
+      "description": "Delete Watch By Id"
+    },
+    {
+      "id": "trigger_watch_by_id",
+      "method": "POST",
+      "path": "/api/v1/watches/{task_id}/trigger",
+      "request_media": [],
+      "description": "Trigger Watch By Id"
+    },
+    {
+      "id": "trigger_watch_by_uri",
+      "method": "POST",
+      "path": "/api/v1/watches/trigger",
+      "request_media": [],
+      "description": "Trigger Watch By Uri"
+    }
+  ]
+}

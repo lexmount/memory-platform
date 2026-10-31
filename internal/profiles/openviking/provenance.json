@@ -1,0 +1,14 @@
+{
+  "commit": "20f9c11362ad16193b0daa4a414e1095061af427",
+  "package_version": "0.5.0",
+  "verified_python_files": 763,
+  "openapi_info_version": "0.1.0",
+  "schema_note": "Native app reports API schema version 0.1.0; package/source are 0.5.0.",
+  "dependencies": {
+    "fastapi": "0.143.0",
+    "pydantic": "2.14.1",
+    "starlette": "1.7.0"
+  },
+  "openapi_sha256": "197931cb1849ebeff5c1ee36a62286e56b623c8555e663e1e430db5020d0b6e8",
+  "source": "https://github.com/volcengine/OpenViking/tree/20f9c11362ad16193b0daa4a414e1095061af427"
+}

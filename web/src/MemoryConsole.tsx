@@ -1,0 +1,30 @@
+import { useCallback, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { Navigate, Route, Routes } from "react-router";
+import { I18nextProvider } from "react-i18next";
+import i18n from "./i18n/index";
+import { componentStyles } from "./ui/styles";
+import layout from "./app.css?inline";
+import memoryStyles from "./memory/memory.css?inline";
+import hindsightStyles from "./memory/hindsight/hindsight.css?inline";
+import standalone from "./styles.css?inline";
+import { MemoryPage } from "./memory/MemoryPage";
+import { NativeWritesProvider } from "./memory/NativeWrites";
+import type { MemoryBridge, MemoryProviderModule } from "./memory/contracts";
+import { memoryRoutePattern } from "./memory/routes";
+import { AccountKeys } from "./AccountKeys";
+
+export function MemorySurface({ children }: { children: ReactNode }) {
+  const [root, setRoot] = useState<ShadowRoot | null>(null);
+  const attach = useCallback((node: HTMLDivElement | null) => { if (node) setRoot(node.shadowRoot ?? node.attachShadow({ mode: "open" })); }, []);
+  return <div ref={attach} data-memory-console>{root && createPortal(<I18nextProvider i18n={i18n}>
+    <style>{[componentStyles, layout, memoryStyles, hindsightStyles, standalone].join("\n")}</style>{children}
+  </I18nextProvider>, root)}</div>;
+}
+export default function MemoryConsole({ memory, memoryModules, header, accountID }: { memory?: MemoryBridge; memoryModules?: readonly MemoryProviderModule[]; header?: ReactNode; accountID?: string }) {
+  return <MemorySurface>{header}<NativeWritesProvider key={memory?.identity ?? "preview"}><Routes>
+    <Route path={memoryRoutePattern} element={<MemoryPage bridge={memory} modules={memoryModules} />} />
+    <Route path="/account/keys" element={<AccountKeys key={memory?.identity} accountID={accountID} />} />
+    <Route path="*" element={<Navigate to="/memory" replace />} />
+  </Routes></NativeWritesProvider></MemorySurface>;
+}

@@ -1,0 +1,575 @@
+{
+  "provider": "hindsight",
+  "version": "0.10.3",
+  "operations": [
+    {
+      "id": "get_graph",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/graph",
+      "request_media": [],
+      "description": "Get memory graph data"
+    },
+    {
+      "id": "list_memories",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/memories/list",
+      "request_media": [],
+      "description": "List memory units"
+    },
+    {
+      "id": "dry_run_extract_memories",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/memories/dry-run-extract",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Dry-run fact extraction (preview, no persistence)"
+    },
+    {
+      "id": "preview_prompt",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/prompts/preview",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Preview an operation's prompts (no LLM call)"
+    },
+    {
+      "id": "get_memory",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/memories/{memory_id}",
+      "request_media": [],
+      "description": "Get memory unit"
+    },
+    {
+      "id": "update_memory",
+      "method": "PATCH",
+      "path": "/v1/default/banks/{bank_id}/memories/{memory_id}",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Curate memory unit"
+    },
+    {
+      "id": "get_observation_history",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/memories/{memory_id}/history",
+      "request_media": [],
+      "description": "Get observation history"
+    },
+    {
+      "id": "recall_memories",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/memories/recall",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Recall memory"
+    },
+    {
+      "id": "reflect",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/reflect",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Reflect and generate answer"
+    },
+    {
+      "id": "get_agent_stats",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/stats",
+      "request_media": [],
+      "description": "Get statistics for memory bank"
+    },
+    {
+      "id": "get_memories_timeseries",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/stats/memories-timeseries",
+      "request_media": [],
+      "description": "Memory ingestion time-series"
+    },
+    {
+      "id": "list_entities",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/entities",
+      "request_media": [],
+      "description": "List entities"
+    },
+    {
+      "id": "get_entity_graph",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/entities/graph",
+      "request_media": [],
+      "description": "Get entity co-occurrence graph"
+    },
+    {
+      "id": "get_entity",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/entities/{entity_id}",
+      "request_media": [],
+      "description": "Get entity details"
+    },
+    {
+      "id": "regenerate_entity_observations",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/entities/{entity_id}/regenerate",
+      "request_media": [],
+      "description": "Regenerate entity observations (deprecated)"
+    },
+    {
+      "id": "list_mental_models",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/mental-models",
+      "request_media": [],
+      "description": "List mental models"
+    },
+    {
+      "id": "create_mental_model",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/mental-models",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Create mental model"
+    },
+    {
+      "id": "get_mental_model",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/mental-models/{mental_model_id}",
+      "request_media": [],
+      "description": "Get mental model"
+    },
+    {
+      "id": "update_mental_model",
+      "method": "PATCH",
+      "path": "/v1/default/banks/{bank_id}/mental-models/{mental_model_id}",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Update mental model"
+    },
+    {
+      "id": "delete_mental_model",
+      "method": "DELETE",
+      "path": "/v1/default/banks/{bank_id}/mental-models/{mental_model_id}",
+      "request_media": [],
+      "description": "Delete mental model"
+    },
+    {
+      "id": "get_mental_model_history",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/mental-models/{mental_model_id}/history",
+      "request_media": [],
+      "description": "Get mental model history"
+    },
+    {
+      "id": "refresh_mental_model",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/mental-models/{mental_model_id}/refresh",
+      "request_media": [],
+      "description": "Refresh mental model"
+    },
+    {
+      "id": "dry_run_refresh_mental_model",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/mental-models/{mental_model_id}/dry-run-refresh",
+      "request_media": [],
+      "description": "Dry-run mental model refresh (preview, no persistence)"
+    },
+    {
+      "id": "clear_mental_model",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/mental-models/{mental_model_id}/clear",
+      "request_media": [],
+      "description": "Clear mental model content"
+    },
+    {
+      "id": "get_knowledge_base_tree",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/knowledge-base/tree",
+      "request_media": [],
+      "description": "Get the knowledge-base tree"
+    },
+    {
+      "id": "create_knowledge_folder",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/knowledge-base/folders",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Create a knowledge-base folder"
+    },
+    {
+      "id": "create_knowledge_page",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/knowledge-base/pages",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Create a knowledge-base page"
+    },
+    {
+      "id": "export_knowledge_base",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/knowledge-base/export",
+      "request_media": [],
+      "description": "Export the knowledge base as a markdown bundle"
+    },
+    {
+      "id": "search_knowledge_base",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/knowledge-base/search",
+      "request_media": [],
+      "description": "Hybrid search over knowledge pages (BM25 + vector)"
+    },
+    {
+      "id": "get_knowledge_page",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/knowledge-base/pages/{page_id}",
+      "request_media": [],
+      "description": "Get a knowledge-base page"
+    },
+    {
+      "id": "update_knowledge_node",
+      "method": "PATCH",
+      "path": "/v1/default/banks/{bank_id}/knowledge-base/nodes/{node_id}",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Rename/move a knowledge-base node or update a page's options"
+    },
+    {
+      "id": "delete_knowledge_node",
+      "method": "DELETE",
+      "path": "/v1/default/banks/{bank_id}/knowledge-base/nodes/{node_id}",
+      "request_media": [],
+      "description": "Delete a knowledge-base node"
+    },
+    {
+      "id": "list_directives",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/directives",
+      "request_media": [],
+      "description": "List directives"
+    },
+    {
+      "id": "create_directive",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/directives",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Create directive"
+    },
+    {
+      "id": "get_directive",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/directives/{directive_id}",
+      "request_media": [],
+      "description": "Get directive"
+    },
+    {
+      "id": "update_directive",
+      "method": "PATCH",
+      "path": "/v1/default/banks/{bank_id}/directives/{directive_id}",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Update directive"
+    },
+    {
+      "id": "delete_directive",
+      "method": "DELETE",
+      "path": "/v1/default/banks/{bank_id}/directives/{directive_id}",
+      "request_media": [],
+      "description": "Delete directive"
+    },
+    {
+      "id": "list_documents",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/documents",
+      "request_media": [],
+      "description": "List documents"
+    },
+    {
+      "id": "list_document_chunks",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/documents/{document_id}/chunks",
+      "request_media": [],
+      "description": "List document chunks"
+    },
+    {
+      "id": "reprocess_document",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/documents/{document_id}/reprocess",
+      "request_media": [],
+      "description": "Reprocess document"
+    },
+    {
+      "id": "get_document",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/documents/{document_id}",
+      "request_media": [],
+      "description": "Get document details"
+    },
+    {
+      "id": "update_document",
+      "method": "PATCH",
+      "path": "/v1/default/banks/{bank_id}/documents/{document_id}",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Update document"
+    },
+    {
+      "id": "delete_document",
+      "method": "DELETE",
+      "path": "/v1/default/banks/{bank_id}/documents/{document_id}",
+      "request_media": [],
+      "description": "Delete a document"
+    },
+    {
+      "id": "list_tags",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/tags",
+      "request_media": [],
+      "description": "List tags"
+    },
+    {
+      "id": "get_chunk",
+      "method": "GET",
+      "path": "/v1/default/chunks/{chunk_id}",
+      "request_media": [],
+      "description": "Get chunk details"
+    },
+    {
+      "id": "list_operations",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/operations",
+      "request_media": [],
+      "description": "List async operations"
+    },
+    {
+      "id": "get_operation_status",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/operations/{operation_id}",
+      "request_media": [],
+      "description": "Get operation status"
+    },
+    {
+      "id": "cancel_operation",
+      "method": "DELETE",
+      "path": "/v1/default/banks/{bank_id}/operations/{operation_id}",
+      "request_media": [],
+      "description": "Cancel a pending or in-flight async operation"
+    },
+    {
+      "id": "retry_operation",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/operations/{operation_id}/retry",
+      "request_media": [],
+      "description": "Retry a failed async operation"
+    },
+    {
+      "id": "delete_operation",
+      "method": "DELETE",
+      "path": "/v1/default/banks/{bank_id}/operations/{operation_id}/delete",
+      "request_media": [],
+      "description": "Delete a terminal async operation"
+    },
+    {
+      "id": "update_bank",
+      "method": "PATCH",
+      "path": "/v1/default/banks/{bank_id}",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Partial update memory bank"
+    },
+    {
+      "id": "import_bank_template",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/import",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Import bank template"
+    },
+    {
+      "id": "export_bank_template",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/export",
+      "request_media": [],
+      "description": "Export bank template"
+    },
+    {
+      "id": "import_documents",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/document-transfer",
+      "request_media": [
+        "multipart/form-data"
+      ],
+      "description": "Import documents (async)"
+    },
+    {
+      "id": "export_documents",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/document-transfer/export",
+      "request_media": [],
+      "description": "Export documents (async)"
+    },
+    {
+      "id": "export_bank_transfer",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/transfer/export",
+      "request_media": [],
+      "description": "Export a bank (async)"
+    },
+    {
+      "id": "import_bank_transfer",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/transfer/import",
+      "request_media": [
+        "multipart/form-data"
+      ],
+      "description": "Import a bank (async)"
+    },
+    {
+      "id": "get_bank_attachment",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/attachments/{attachment_id}",
+      "request_media": [],
+      "description": "Fetch an attachment retained inline with a document"
+    },
+    {
+      "id": "download_file",
+      "method": "GET",
+      "path": "/v1/default/files/download/{key}",
+      "request_media": [],
+      "description": "Download a stored file (async export archive)"
+    },
+    {
+      "id": "clear_observations",
+      "method": "DELETE",
+      "path": "/v1/default/banks/{bank_id}/observations",
+      "request_media": [],
+      "description": "Clear all observations"
+    },
+    {
+      "id": "list_observation_scopes",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/observations/scopes",
+      "request_media": [],
+      "description": "List observation scopes"
+    },
+    {
+      "id": "preview_consolidation_strategies",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/consolidation-strategies/preview",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Preview consolidation strategies"
+    },
+    {
+      "id": "recover_consolidation",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/consolidation/recover",
+      "request_media": [],
+      "description": "Recover failed consolidation"
+    },
+    {
+      "id": "clear_memory_observations",
+      "method": "DELETE",
+      "path": "/v1/default/banks/{bank_id}/memories/{memory_id}/observations",
+      "request_media": [],
+      "description": "Clear observations for a memory"
+    },
+    {
+      "id": "get_bank_config",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/config",
+      "request_media": [],
+      "description": "Get bank configuration"
+    },
+    {
+      "id": "update_bank_config",
+      "method": "PATCH",
+      "path": "/v1/default/banks/{bank_id}/config",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Update bank configuration"
+    },
+    {
+      "id": "reset_bank_config",
+      "method": "DELETE",
+      "path": "/v1/default/banks/{bank_id}/config",
+      "request_media": [],
+      "description": "Reset bank configuration"
+    },
+    {
+      "id": "trigger_consolidation",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/consolidate",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Trigger consolidation"
+    },
+    {
+      "id": "retain_memories",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/memories",
+      "request_media": [
+        "application/json"
+      ],
+      "description": "Retain memories"
+    },
+    {
+      "id": "clear_bank_memories",
+      "method": "DELETE",
+      "path": "/v1/default/banks/{bank_id}/memories",
+      "request_media": [],
+      "description": "Clear memory bank memories"
+    },
+    {
+      "id": "file_retain",
+      "method": "POST",
+      "path": "/v1/default/banks/{bank_id}/files/retain",
+      "request_media": [
+        "multipart/form-data"
+      ],
+      "description": "Convert files to memories"
+    },
+    {
+      "id": "list_audit_logs",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/audit-logs",
+      "request_media": [],
+      "description": "List audit logs"
+    },
+    {
+      "id": "audit_log_stats",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/audit-logs/stats",
+      "request_media": [],
+      "description": "Audit log statistics"
+    },
+    {
+      "id": "list_llm_requests",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/llm-requests",
+      "request_media": [],
+      "description": "List LLM request traces"
+    },
+    {
+      "id": "llm_request_stats",
+      "method": "GET",
+      "path": "/v1/default/banks/{bank_id}/llm-requests/stats",
+      "request_media": [],
+      "description": "LLM request statistics"
+    }
+  ]
+}

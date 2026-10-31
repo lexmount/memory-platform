@@ -1,0 +1,39 @@
+/* Shared developer palette; the original snapshot lives in reference/src/ui/tokens.css. */
+:host {
+  --ifd-font:
+    Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  --ifd-text: #202432;
+  --ifd-text-secondary: #626b7d;
+  --ifd-text-muted: rgba(20, 21, 28, 0.4);
+  --ifd-disabled: rgba(20, 21, 28, 0.24);
+  --ifd-bg: #fff;
+  --ifd-soft: #f7f8fa;
+  --ifd-hover: rgba(20, 21, 28, 0.04);
+  --ifd-selected: rgba(20, 21, 28, 0.06);
+  --ifd-border: #e3e7ef;
+  --ifd-border-soft: #f1f1f3;
+  --ifd-primary: #14151c;
+  --ifd-link: #4558d9;
+  --ifd-success: #209b68;
+  --ifd-danger: #e05252;
+  --ifd-radius-sm: 6px;
+  --ifd-radius: 16px;
+  --ifd-radius-lg: 24px;
+  --ifd-radius-pill: 9999px;
+  --ifd-header-height: 72px;
+  --ifd-sidebar-width: 200px;
+  --ifd-control-height: 36px;
+  --ifd-space-1: 4px;
+  --ifd-space-2: 8px;
+  --ifd-space-3: 12px;
+  --ifd-space-4: 16px;
+  --ifd-space-5: 20px;
+  --ifd-space-6: 24px;
+  --ifd-space-8: 32px;
+  --ifd-shadow: 0 4px 16px #14151c08;
+  --ifd-shadow-float: 0 12px 40px #14151c1a;
+  --ifd-gradient: linear-gradient(90deg, #2564f8 0%, #00cdbb 36%, #7c89ff 100%);
+  --ifd-transition: 160ms ease;
+  --ifd-focus: 0 0 0 3px #2564f823;
+}

@@ -1,0 +1,659 @@
+{
+  "provenance": {
+    "commit": "eb6df499d35300e5b2f3f029b2e6adda04ed90f8",
+    "kind": "Hand-authored workflow fixtures checked against pinned OpenAPI and HTTP/engine code; not live responses."
+  },
+  "responses": {
+    "get_graph": {
+      "edges": [
+        {
+          "data": {
+            "id": "1-2-semantic",
+            "linkType": "semantic",
+            "source": "1",
+            "target": "2",
+            "weight": 0.8
+          }
+        }
+      ],
+      "limit": 1000,
+      "nodes": [
+        {
+          "data": {
+            "id": "1",
+            "label": "Alice works at Google",
+            "text": "Alice works at Google"
+          }
+        },
+        {
+          "data": {
+            "id": "2",
+            "label": "Bob went hiking",
+            "text": "Bob went hiking"
+          }
+        }
+      ],
+      "table_rows": [
+        {
+          "context": "Work info",
+          "date": "2024-01-15 10:30",
+          "entities": "Alice (PERSON), Google (ORGANIZATION)",
+          "id": "abc12345...",
+          "text": "Alice works at Google"
+        }
+      ],
+      "total_units": 2
+    },
+    "list_memories": {
+      "items": [
+        {
+          "id": "mem-a",
+          "text": "Alice works on the Atlas project",
+          "fact_type": "world",
+          "document_id": "doc-a",
+          "state": "valid"
+        },
+        {
+          "id": "obs-a",
+          "text": "Atlas uses careful release checks",
+          "fact_type": "observation"
+        }
+      ],
+      "total": 2,
+      "limit": 25,
+      "offset": 0
+    },
+    "recall_memories": {
+      "chunks": {
+        "456e7890-e12b-34d5-a678-901234567890": {
+          "chunk_index": 0,
+          "id": "456e7890-e12b-34d5-a678-901234567890",
+          "text": "Alice works at Google on the AI team. She's been there for 3 years..."
+        }
+      },
+      "entities": {
+        "Alice": {
+          "canonical_name": "Alice",
+          "entity_id": "123e4567-e89b-12d3-a456-426614174001",
+          "observations": [
+            {
+              "mentioned_at": "2024-01-15T10:30:00Z",
+              "text": "Alice works at Google on the AI team"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "chunk_id": "456e7890-e12b-34d5-a678-901234567890",
+          "context": "work info",
+          "entities": [
+            "Alice",
+            "Google"
+          ],
+          "id": "123e4567-e89b-12d3-a456-426614174000",
+          "occurred_end": "2024-01-15T10:30:00Z",
+          "occurred_start": "2024-01-15T10:30:00Z",
+          "text": "Alice works at Google on the AI team",
+          "type": "world"
+        }
+      ],
+      "trace": {
+        "num_results": 1,
+        "query": "What did Alice say about machine learning?",
+        "time_seconds": 0.123
+      }
+    },
+    "reflect": {
+      "based_on": {
+        "memories": [
+          {
+            "id": "123",
+            "text": "AI is used in healthcare",
+            "type": "world"
+          },
+          {
+            "id": "456",
+            "text": "I discussed AI applications last week",
+            "type": "experience"
+          }
+        ]
+      },
+      "structured_output": {
+        "key_points": [
+          "Used in healthcare",
+          "Discussed recently"
+        ],
+        "summary": "AI is transformative"
+      },
+      "text": "## AI Overview\n\nBased on my understanding, AI is a **transformative technology**:\n\n- Used extensively in healthcare\n- Discussed in recent conversations\n- Continues to evolve rapidly",
+      "trace": {
+        "llm_calls": [
+          {
+            "duration_ms": 1200,
+            "scope": "agent_1"
+          }
+        ],
+        "observations": [
+          {
+            "id": "obs-1",
+            "name": "AI Technology",
+            "subtype": "structural",
+            "type": "concept"
+          }
+        ],
+        "tool_calls": [
+          {
+            "duration_ms": 150,
+            "input": {
+              "query": "AI"
+            },
+            "tool": "recall"
+          }
+        ]
+      },
+      "usage": {
+        "input_tokens": 1500,
+        "output_tokens": 500,
+        "total_tokens": 2000
+      }
+    },
+    "get_agent_stats": {
+      "bank_id": "user123",
+      "failed_consolidation": 0,
+      "failed_operations": 0,
+      "last_consolidated_at": "2024-01-15T10:30:00Z",
+      "last_memory_write_at": "2024-01-15T11:05:00Z",
+      "links_breakdown": {
+        "fact": {
+          "entity": 40,
+          "semantic": 60,
+          "temporal": 100
+        }
+      },
+      "links_by_fact_type": {
+        "fact": 200,
+        "observation": 40,
+        "preference": 60
+      },
+      "links_by_link_type": {
+        "entity": 50,
+        "semantic": 100,
+        "temporal": 150
+      },
+      "nodes_by_fact_type": {
+        "fact": 100,
+        "observation": 20,
+        "preference": 30
+      },
+      "pending_consolidation": 0,
+      "pending_operations": 2,
+      "total_documents": 10,
+      "total_links": 300,
+      "total_nodes": 150,
+      "total_observations": 45
+    },
+    "list_entities": {
+      "items": [
+        {
+          "canonical_name": "John",
+          "first_seen": "2024-01-15T10:30:00Z",
+          "id": "123e4567-e89b-12d3-a456-426614174000",
+          "last_seen": "2024-02-01T14:00:00Z",
+          "mention_count": 15
+        }
+      ],
+      "limit": 100,
+      "offset": 0,
+      "total": 150
+    },
+    "get_entity_graph": {
+      "edges": [
+        {
+          "data": {
+            "color": "#ffd700",
+            "id": "uuid-1-uuid-2",
+            "lastCooccurred": "2024-02-01T14:00:00Z",
+            "lineStyle": "solid",
+            "linkType": "cooccurrence",
+            "source": "uuid-1",
+            "target": "uuid-2",
+            "weight": 5
+          }
+        }
+      ],
+      "limit": 1000,
+      "nodes": [
+        {
+          "data": {
+            "color": "#42a5f5",
+            "id": "uuid-1",
+            "label": "Alice",
+            "mentionCount": 12
+          }
+        },
+        {
+          "data": {
+            "color": "#42a5f5",
+            "id": "uuid-2",
+            "label": "Google",
+            "mentionCount": 8
+          }
+        }
+      ],
+      "total_edges": 1,
+      "total_entities": 2
+    },
+    "get_entity": {
+      "canonical_name": "John",
+      "first_seen": "2024-01-15T10:30:00Z",
+      "id": "123e4567-e89b-12d3-a456-426614174000",
+      "last_seen": "2024-02-01T14:00:00Z",
+      "mention_count": 15,
+      "observations": [
+        {
+          "mentioned_at": "2024-01-15T10:30:00Z",
+          "text": "John works at Google"
+        }
+      ]
+    },
+    "refresh_mental_model": {
+      "operation_id": "550e8400-e29b-41d4-a716-446655440000",
+      "status": "queued"
+    },
+    "dry_run_refresh_mental_model": {
+      "effective_mode": "full",
+      "facts": {
+        "retrieved": {
+          "observation": 12
+        },
+        "used": {
+          "observation": 4
+        }
+      },
+      "mental_model_id": "coding-style",
+      "mode_fallback_reason": "source_query_changed",
+      "name": "Coding Style",
+      "outcome": "content_written",
+      "requested_mode": "delta",
+      "warnings": [],
+      "would_persist": true
+    },
+    "list_documents": {
+      "items": [
+        {
+          "id": "doc-a",
+          "tags": [
+            "atlas"
+          ],
+          "memory_unit_count": 2
+        }
+      ],
+      "total": 1,
+      "limit": 25,
+      "offset": 0
+    },
+    "get_document": {
+      "id": "doc-a",
+      "original_text": "Atlas meeting notes",
+      "tags": [
+        "atlas"
+      ],
+      "attachments": [
+        {
+          "id": "att-a",
+          "filename": "diagram.png",
+          "content_type": "image/png"
+        }
+      ]
+    },
+    "delete_document": {
+      "document_id": "session_1",
+      "memory_units_deleted": 5,
+      "message": "Document 'session_1' and 5 associated memory units deleted successfully",
+      "success": true
+    },
+    "list_tags": {
+      "items": [
+        {
+          "count": 42,
+          "tag": "user:alice"
+        },
+        {
+          "count": 15,
+          "tag": "user:bob"
+        },
+        {
+          "count": 8,
+          "tag": "session:abc123"
+        }
+      ],
+      "limit": 100,
+      "offset": 0,
+      "total": 25
+    },
+    "get_chunk": {
+      "chunk_id": "chunk-a",
+      "chunk_text": "Original Atlas context",
+      "document_id": "doc-a",
+      "attachments": []
+    },
+    "list_operations": {
+      "operations": [
+        {
+          "id": "op-a",
+          "task_type": "retain",
+          "status": "completed"
+        }
+      ],
+      "total": 1,
+      "limit": 25,
+      "offset": 0
+    },
+    "get_operation_status": {
+      "operation_id": "op-a",
+      "operation_type": "retain",
+      "status": "completed"
+    },
+    "cancel_operation": {
+      "message": "Operation 550e8400-e29b-41d4-a716-446655440000 cancelled",
+      "operation_id": "550e8400-e29b-41d4-a716-446655440000",
+      "success": true
+    },
+    "retry_operation": {
+      "message": "Operation 550e8400-e29b-41d4-a716-446655440000 queued for retry",
+      "operation_id": "550e8400-e29b-41d4-a716-446655440000",
+      "success": true
+    },
+    "delete_operation": {
+      "message": "Operation 550e8400-e29b-41d4-a716-446655440000 deleted",
+      "operation_id": "550e8400-e29b-41d4-a716-446655440000",
+      "success": true
+    },
+    "export_bank_template": {
+      "version": "1",
+      "bank": {
+        "retain_mission": "Remember project facts"
+      },
+      "directives": [],
+      "mental_models": []
+    },
+    "clear_observations": {
+      "deleted_count": 10,
+      "message": "Deleted successfully",
+      "success": true
+    },
+    "list_observation_scopes": {
+      "limit": 100,
+      "offset": 0,
+      "scopes": [
+        {
+          "count": 12,
+          "tags": [
+            "user:alice"
+          ]
+        },
+        {
+          "count": 4,
+          "tags": [
+            "user:alice",
+            "project:apollo"
+          ]
+        },
+        {
+          "count": 2,
+          "tags": []
+        }
+      ],
+      "total": 3
+    },
+    "recover_consolidation": {
+      "retried_count": 42
+    },
+    "get_bank_config": {
+      "bank_id": "my-bank",
+      "config": {
+        "retain_chunk_size": 3000,
+        "retain_extraction_mode": "verbose"
+      },
+      "overrides": {
+        "retain_extraction_mode": "verbose"
+      }
+    },
+    "update_bank_config": {
+      "bank_id": "my-bank",
+      "config": {
+        "retain_chunk_size": 3000,
+        "retain_extraction_mode": "verbose"
+      },
+      "overrides": {
+        "retain_extraction_mode": "verbose"
+      }
+    },
+    "reset_bank_config": {
+      "bank_id": "my-bank",
+      "config": {
+        "retain_chunk_size": 3000,
+        "retain_extraction_mode": "verbose"
+      },
+      "overrides": {
+        "retain_extraction_mode": "verbose"
+      }
+    },
+    "retain_memories": {
+      "async": false,
+      "bank_id": "user123",
+      "items_count": 2,
+      "success": true,
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 100,
+        "total_tokens": 600
+      }
+    },
+    "file_retain": {
+      "operation_ids": [
+        "550e8400-e29b-41d4-a716-446655440000",
+        "550e8400-e29b-41d4-a716-446655440001",
+        "550e8400-e29b-41d4-a716-446655440002"
+      ]
+    },
+    "get_memory": {
+      "id": "mem-a",
+      "text": "Alice works on the Atlas project",
+      "type": "world",
+      "context": "Meeting notes",
+      "state": "valid",
+      "document_id": "doc-a",
+      "attachments": [
+        {
+          "id": "att-a",
+          "filename": "diagram.png",
+          "content_type": "image/png",
+          "url": "https://native.invalid/attachment"
+        }
+      ]
+    },
+    "get_observation_history": [
+      {
+        "previous_text": "Atlas previously used manual checks",
+        "changed_at": "2026-10-20T10:00:00Z",
+        "source_facts": [
+          {
+            "id": "mem-a",
+            "text": "Alice uses automated checks",
+            "type": "world",
+            "is_new": true
+          }
+        ]
+      }
+    ],
+    "list_document_chunks": {
+      "items": [
+        {
+          "chunk_id": "chunk-a",
+          "chunk_index": 0,
+          "chunk_text": "Original Atlas context"
+        }
+      ],
+      "total": 1,
+      "limit": 25,
+      "offset": 0
+    },
+    "list_mental_models": {
+      "items": [
+        {
+          "id": "model-a",
+          "name": "Atlas summary",
+          "source_query": "What changed in Atlas?",
+          "content": "Atlas is ready",
+          "tags": []
+        }
+      ],
+      "total": 1,
+      "limit": 25,
+      "offset": 0
+    },
+    "get_mental_model": {
+      "id": "model-a",
+      "name": "Atlas summary",
+      "source_query": "What changed in Atlas?",
+      "content": "Atlas is ready",
+      "tags": [],
+      "trigger": {
+        "refresh_after_consolidation": true
+      }
+    },
+    "get_mental_model_history": [
+      {
+        "previous_content": "Atlas was preparing",
+        "changed_at": "2026-10-20T10:00:00Z"
+      },
+      {
+        "kind": "refresh_failed",
+        "previous_content": null,
+        "error_message": "Upstream timeout",
+        "changed_at": "2026-10-19T10:00:00Z"
+      }
+    ],
+    "get_knowledge_base_tree": {
+      "roots": [
+        {
+          "id": "folder-a",
+          "kind": "folder",
+          "name": "Team knowledge",
+          "parent_id": null,
+          "mental_model_id": null,
+          "description": null,
+          "tags": [],
+          "trigger": null,
+          "children": [
+            {
+              "id": "page-a",
+              "kind": "page",
+              "name": "Release guide",
+              "mental_model_id": "model-a",
+              "parent_id": "folder-a",
+              "description": "Explain the release process",
+              "tags": ["atlas"],
+              "trigger": { "refresh_after_consolidation": true },
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "search_knowledge_base": {
+      "results": [
+        {
+          "id": "page-a",
+          "name": "Release guide",
+          "type": "knowledge-page",
+          "description": "Explain the release process"
+        }
+      ],
+      "total": 1
+    },
+    "get_knowledge_page": {
+      "id": "page-a",
+      "name": "Release guide",
+      "type": "knowledge-page",
+      "description": "Explain the release process",
+      "body": "## Release guide\nRun the checks.",
+      "markdown": "---\nname: Release guide\n---\n## Release guide\nRun the checks."
+    },
+    "list_directives": {
+      "items": [
+        {
+          "id": "directive-a",
+          "name": "Use evidence",
+          "content": "Always cite source facts.",
+          "priority": 10,
+          "is_active": true
+        }
+      ],
+      "total": 1,
+      "limit": 25,
+      "offset": 0
+    },
+    "get_directive": {
+      "id": "directive-a",
+      "name": "Use evidence",
+      "content": "Always cite source facts.",
+      "priority": 10,
+      "is_active": true,
+      "tags": []
+    },
+    "get_memories_timeseries": {
+      "period": "7d",
+      "time_field": "created_at",
+      "trunc": "day",
+      "buckets": [
+        {
+          "time": "2026-10-20T00:00:00Z",
+          "world": 12,
+          "experience": 3,
+          "observation": 2
+        }
+      ]
+    },
+    "list_audit_logs": {
+      "items": [
+        {
+          "id": "audit-a",
+          "action": "retain",
+          "created_at": "2026-10-20T10:00:00Z"
+        }
+      ],
+      "total": 1,
+      "limit": 25,
+      "offset": 0
+    },
+    "list_llm_requests": {
+      "items": [
+        {
+          "id": "llm-a",
+          "operation": "reflect",
+          "status": "completed",
+          "prompt": "Summarize Atlas",
+          "response": "Atlas is ready"
+        }
+      ],
+      "total": 1,
+      "limit": 25,
+      "offset": 0
+    },
+    "audit_log_stats": {
+      "total": 1,
+      "by_action": {
+        "retain": 1
+      }
+    },
+    "llm_request_stats": {
+      "total": 1,
+      "by_operation": {
+        "reflect": 1
+      }
+    }
+  }
+}

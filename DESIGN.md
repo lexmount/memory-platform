@@ -22,4 +22,4 @@ Use the light neutral palette, compact icon/text navigation, clear active states
 
 Validate both languages, project switching and cancellation, first-project concurrency, schema migration preservation, native transport isolation, production builds, and live browser behavior.
 
-Project selector width is fixed (250px desktop, 145px mobile). Truncated names expose the full name on hover. Each row reveals an ellipsis action on hover or keyboard focus (always visible for touch), offering Rename and Delete. Delete requires confirmation, revokes access and retains native data; deleting the last project does not trigger onboarding again.
+Project selector width is fixed (125px desktop and mobile). Truncated names expose the full name on hover. Each row reveals an ellipsis action on hover or keyboard focus (always visible for touch), offering Rename and Delete. Delete requires confirmation, revokes access and retains native data; deleting the last project does not trigger onboarding again.

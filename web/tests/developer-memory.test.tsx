@@ -331,8 +331,11 @@ it.each([
   expect(memory.invoke).toHaveBeenCalledTimes(1);
 });
 
-it("opens an application directly with persistent menus and exposes native navigation after selecting a user", async () => {
+it("opens a project from the directory and exposes native navigation after selecting a user", async () => {
   const memory = bridge(); await render("/memory", memory, modules);
+  await settle(() => Boolean(shadow.querySelector(".directory-project-link")));
+  expect(address).toBe("/memory");
+  await act(async()=>shadow.querySelector<HTMLButtonElement>(".directory-project-link")!.click());
   await settle(() => address.includes("/project?project=hindsight"));
   expect(shadow.querySelectorAll(".workspace-applications .workspace-options .project-select")).toHaveLength(2);
   expect(shadow.querySelector(".app-directory")).toBeNull();
@@ -371,11 +374,14 @@ it("remembers the selected application without retaining another user's workspac
   const memory = bridge(); await render("/memory/openviking/browse?project=openviking&userid=two",memory,modules);
   await settle(() => active?.user.user_id === "two");
   await act(async () => navigate("/memory"));
-  await settle(() => address === "/memory/openviking/project?project=openviking");
+  await settle(() => Boolean(shadow.querySelector(".project-directory")));
+  expect(address).toBe("/memory");
   expect(shadow.querySelector("[data-workspace]")).toBeNull();
 });
 it("opens creation with a persistent menu when there are no applications", async () => {
   const memory=bridge();memory.createProject=vi.fn(memory.createProject);memory.projects=vi.fn(async()=>[]);await render("/memory",memory,modules);
+  await settle(()=>Boolean(shadow.querySelector(".directory-toolbar button")));
+  await act(async()=>shadow.querySelector<HTMLButtonElement>(".directory-toolbar button")!.click());
   await settle(()=>Boolean(shadow.querySelector('input[aria-label="Project name"]')));
   expect(shadow.querySelector(".workspace-applications .workspace-add")).not.toBeNull();
   expect(shadow.querySelector(".sidebar .sidebar-app-list")).toBeNull();
@@ -395,10 +401,12 @@ it("switches projects directly without retaining the previous user's context", a
 });
 it("opens project creation directly from the project selector", async () => {
  const memory=bridge();memory.createProject=vi.fn(memory.createProject);memory.createWorkspace=vi.fn();
- await render('/memory',memory,modules);await settle(()=>address.includes('/project?project=hindsight'));
+ await render('/memory/hindsight/project?project=hindsight',memory,modules);await settle(()=>Boolean(shadow.querySelector('.workspace-add')));
  const switcher=shadow.querySelector<HTMLDetailsElement>('.workspace-picker')!;switcher.open=true;
  await act(async()=>switcher.querySelector<HTMLButtonElement>('.workspace-add')!.click());
- await settle(()=>address==='/memory?view=new');expect(switcher.open).toBe(false);
+ await settle(()=>address==='/memory');expect(switcher.open).toBe(false);
+ await act(async()=>shadow.querySelector<HTMLButtonElement>('.directory-toolbar button')!.click());
+ await settle(()=>address==='/memory?view=new');
  expect(shadow.querySelector('input[aria-label="Project name"]')).not.toBeNull();
  expect(memory.createWorkspace).not.toHaveBeenCalled();expect(memory.createProject).not.toHaveBeenCalled();
 });
@@ -425,5 +433,16 @@ it("requires confirmation before deleting a project and selects the remaining pr
  expect(memory.deleteProject).not.toHaveBeenCalled();
  await act(async()=>shadow.querySelector('.project-action-form')!.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
  expect(memory.deleteProject).toHaveBeenCalledWith('hindsight',expect.any(AbortSignal));
+ expect(address).toBe('/memory/openviking/project?project=openviking');
+});
+
+it("filters directory projects without entering their workspaces", async()=>{
+ const memory=bridge();await render('/memory',memory,modules);
+ await settle(()=>shadow.querySelectorAll('.directory-table tbody tr').length===2);
+ const input=shadow.querySelector<HTMLInputElement>('input[aria-label="Search project name or App ID"]')!;
+ await act(async()=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(input,'openviking');input.dispatchEvent(new Event('input',{bubbles:true}))});
+ expect(shadow.querySelectorAll('.directory-table tbody tr')).toHaveLength(1);
+ expect(address).toBe('/memory');expect(memory.resolveUser).not.toHaveBeenCalled();
+ await act(async()=>shadow.querySelector<HTMLButtonElement>('.directory-project-link')!.click());
  expect(address).toBe('/memory/openviking/project?project=openviking');
 });

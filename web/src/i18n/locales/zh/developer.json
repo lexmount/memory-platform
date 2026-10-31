@@ -668,5 +668,21 @@
     "rename": "重命名",
     "delete": "删除",
     "deleteConfirm": "确定删除项目「{{name}}」？项目将从列表移除，API 凭据立即失效。记忆引擎中的数据会保留。"
+  },
+  "directory": {
+    "title": "为你的 AI 项目接入持久记忆",
+    "description": "选择记忆引擎，通过 API 写入和检索记忆，让每个用户拥有独立的记忆空间。",
+    "myProjects": "我的项目",
+    "search": "搜索项目名称或 App ID",
+    "engine": "筛选记忆引擎",
+    "allEngines": "全部记忆引擎",
+    "status": "状态",
+    "open": "打开项目",
+    "hint": "每个项目独立管理接入凭据和用户记忆。点击项目进入工作台。",
+    "noMatches": "没有匹配的项目",
+    "trySearch": "尝试其他名称、App ID 或记忆引擎。",
+    "empty": "创建你的第一个项目",
+    "emptyHint": "选择记忆引擎，获取项目凭据，开始接入用户记忆。",
+    "back": "返回项目列表"
   }
 }

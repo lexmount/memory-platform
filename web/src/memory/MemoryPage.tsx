@@ -7,6 +7,7 @@ import { MemoryFrame } from "../MemoryFrame";
 import { Badge, Button, Input, Select } from "../ui/index";
 import { emptyMemoryBridge, memoryRequest, type MemoryBridge, type MemoryProject, type MemoryProviderModule, type MemoryWorkspaceContext, type MemoryUserPage } from "./contracts";
 import { memoryModuleRegistry, memoryProviderModules } from "./registry";
+import { ProjectDirectory } from "./ProjectDirectory";
 import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 import { NativeWriteNotices } from "./NativeWrites";
 import { memoryPath, memoryProjectSearch } from "./routes";
@@ -119,8 +120,8 @@ function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: 
     if (list.failed || providers.failed) return <Status failed retry={() => { list.retry(); providers.retry(); }} />;
     if (!list.value || !providers.value) return <Status />;
     if (!projectID) {
-      if(query.get("view")!=="new" && defaultProject) return <Navigate replace to={memoryPath(defaultProject.provider,"project",new URLSearchParams({project:defaultProject.id}).toString())}/>;
-      return <><p className="app-intro">{t("appFlow.intro")}</p><CreateProject bridge={bridge} providers={providers.value} onCreate={(p,secret)=>{list.retry();choose(p,"","access");setIssued({project:p.id,app_key:p.app_key,app_secret:secret})}}/></>;
+      if(query.get("view")!=="new") return <ProjectDirectory projects={list.value} onSelect={choose} onCreate={()=>navigate("/memory?view=new")}/>;
+      return <div className="project-create-page"><Link className="app-back" to="/memory">← {t("directory.back")}</Link><CreateProject bridge={bridge} providers={providers.value} onCreate={(p,secret)=>{list.retry();choose(p,"","access");setIssued({project:p.id,app_key:p.app_key,app_secret:secret})}}/></div>;
     }
     if (!project || !module || params.provider !== project.provider) return <Status failed retry={list.retry} />;
     if (pageID === "project") return <ApplicationOverview key={project.id} project={project} />;
@@ -133,7 +134,7 @@ function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: 
     if (!workspace.context) return <Status />;
     return <module.Workspace key={workspace.context.identity} context={workspace.context} page={page} formatTimeBucket={formatTimeBucket} />;
   };
-  return <><WorkspaceSwitcher bridge={bridge} onChanged={(deleted)=>{list.retry();if(deleted===projectID){setIssued(undefined);const next=visibleProjects.find(p=>p.id!==deleted);if(next)choose(next);else navigate("/memory?view=new")}}} applications={visibleProjects} currentApplication={(project??defaultProject)?.id} onSelectApplication={choose} onCreateApplication={()=>navigate('/memory?view=new')}/><MemoryFrame navigationContent={navigation}>
+  return <><WorkspaceSwitcher bridge={bridge} onChanged={(deleted)=>{list.retry();if(deleted===projectID){setIssued(undefined);const next=visibleProjects.find(p=>p.id!==deleted);if(next)choose(next);else navigate("/memory?view=new")}}} applications={visibleProjects} currentApplication={(project??defaultProject)?.id} onSelectApplication={choose} onCreateApplication={()=>navigate('/memory')}/><MemoryFrame navigationContent={projectID||accountPage?navigation:undefined}>
     <section className={`memory-page ${active && user ? "is-native-workspace" : ""}`} data-provider={project?.provider}>
       {workspace.context && <NativeWriteNotices workspace={workspace.context.identity} />}
       {content()}

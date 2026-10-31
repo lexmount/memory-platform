@@ -668,5 +668,21 @@
     "rename": "Rename",
     "delete": "Delete",
     "deleteConfirm": "Delete project “{{name}}”? It will be removed from the list and its API credentials revoked. Memory engine data will be retained."
+  },
+  "directory": {
+    "title": "Persistent memory for your AI projects",
+    "description": "Choose a memory engine and use the API to write and retrieve isolated memories for each user.",
+    "myProjects": "My projects",
+    "search": "Search project name or App ID",
+    "engine": "Filter by memory engine",
+    "allEngines": "All memory engines",
+    "status": "Status",
+    "open": "Open project",
+    "hint": "Each project manages its own credentials and user memories. Select a project to open its workspace.",
+    "noMatches": "No matching projects",
+    "trySearch": "Try another name, App ID, or memory engine.",
+    "empty": "Create your first project",
+    "emptyHint": "Choose an engine, get project credentials, and start connecting user memories.",
+    "back": "Back to projects"
   }
 }

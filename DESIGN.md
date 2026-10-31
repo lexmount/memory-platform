@@ -27,3 +27,5 @@ Project selector width is fixed (125px desktop and mobile). Truncated names expo
 Project settings navigation and page are removed; legacy app-settings URLs redirect to the project overview. Rename and delete remain in the project selector.
 
 Sidebar collapse control follows InsightFlow developer-frontend Shell: a 13×42px neutral pill centered vertically on the sidebar boundary, with 12px directional chevrons. The expanded/collapsed sidebar width controls its horizontal position. Mobile retains drawer navigation.
+
+The Memory home route now opens the project directory as a first-level entry. Projects appear in a searchable, engine-filterable table inside the shared white card / gray canvas style. Select a project to enter its existing sidebar workspace. Create project opens the creation form, which returns to the directory via its back link.

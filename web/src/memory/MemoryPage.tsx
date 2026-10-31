@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { ArrowRight, Brain, Info, KeyRound, LayoutGrid, LoaderCircle, Settings, Users } from "lucide-react";
+import { ArrowRight, Brain, Info, KeyRound, LayoutGrid, LoaderCircle, Users } from "lucide-react";
 import { AccountKeys } from "../AccountKeys";
 import { MemoryFrame } from "../MemoryFrame";
 import { Badge, Button, Input, Select } from "../ui/index";
@@ -113,7 +113,7 @@ function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: 
     {project && active && user && module && <><div className="memory-context app-user-context"><div className="nav-group-label">{t("appFlow.native")}</div><UserPicker key={project.id} bridge={bridge} project={project} user={user} onSelect={value=>{choose(project,value,pageID);close()}}/></div><div className="nav-group workspace-navigation">{module.navigation.map(({id,labelKey,icon:Icon})=><Link key={id} title={t(labelKey)} className={`nav-item ${pageID===id?"is-active":""}`} aria-current={pageID===id?"page":undefined} to={memoryPath(module.id,id,pageID===id?location.search:memoryProjectSearch(location.search))} onClick={close}><Icon size={18}/><span>{t(labelKey)}</span></Link>)}</div></>}
     <div className="sidebar-footer">
     {project && <><div className="nav-group">{[{id:"access",label:"access",icon:KeyRound},{id:"users",label:"users",icon:Users}].map(({id,label,icon:Icon})=><Link key={id} title={t(`appFlow.${label}`)} className={`nav-item ${pageID===id?"is-active":""}`} aria-current={pageID===id?"page":undefined} to={memoryPath(project.provider,id,new URLSearchParams({project:project.id}).toString())} onClick={close}><Icon size={18}/><span>{t(`appFlow.${label}`)}</span></Link>)}</div></>}
-    <div className="sidebar-account"><Link className={`nav-item ${accountPage?"is-active":""}`} title={t("appFlow.accountSettings")} aria-current={accountPage?"page":undefined} to="/account/keys" onClick={close}><Settings size={18}/><span>{t("appFlow.accountSettings")}</span></Link></div></div>
+    </div>
   </div>;
   const content = () => {
     if (accountPage) return <AccountKeys accountID={accountID} embedded />;

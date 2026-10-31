@@ -368,7 +368,7 @@ it("keeps navigation while creating an application and on account settings", asy
   await act(async () => navigate("/account/keys"));
   await settle(() => shadow.querySelectorAll(".workspace-applications .workspace-options .project-select").length === 2);
   expect(shadow.querySelectorAll(".memory-shell")).toHaveLength(1);
-  expect(shadow.querySelector('.sidebar a[aria-current="page"][href="/account/keys"]')).not.toBeNull();
+  expect(shadow.querySelector('.sidebar a[href="/account/keys"]')).toBeNull();
 });
 it("remembers the selected application without retaining another user's workspace", async () => {
   const memory = bridge(); await render("/memory/openviking/browse?project=openviking&userid=two",memory,modules);

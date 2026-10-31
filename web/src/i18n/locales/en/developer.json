@@ -684,5 +684,10 @@
     "empty": "Create your first project",
     "emptyHint": "Choose an engine, get project credentials, and start connecting user memories.",
     "back": "Back to projects"
+  },
+  "accountMenu": {
+    "open": "Account menu",
+    "language": "Language",
+    "logout": "Sign out"
   }
 }

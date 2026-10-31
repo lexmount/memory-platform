@@ -106,7 +106,7 @@ function MemoryHost({ bridge, formatTimeBucket, modules, accountID }: { bridge: 
     navigate(memoryPath(p.provider, nextPage, search.toString()));
   };
   const navigation = (close: () => void) => <div className="platform-navigation">
-    <div className="platform-nav-heading"><span>{t("sidebar.workspace")}</span></div>
+    
     {project && <><div className="nav-group-label sidebar-section-label">{t("nativeUI.application")}</div><div className="nav-group">{[{id:"project",label:"overview",icon:LayoutGrid},{id:"access",label:"access",icon:KeyRound},{id:"users",label:"users",icon:Users}].map(({id,label,icon:Icon})=><Link key={id} title={t(`appFlow.${label}`)} className={`nav-item ${pageID===id?"is-active":""}`} aria-current={pageID===id?"page":undefined} to={memoryPath(project.provider,id,new URLSearchParams({project:project.id}).toString())} onClick={close}><Icon size={18}/><span>{t(`appFlow.${label}`)}</span></Link>)}</div>
     {active && user && module && <><div className="memory-context app-user-context"><div className="nav-group-label">{t("appFlow.native")}</div><UserPicker key={project.id} bridge={bridge} project={project} user={user} onSelect={value=>{choose(project,value,pageID);close()}}/></div><div className="nav-group workspace-navigation">{module.navigation.map(({id,labelKey,icon:Icon})=><Link key={id} title={t(labelKey)} className={`nav-item ${pageID===id?"is-active":""}`} aria-current={pageID===id?"page":undefined} to={memoryPath(module.id,id,pageID===id?location.search:memoryProjectSearch(location.search))} onClick={close}><Icon size={18}/><span>{t(labelKey)}</span></Link>)}</div></>}
     </>}

@@ -451,7 +451,7 @@ func TestOpenVikingUserKeysRecoverAndPreserveSharedNativeRequests(t *testing.T) 
 			if key == "native-root" {
 				role = "root"
 			}
-			fmt.Fprintf(w, `{"healthy":true,"version":"0.5.0","auth_mode":%q,"account_id":%q,"user_id":%q,"role":%q}`, mode, who[0], who[1], role)
+			fmt.Fprintf(w, `{"healthy":true,"version":"v0.5.0","auth_mode":%q,"account_id":%q,"user_id":%q,"role":%q}`, mode, who[0], who[1], role)
 			return
 		}
 		if strings.HasPrefix(r.URL.Path, "/api/v1/admin/") {

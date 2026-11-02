@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/lexmount/memory-platform/internal/crypto"
 	native "github.com/lexmount/memory-platform/internal/native"
@@ -70,7 +71,7 @@ func (s *Service) provision(ctx context.Context, c *Connection, p *store.MemoryP
 	// The root credential is used exclusively by this provisioning path. It is
 	// never projected into a user request, including HTTP and native MCP.
 	status, obj, err := s.inspect(ctx, c, "GET", "/health", headers, nil)
-	if err != nil || status != 200 || nativehttp.String(obj, "version") != c.catalog.Version || nativehttp.String(obj, "auth_mode") != "api_key" {
+	if err != nil || status != 200 || strings.TrimPrefix(nativehttp.String(obj, "version"), "v") != c.catalog.Version || nativehttp.String(obj, "auth_mode") != "api_key" {
 		return ErrUnavailable
 	}
 	account := "/api/v1/admin/accounts/" + url.PathEscape(i.Mapping["account_id"])
@@ -124,7 +125,7 @@ func supportedHindsightVersion(version string) bool {
 
 func (s *Service) verifyOV(ctx context.Context, i *Identity) error {
 	status, obj, err := s.inspect(ctx, i.connection, "GET", "/health", s.headers(i), nil)
-	if err != nil || status != 200 || nativehttp.String(obj, "version") != i.connection.catalog.Version || nativehttp.String(obj, "auth_mode") != "api_key" || nativehttp.String(obj, "account_id") != i.Mapping["account_id"] || nativehttp.String(obj, "user_id") != i.Mapping["user_id"] || nativehttp.String(obj, "role") != "user" {
+	if err != nil || status != 200 || strings.TrimPrefix(nativehttp.String(obj, "version"), "v") != i.connection.catalog.Version || nativehttp.String(obj, "auth_mode") != "api_key" || nativehttp.String(obj, "account_id") != i.Mapping["account_id"] || nativehttp.String(obj, "user_id") != i.Mapping["user_id"] || nativehttp.String(obj, "role") != "user" {
 		return ErrUnavailable
 	}
 	return nil
